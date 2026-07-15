@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { communityPosts as seedPosts } from "@/data/posts";
 import { builds as seedBuilds } from "@/data/builds";
 import { timeAgo, cn } from "@/lib/utils";
@@ -25,7 +26,9 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 export default function CommunityPage() {
-  const { posts, user, togglePostLike } = useUserStore();
+  const { posts, user, togglePostLike, builds } = useUserStore(
+    useShallow((s) => ({ posts: s.posts, user: s.user, togglePostLike: s.togglePostLike, builds: s.builds })),
+  );
   const [sort, setSort] = useState<"top" | "newest">("top");
   const [category, setCategory] = useState<PostCategory | "all">("all");
   const [showNewPost, setShowNewPost] = useState(false);
@@ -97,7 +100,7 @@ export default function CommunityPage() {
       <div className="space-y-4">
         {allPosts.map((p) => {
           const attachedBuild = p.attachedBuildId
-            ? [...seedBuilds, ...useUserStore.getState().builds].find((b) => b.id === p.attachedBuildId)
+            ? [...seedBuilds, ...builds].find((b) => b.id === p.attachedBuildId)
             : null;
           return (
             <article

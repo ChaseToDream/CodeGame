@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { courses, getCourseBySlug } from "@/data/courses";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
 import { XPBadge } from "@/components/game/XPBadge";
 import { LevelProgressBar } from "@/components/game/LevelProgressBar";
@@ -17,11 +18,13 @@ export default function CourseDetailPage() {
   const router = useRouter();
   const courseSlug = params.courseSlug;
   const course = getCourseBySlug(courseSlug);
-  const { user, progress, ensureCourseInit } = useUserStore();
+  const { user, progress, ensureCourseInit } = useUserStore(
+    useShallow((s) => ({ user: s.user, progress: s.progress, ensureCourseInit: s.ensureCourseInit })),
+  );
   const [tab, setTab] = useState<Tab>("chapters");
 
-  // Init progress on first view
-  useMemo(() => {
+  // Init progress on first view（副作用应在 useEffect 中执行，而非 useMemo）
+  useEffect(() => {
     if (course) ensureCourseInit(course.slug);
   }, [course, ensureCourseInit]);
 

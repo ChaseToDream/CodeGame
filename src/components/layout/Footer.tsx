@@ -21,9 +21,9 @@ const FOOTER_LINKS: { title: string; links: { label: string; href: string }[] }[
   {
     title: "公司",
     links: [
-      { label: "关于我们", href: "/blog" },
+      { label: "关于我们", href: "/about" },
       { label: "学习者故事", href: "/blog" },
-      { label: "招聘", href: "/community" },
+      { label: "招聘", href: "/about" },
     ],
   },
   {

@@ -11,11 +11,13 @@ const ACCESSORIES = ["👓", "🕶️", "🎩", "🧢", "⭐", "🌙", "🔥", "
 
 export default function WorldsPage() {
   const user = useUserStore((s) => s.user);
-  const [skin, setSkin] = useState(SKIN_TONES[0]);
-  const [hair, setHair] = useState(HAIRSTYLES[0]);
-  const [outfit, setOutfit] = useState(OUTFITS[0]);
-  const [accessory, setAccessory] = useState(ACCESSORIES[0]);
+  const updateUser = useUserStore((s) => s.updateUser);
+  const [skin, setSkin] = useState(user.character?.skin ?? SKIN_TONES[0]);
+  const [hair, setHair] = useState(user.character?.hair ?? HAIRSTYLES[0]);
+  const [outfit, setOutfit] = useState(user.character?.outfit ?? OUTFITS[0]);
+  const [accessory, setAccessory] = useState(user.character?.accessory ?? ACCESSORIES[0]);
   const [name, setName] = useState(user.username);
+  const [saved, setSaved] = useState(false);
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10">
@@ -124,10 +126,14 @@ export default function WorldsPage() {
           </Section>
 
           <button
-            onClick={() => alert("✨ 角色已保存！（演示）")}
+            onClick={() => {
+              updateUser({ username: name, character: { skin, hair, outfit, accessory } });
+              setSaved(true);
+              setTimeout(() => setSaved(false), 2000);
+            }}
             className="w-full py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
           >
-            保存角色
+            {saved ? "✓ 已保存" : "保存角色"}
           </button>
         </div>
       </div>

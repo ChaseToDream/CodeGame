@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
 
 const AVATAR_PRESETS: { name: string; gradient: string }[] = [
@@ -19,7 +20,9 @@ const AVATAR_PRESETS: { name: string; gradient: string }[] = [
 const FLAGS = ["🏳️", "🇺🇸", "🇨🇳", "🇮🇳", "🇧🇷", "🇬🇧", "🇩🇪", "🇫🇷", "🇯🇵", "🇰🇷", "🇨🇦", "🇦🇺", "🇲🇽", "🇪🇸", "🇮🇹", "🇷🇺"];
 
 export default function SettingsPage() {
-  const { user, updateUser, resetLocalData } = useUserStore();
+  const { user, updateUser, resetLocalData } = useUserStore(
+    useShallow((s) => ({ user: s.user, updateUser: s.updateUser, resetLocalData: s.resetLocalData })),
+  );
 
   // 本地草稿：在 Save 时才提交到 store
   const [username, setUsername] = useState(user.username);
@@ -180,10 +183,10 @@ export default function SettingsPage() {
         <div className="space-y-6">
           <section className="rounded-xl border border-rule bg-bg2 p-5 space-y-4">
             <h2 className="font-outfit text-lg font-bold">偏好设置</h2>
-            <Toggle label="获得新徽章时通知" defaultOn />
-            <Toggle label="有人回复我的帖子时通知" defaultOn />
-            <Toggle label="每周连续学习摘要" defaultOn={false} />
-            <Toggle label="产品更新与新闻" defaultOn />
+            <Toggle label="获得新徽章时通知" defaultOn storageKey="notif-badge" />
+            <Toggle label="有人回复我的帖子时通知" defaultOn storageKey="notif-reply" />
+            <Toggle label="每周连续学习摘要" defaultOn={false} storageKey="notif-streak" />
+            <Toggle label="产品更新与新闻" defaultOn storageKey="notif-news" />
           </section>
         </div>
       )}
@@ -207,14 +210,27 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Toggle({ label, defaultOn }: { label: string; defaultOn: boolean }) {
-  const [on, setOn] = useState(defaultOn);
+function Toggle({ label, defaultOn, storageKey }: { label: string; defaultOn: boolean; storageKey?: string }) {
+  const [on, setOn] = useState(() => {
+    if (storageKey && typeof window !== "undefined") {
+      const saved = localStorage.getItem(storageKey);
+      if (saved !== null) return saved === "true";
+    }
+    return defaultOn;
+  });
+  const toggle = () => {
+    const next = !on;
+    setOn(next);
+    if (storageKey && typeof window !== "undefined") {
+      localStorage.setItem(storageKey, String(next));
+    }
+  };
   return (
     <label className="flex items-center justify-between cursor-pointer">
       <span className="text-sm text-ink">{label}</span>
       <button
         type="button"
-        onClick={() => setOn((v) => !v)}
+        onClick={toggle}
         className={cn(
           "relative h-6 w-11 rounded-full transition-colors",
           on ? "bg-accent" : "bg-bg3 border border-rule",

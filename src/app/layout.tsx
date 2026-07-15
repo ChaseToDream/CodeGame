@@ -4,15 +4,13 @@ import "./globals.css";
 import { Shell } from "@/components/layout/Shell";
 import { StoreHydration } from "@/components/layout/StoreHydration";
 
+// 合并 Outfit Regular + Bold 为单个声明，减少字体请求数
 const outfit = localFont({
-  src: "../../public/fonts/Outfit-Regular.ttf",
+  src: [
+    { path: "../../public/fonts/Outfit-Regular.ttf", weight: "400" },
+    { path: "../../public/fonts/Outfit-Bold.ttf", weight: "700" },
+  ],
   variable: "--font-outfit",
-  display: "swap",
-});
-const outfitBold = localFont({
-  src: "../../public/fonts/Outfit-Bold.ttf",
-  variable: "--font-outfit-bold",
-  weight: "700",
   display: "swap",
 });
 const work = localFont({
@@ -25,11 +23,13 @@ const mono = localFont({
   variable: "--font-mono",
   display: "swap",
 });
+// 装饰字体，不预加载以减少首屏资源
 const pixel = localFont({
   src: "../../public/fonts/PixelifySans-Medium.ttf",
   variable: "--font-pixel",
   weight: "500",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -52,7 +52,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
-      className={`${outfit.variable} ${outfitBold.variable} ${work.variable} ${mono.variable} ${pixel.variable}`}
+      className={`${outfit.variable} ${work.variable} ${mono.variable} ${pixel.variable}`}
     >
       <body className="relative">
         <StoreHydration />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { builds as seedBuilds } from "@/data/builds";
 import type { PostCategory } from "@/types";
 import { cn } from "@/lib/utils";
@@ -20,14 +21,17 @@ interface NewPostModalProps {
 
 export function NewPostModal({ onClose }: NewPostModalProps) {
   const router = useRouter();
-  const { createPost, builds } = useUserStore();
+  const { createPost, builds, user } = useUserStore(
+    useShallow((s) => ({ createPost: s.createPost, builds: s.builds, user: s.user })),
+  );
   const [category, setCategory] = useState<PostCategory>("general");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [attachedBuildId, setAttachedBuildId] = useState<string>("");
   const [err, setErr] = useState("");
 
-  const myBuilds = [...builds, ...seedBuilds].filter((b) => b.isPublished);
+  // 仅显示当前用户自己的已发布作品
+  const myBuilds = [...builds, ...seedBuilds].filter((b) => b.isPublished && b.userId === user.id);
 
   const submit = () => {
     setErr("");

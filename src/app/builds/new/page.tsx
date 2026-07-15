@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import type { BuildFile } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +47,9 @@ const LANG_ICON: Record<string, string> = { html: "📄", css: "🎨", js: "⚡"
 const MONACO_LANG: Record<string, string> = { html: "html", css: "css", js: "javascript" };
 
 export default function BuildsEditorPage() {
-  const { createBuild, updateBuild, publishBuild, builds } = useUserStore();
+  const { createBuild, updateBuild, publishBuild, builds } = useUserStore(
+    useShallow((s) => ({ createBuild: s.createBuild, updateBuild: s.updateBuild, publishBuild: s.publishBuild, builds: s.builds })),
+  );
   const [files, setFiles] = useState<BuildFile[]>(TEMPLATES[0].files);
   const [activeIdx, setActiveIdx] = useState(0);
   const [title, setTitle] = useState("我的精彩作品");
@@ -60,6 +63,12 @@ export default function BuildsEditorPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeFile = files[activeIdx];
+
+  // 同步最新 files/title 到 ref，供防抖回调读取，避免闭包旧值
+  const filesRef = useRef(files);
+  const titleRef = useRef(title);
+  useEffect(() => { filesRef.current = files; }, [files]);
+  useEffect(() => { titleRef.current = title; }, [title]);
 
   // combine files into preview doc
   const previewDoc = useMemo(() => {
@@ -85,7 +94,7 @@ export default function BuildsEditorPage() {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       if (currentBuildId) {
-        updateBuild(currentBuildId, { files, title });
+        updateBuild(currentBuildId, { files: filesRef.current, title: titleRef.current });
       }
       setSaveStatus("saved");
     }, 1500);

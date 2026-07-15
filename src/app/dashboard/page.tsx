@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { courses } from "@/data/courses";
 import { badges as allBadges } from "@/data/badges";
 import { XPBadge } from "@/components/game/XPBadge";
@@ -12,7 +13,9 @@ import { BadgeGrid } from "@/components/game/BadgeGrid";
 import { levelFromXp, formatNumber } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const { user, progress, builds, posts, ensureCourseInit } = useUserStore();
+  const { user, progress, builds, posts, ensureCourseInit } = useUserStore(
+    useShallow((s) => ({ user: s.user, progress: s.progress, builds: s.builds, posts: s.posts, ensureCourseInit: s.ensureCourseInit })),
+  );
 
   useEffect(() => {
     ensureCourseInit("python");

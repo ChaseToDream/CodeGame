@@ -156,6 +156,13 @@ export interface User {
   createdAt: string;
   countryFlag: string;
   role: "member" | "staff";
+  /** 世界模式自定义角色外观 */
+  character?: {
+    skin: string;
+    hair: string;
+    outfit: string;
+    accessory: string;
+  };
 }
 
 export interface ProgressState {

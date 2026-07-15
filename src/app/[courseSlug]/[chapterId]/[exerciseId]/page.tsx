@@ -3,15 +3,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { findExercise, courses } from "@/data/courses";
 import { useUserStore } from "@/stores/user-store";
-import { runCode, checkTests, type RunResult, type CheckResult } from "@/lib/code-runner";
-import { CodeEditor } from "@/components/editor/CodeEditor";
-import { LumiPanel } from "@/components/lumi/LumiPanel";
-import { XPCelebration } from "@/components/game/XPCelebration";
+import { useShallow } from "zustand/react/shallow";
+import { runCode, checkTests, preloadPyodide, type RunResult, type CheckResult } from "@/lib/code-runner";
 import { cn } from "@/lib/utils";
+
+// 懒加载 CodeEditor（含 Monaco），避免首屏加载 ~2MB 编辑器资源
+const CodeEditor = dynamic(() => import("@/components/editor/CodeEditor").then((m) => m.CodeEditor), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center h-full text-muted text-sm">编辑器加载中...</div>,
+});
+// 懒加载 LumiPanel（含 framer-motion）和 XPCelebration（含 canvas-confetti），按需加载
+const LumiPanel = dynamic(() => import("@/components/lumi/LumiPanel").then((m) => m.LumiPanel), { ssr: false });
+const XPCelebration = dynamic(() => import("@/components/game/XPCelebration").then((m) => m.XPCelebration), { ssr: false });
 
 export default function ExercisePage() {
   const params = useParams<{ courseSlug: string; chapterId: string; exerciseId: string }>();
@@ -29,7 +37,15 @@ export default function ExercisePage() {
     saveCodeSnapshot,
     completeExercise,
     setExerciseStatus,
-  } = useUserStore();
+  } = useUserStore(
+    useShallow((s) => ({
+      progress: s.progress,
+      ensureCourseInit: s.ensureCourseInit,
+      saveCodeSnapshot: s.saveCodeSnapshot,
+      completeExercise: s.completeExercise,
+      setExerciseStatus: s.setExerciseStatus,
+    })),
+  );
 
   const [code, setCode] = useState("");
   const [runResult, setRunResult] = useState<RunResult | null>(null);
@@ -53,6 +69,11 @@ export default function ExercisePage() {
     alreadyCompleted.current = progress.statuses[exerciseId] === "completed";
     setRunResult(null);
     setCheckResult(null);
+    // Python 练习：空闲时预加载 Pyodide，避免首次运行等待 ~10MB 下载
+    if (found.exercise.language === "python") {
+      const idle = (window as any).requestIdleCallback || ((cb: () => void) => setTimeout(cb, 200));
+      idle(() => preloadPyodide());
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exerciseId, courseSlug]);
 

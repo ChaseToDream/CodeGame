@@ -62,6 +62,51 @@ function awardXp(user: User, amount: number): User {
   return { ...user, xpTotal, level: Math.max(user.level, level) };
 }
 
+/** 本地日期键（YYYY-MM-DD），避免时区与格式不一致问题 */
+function dayKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/**
+ * 计算新的连续学习天数：
+ * - 今天已记录过 → 保持不变
+ * - 昨天有记录 → +1
+ * - 否则 → 重置为 1
+ */
+function computeStreak(prevStreak: number, lastActiveIso: string, now: Date): number {
+  const today = dayKey(now);
+  const lastDay = dayKey(new Date(lastActiveIso));
+  if (lastDay === today) return prevStreak; // 今天已记录
+  const yesterday = dayKey(new Date(now.getTime() - 86400000));
+  return lastDay === yesterday ? prevStreak + 1 : 1;
+}
+
+/**
+ * 预计算每个练习的"下一个练习 id"映射表，模块加载时一次性构建 O(n)。
+ * 避免每次 completeExercise 都遍历所有课程 O(n²)。
+ * 仅在同一课程内链接，不跨课程解锁。
+ */
+const nextExerciseMap: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  for (const course of courses) {
+    for (let chIdx = 0; chIdx < course.chapters.length; chIdx++) {
+      const ch = course.chapters[chIdx];
+      for (let i = 0; i < ch.exercises.length; i++) {
+        const ex = ch.exercises[i];
+        if (i + 1 < ch.exercises.length) {
+          // 同章节下一个练习
+          map[ex.id] = ch.exercises[i + 1].id;
+        } else if (chIdx + 1 < course.chapters.length) {
+          // 下一章节第一个练习
+          const nextCh = course.chapters[chIdx + 1];
+          if (nextCh.exercises[0]) map[ex.id] = nextCh.exercises[0].id;
+        }
+      }
+    }
+  }
+  return map;
+})();
+
 export const useUserStore = create<UserStoreState>()(
   persist(
     (set, get) => ({
@@ -109,41 +154,25 @@ export const useUserStore = create<UserStoreState>()(
       completeExercise: (exerciseId, xp) => {
         const state = get();
         const prevStatus = state.progress.statuses[exerciseId];
-        // unlock next
+        // unlock next（O(1) 查表，替代原来遍历所有课程 O(n²)）
         const newStatuses = { ...state.progress.statuses, [exerciseId]: "completed" as const };
-        // find next exercise across all courses
-        for (const course of courses) {
-          for (const ch of course.chapters) {
-            const idx = ch.exercises.findIndex((e) => e.id === exerciseId);
-            if (idx === -1) continue;
-            if (idx + 1 < ch.exercises.length) {
-              const nextId = ch.exercises[idx + 1].id;
-              if (newStatuses[nextId] !== "completed") newStatuses[nextId] = "unlocked";
-            } else {
-              // next chapter's first exercise
-              const chIdx = course.chapters.findIndex((c) => c.id === ch.id);
-              if (chIdx + 1 < course.chapters.length) {
-                const nextEx = course.chapters[chIdx + 1].exercises[0];
-                if (nextEx && newStatuses[nextEx.id] !== "completed") newStatuses[nextEx.id] = "unlocked";
-              }
-            }
-          }
+        const nextId = nextExerciseMap[exerciseId];
+        if (nextId && newStatuses[nextId] !== "completed") {
+          newStatuses[nextId] = "unlocked";
         }
         const onlyAwardIfFirst = prevStatus !== "completed";
+        const now = new Date();
         const updatedUser = onlyAwardIfFirst ? awardXp(state.user, xp) : state.user;
+        // 单次 set 合并 XP、streak、lastActiveDate，避免多次 set 互相覆盖
+        const newStreak = computeStreak(state.user.streakDays, state.user.lastActiveDate, now);
         set({
-          user: { ...updatedUser, lastActiveDate: new Date().toISOString() },
+          user: {
+            ...updatedUser,
+            lastActiveDate: now.toISOString(),
+            streakDays: newStreak,
+          },
           progress: { ...state.progress, statuses: newStatuses },
         });
-        // auto-award streak bump
-        const today = new Date().toDateString();
-        if (state.user.lastActiveDate !== today) {
-          // simple streak: if last active was yesterday, +1, else reset to 1
-          const last = new Date(state.user.lastActiveDate);
-          const diffDays = Math.floor((Date.now() - last.getTime()) / 86400000);
-          const newStreak = diffDays === 1 ? state.user.streakDays + 1 : 1;
-          set({ user: { ...get().user, streakDays: newStreak } });
-        }
       },
 
       createBuild: (title, files) => {

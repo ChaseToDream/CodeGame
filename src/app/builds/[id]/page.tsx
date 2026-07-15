@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { builds as seedBuilds } from "@/data/builds";
 import { timeAgo, formatNumber, cn } from "@/lib/utils";
 
@@ -19,7 +20,7 @@ const LANG_ICON: Record<string, string> = { html: "📄", css: "🎨", js: "⚡"
 export default function BuildDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { builds, forkBuild } = useUserStore();
+  const { builds, forkBuild } = useUserStore(useShallow((s) => ({ builds: s.builds, forkBuild: s.forkBuild })));
   const [activeFile, setActiveFile] = useState(0);
   const [view, setView] = useState<"preview" | "code">("preview");
 

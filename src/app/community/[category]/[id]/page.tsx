@@ -3,7 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { communityPosts as seedPosts } from "@/data/posts";
 import { builds as seedBuilds } from "@/data/builds";
 import { timeAgo, cn } from "@/lib/utils";
@@ -17,7 +20,9 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export default function PostDetailPage() {
   const params = useParams<{ category: string; id: string }>();
-  const { posts, togglePostLike, addComment, user } = useUserStore();
+  const { posts, togglePostLike, addComment, user } = useUserStore(
+    useShallow((s) => ({ posts: s.posts, togglePostLike: s.togglePostLike, addComment: s.addComment, user: s.user })),
+  );
   const [comment, setComment] = useState("");
 
   const post = useMemo(
@@ -74,9 +79,7 @@ export default function PostDetailPage() {
 
         <h1 className="font-outfit text-2xl font-bold mb-3">{post.title}</h1>
         <div className="prose-cdx text-sm">
-          {post.content.split("\n").map((line, i) => (
-            <p key={i} className={line.trim() ? "" : "h-2"}>{line}</p>
-          ))}
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
         </div>
 
         {attachedBuild && (

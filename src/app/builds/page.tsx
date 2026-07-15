@@ -7,21 +7,24 @@ import { builds as seedBuilds } from "@/data/builds";
 import { formatNumber, timeAgo } from "@/lib/utils";
 
 export default function BuildsGalleryPage() {
-  const { builds } = useUserStore();
+  const builds = useUserStore((s) => s.builds);
+  const user = useUserStore((s) => s.user);
   const [sort, setSort] = useState<"top" | "newest">("top");
   const [showOnlyMine, setShowOnlyMine] = useState(false);
 
   const allBuilds = useMemo(() => {
     let list = [...builds, ...seedBuilds.filter((b) => !builds.find((x) => x.id === b.id))];
-    list = list.filter((b) => b.isPublished || showOnlyMine);
     if (showOnlyMine) {
-      // 当前用户的所有 build（含未发布）
-      // simplified: just show all from store
+      // 仅显示当前用户的作品（含未发布草稿）
+      list = list.filter((b) => b.userId === user.id);
+    } else {
+      // 仅显示已发布的作品
+      list = list.filter((b) => b.isPublished);
     }
     if (sort === "top") list.sort((a, b) => b.likeCount - a.likeCount);
     else list.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
     return list;
-  }, [builds, sort, showOnlyMine]);
+  }, [builds, user.id, sort, showOnlyMine]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">

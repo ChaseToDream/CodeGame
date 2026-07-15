@@ -44,7 +44,7 @@ const STORIES = [
 const SUPPORTERS = ["GitHub", "Microsoft", "Vercel", "OpenAI", "Anthropic"];
 
 export default function HomePage() {
-  const featured = FEATURED_SLUGS.map((s) => courses.find((c) => c.slug === s)!).filter(Boolean);
+  const featured = FEATURED_SLUGS.map((s) => courses.find((c) => c.slug === s)).filter((c): c is NonNullable<typeof c> => !!c);
   const topBuilds = builds.slice(0, 3);
 
   return (

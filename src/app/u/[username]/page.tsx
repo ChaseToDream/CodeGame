@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { courses } from "@/data/courses";
 import { badges as allBadges } from "@/data/badges";
 import { XPBadge } from "@/components/game/XPBadge";
@@ -15,7 +16,9 @@ export default function UserProfilePage() {
   const params = useParams<{ username: string }>();
   const username = decodeURIComponent(params?.username ?? "");
 
-  const { user, progress, builds, posts } = useUserStore();
+  const { user, progress, builds, posts } = useUserStore(
+    useShallow((s) => ({ user: s.user, progress: s.progress, builds: s.builds, posts: s.posts })),
+  );
 
   // 当前只有一个本地用户；如果路径上的 username 与当前用户一致，展示数据；否则给出 not-found
   const isOwner = user.username === username;
