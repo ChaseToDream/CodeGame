@@ -1,0 +1,306 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { findExercise, courses } from "@/data/courses";
+import { useUserStore } from "@/stores/user-store";
+import { runCode, checkTests, type RunResult, type CheckResult } from "@/lib/code-runner";
+import { CodeEditor } from "@/components/editor/CodeEditor";
+import { LumiPanel } from "@/components/lumi/LumiPanel";
+import { XPCelebration } from "@/components/game/XPCelebration";
+import { cn } from "@/lib/utils";
+
+export default function ExercisePage() {
+  const params = useParams<{ courseSlug: string; chapterId: string; exerciseId: string }>();
+  const router = useRouter();
+  const { courseSlug, chapterId, exerciseId } = params;
+
+  const found = useMemo(
+    () => findExercise(courseSlug, chapterId, exerciseId),
+    [courseSlug, chapterId, exerciseId],
+  );
+
+  const {
+    user,
+    isAuthed,
+    progress,
+    ensureCourseInit,
+    saveCodeSnapshot,
+    completeExercise,
+    setExerciseStatus,
+  } = useUserStore();
+
+  const [code, setCode] = useState("");
+  const [runResult, setRunResult] = useState<RunResult | null>(null);
+  const [checkResult, setCheckResult] = useState<CheckResult | null>(null);
+  const [running, setRunning] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [lumiOpen, setLumiOpen] = useState(false);
+  const [showXp, setShowXp] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"lesson" | "code">("lesson");
+
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const alreadyCompleted = useRef(false);
+
+  // 初始化课程进度并加载代码
+  useEffect(() => {
+    if (!found) return;
+    ensureCourseInit(courseSlug);
+    const saved = progress.codeSnapshots[exerciseId];
+    setCode(saved ?? found.exercise.starterCode);
+    alreadyCompleted.current = progress.statuses[exerciseId] === "completed";
+    setRunResult(null);
+    setCheckResult(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exerciseId, courseSlug]);
+
+  // 自动保存（防抖 3s）
+  const scheduleSave = useCallback(
+    (newCode: string) => {
+      if (!isAuthed) return;
+      setSaveStatus("saving");
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => {
+        saveCodeSnapshot(exerciseId, newCode);
+        setSaveStatus("saved");
+      }, 1500);
+    },
+    [exerciseId, isAuthed, saveCodeSnapshot],
+  );
+
+  const handleChange = (newCode: string) => {
+    setCode(newCode);
+    if (isAuthed) {
+      setExerciseStatus(exerciseId, "in_progress");
+      scheduleSave(newCode);
+    }
+  };
+
+  const handleRun = async () => {
+    setRunning(true);
+    setCheckResult(null);
+    const result = await runCode(code, found!.exercise.language);
+    setRunResult(result);
+    setRunning(false);
+  };
+
+  const handleCheck = async () => {
+    setChecking(true);
+    const result = await runCode(code, found!.exercise.language);
+    setRunResult(result);
+    const check = checkTests(code, found!.exercise.language, found!.exercise.testCases, result.stdout);
+    setCheckResult(check);
+    setChecking(false);
+    if (check.passed) {
+      // 首次完成才奖励 XP
+      if (!alreadyCompleted.current) {
+        alreadyCompleted.current = true;
+        completeExercise(exerciseId, found!.exercise.xpReward);
+        setShowXp(true);
+      }
+    }
+  };
+
+  const handleReset = () => {
+    setCode(found!.exercise.starterCode);
+    setRunResult(null);
+    setCheckResult(null);
+    if (isAuthed) scheduleSave(found!.exercise.starterCode);
+  };
+
+  if (!found) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-20 text-center">
+        <div className="text-5xl mb-4">🧭</div>
+        <h1 className="font-outfit text-2xl font-bold mb-2">Exercise not found</h1>
+        <Link href="/courses" className="text-accent hover:text-accent2">← Back to courses</Link>
+      </div>
+    );
+  }
+
+  const { course, chapter, exercise } = found;
+
+  // 扁平化所有练习，找 prev/next
+  const flatExercises = course.chapters.flatMap((c) =>
+    c.exercises.map((e) => ({ ex: e, ch: c })),
+  );
+  const currentIdx = flatExercises.findIndex((x) => x.ex.id === exercise.id);
+  const prev = currentIdx > 0 ? flatExercises[currentIdx - 1] : null;
+  const next = currentIdx < flatExercises.length - 1 ? flatExercises[currentIdx + 1] : null;
+
+  const completedCount = flatExercises.filter(
+    (x) => progress.statuses[x.ex.id] === "completed",
+  ).length;
+  const pct = Math.round((completedCount / flatExercises.length) * 100);
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
+      {/* Top bar */}
+      <div className="border-b border-rule bg-bg2/80 backdrop-blur px-3 sm:px-4 py-2.5 flex items-center gap-2 sm:gap-4">
+        <Link href={`/${course.slug}`} className="flex items-center gap-2 hover:text-accent transition shrink-0">
+          <span className="text-xl">{course.icon}</span>
+          <span className="hidden sm:inline text-sm font-medium text-ink">{course.title}</span>
+        </Link>
+        <div className="hidden md:flex items-center gap-2 text-xs text-muted">
+          <span>{chapter.title}</span>
+          <span>›</span>
+          <span className="text-ink">{exercise.title}</span>
+        </div>
+
+        {/* Progress */}
+        <div className="hidden lg:flex items-center gap-2 flex-1 max-w-xs">
+          <div className="flex-1 h-1.5 rounded-full bg-bg3 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-accent to-accent2 transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="text-[11px] text-muted">{pct}%</span>
+        </div>
+
+        {/* Prev / Next */}
+        <div className="ml-auto flex items-center gap-1.5">
+          {prev ? (
+            <button
+              onClick={() => router.push(`/${course.slug}/${prev.ch.id}/${prev.ex.id}`)}
+              className="px-2.5 py-1.5 rounded text-xs border border-rule text-muted hover:text-ink hover:border-accent transition"
+              title={prev.ex.title}
+            >
+              ← <span className="hidden sm:inline">Prev</span>
+            </button>
+          ) : (
+            <span className="px-2.5 py-1.5 text-xs text-muted/40">← <span className="hidden sm:inline">Prev</span></span>
+          )}
+          {next ? (
+            <button
+              onClick={() => router.push(`/${course.slug}/${next.ch.id}/${next.ex.id}`)}
+              className={cn(
+                "px-2.5 py-1.5 rounded text-xs font-semibold border transition",
+                checkResult?.passed
+                  ? "bg-accent text-white border-accent hover:shadow-glow"
+                  : "border-rule text-muted hover:text-ink hover:border-accent",
+              )}
+              title={next.ex.title}
+            >
+              <span className="hidden sm:inline">Next</span> →
+            </button>
+          ) : (
+            <Link
+              href={`/${course.slug}`}
+              className="px-2.5 py-1.5 rounded text-xs font-semibold border border-success text-success hover:bg-success hover:text-bg transition"
+            >
+              Done ✓
+            </Link>
+          )}
+          <button
+            onClick={() => setLumiOpen(true)}
+            className="px-3 py-1.5 rounded text-xs font-semibold bg-gradient-to-r from-accent to-accent2 text-white hover:shadow-glow transition flex items-center gap-1.5"
+          >
+            🤖 <span className="hidden sm:inline">Ask Lumi</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile tab switcher */}
+      <div className="md:hidden flex border-b border-rule bg-bg2">
+        <button
+          onClick={() => setMobileTab("lesson")}
+          className={cn(
+            "flex-1 py-2 text-xs font-medium border-b-2",
+            mobileTab === "lesson" ? "border-accent text-accent" : "border-transparent text-muted",
+          )}
+        >
+          📖 Lesson
+        </button>
+        <button
+          onClick={() => setMobileTab("code")}
+          className={cn(
+            "flex-1 py-2 text-xs font-medium border-b-2",
+            mobileTab === "code" ? "border-accent text-accent" : "border-transparent text-muted",
+          )}
+        >
+          💻 Code
+        </button>
+      </div>
+
+      {/* Main split */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        {/* Lesson */}
+        <div
+          className={cn(
+            "md:w-1/2 overflow-auto p-5 sm:p-6 bg-bg",
+            mobileTab === "lesson" ? "block" : "hidden md:block",
+          )}
+        >
+          <div className="max-w-2xl mx-auto">
+            <div className="mb-4 flex items-center gap-2 text-xs text-muted">
+              <span className="px-2 py-0.5 rounded bg-bg3">{course.title}</span>
+              <span>·</span>
+              <span>{chapter.title}</span>
+            </div>
+            <div className="prose-cdx">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{exercise.contentMd}</ReactMarkdown>
+            </div>
+            <div className="mt-8 p-4 rounded-lg border border-accent/30 bg-accent/5 text-sm">
+              <div className="font-bold text-accent mb-1">🎯 Your mission</div>
+              <p className="text-muted">
+                Complete the exercise in the editor on the right. Click <strong className="text-success">Check</strong> to verify your solution and earn <strong className="text-accent2">+{exercise.xpReward} XP</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider (desktop) */}
+        <div className="hidden md:block w-px bg-rule cursor-col-resize hover:bg-accent transition" />
+
+        {/* Editor */}
+        <div
+          className={cn(
+            "md:w-1/2 flex flex-col bg-codebg",
+            mobileTab === "code" ? "block" : "hidden md:flex",
+          )}
+        >
+          <CodeEditor
+            language={exercise.language}
+            initialCode={exercise.starterCode}
+            value={code}
+            onChange={handleChange}
+            onRun={handleRun}
+            onCheck={handleCheck}
+            onReset={handleReset}
+            runResult={runResult}
+            checkResult={checkResult}
+            running={running}
+            checking={checking}
+            saveStatus={saveStatus}
+          />
+        </div>
+      </div>
+
+      {/* Bottom info */}
+      <div className="border-t border-rule bg-bg2 px-4 py-2 text-[11px] text-muted flex items-center justify-between">
+        <span>{chapter.title}</span>
+        <span>Exercise {currentIdx + 1} of {flatExercises.length}</span>
+      </div>
+
+      {/* Lumi */}
+      <LumiPanel
+        open={lumiOpen}
+        onClose={() => setLumiOpen(false)}
+        exercise={exercise}
+        userCode={code}
+      />
+
+      {/* XP celebration */}
+      <XPCelebration
+        xp={exercise.xpReward}
+        trigger={showXp}
+        onComplete={() => setShowXp(false)}
+      />
+    </div>
+  );
+}
