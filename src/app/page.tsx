@@ -6,10 +6,10 @@ import { CourseCard } from "@/components/course/CourseCard";
 import { formatNumber } from "@/lib/utils";
 
 const STATS = [
-  { num: "1.75M+", label: "Learners", emoji: "👥" },
-  { num: "150+", label: "Countries", emoji: "🌍" },
-  { num: "5M+", label: "Exercises", emoji: "🎯" },
-  { num: "10K+", label: "Builds", emoji: "🏗️" },
+  { num: "1.75M+", label: "学习者", emoji: "👥" },
+  { num: "150+", label: "国家", emoji: "🌍" },
+  { num: "5M+", label: "练习", emoji: "🎯" },
+  { num: "10K+", label: "作品", emoji: "🏗️" },
 ];
 
 const FEATURED_SLUGS = ["python", "html", "css", "javascript", "sql", "github-copilot"];
@@ -18,26 +18,26 @@ const STORIES = [
   {
     name: "Marco Silva",
     flag: "🇵🇹",
-    role: "Junior Frontend Dev",
+    role: "初级前端开发者",
     avatar: "linear-gradient(135deg, #4ECDC4, #2D2D52)",
     excerpt:
-      "From barista to developer in 6 months. The streak system kept me showing up every single night.",
+      "6 个月内从咖啡师转行为开发者。连续学习系统让我每天晚上都坚持打卡。",
   },
   {
     name: "Aria Patel",
     flag: "🇮🇳",
-    role: "CS Student",
+    role: "计算机科学学生",
     avatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
     excerpt:
-      "I tried 3 other platforms. Codédex is the only one that didn't make me feel stupid. Lumi is a lifesaver.",
+      "我试过其他 3 个平台。Codédex 是唯一一个不让我觉得自己笨的平台。Lumi 真是救星。",
   },
   {
     name: "Kenji Tanaka",
     flag: "🇯🇵",
-    role: "14yo Builder",
+    role: "14 岁创作者",
     avatar: "linear-gradient(135deg, #7C5CFC, #4ECDC4)",
     excerpt:
-      "I built my first game with what I learned here. My friends can't believe a 14-year-old made it.",
+      "我用在这里学到的知识做出了我的第一个游戏。我的朋友们都不敢相信这是 14 岁的人做的。",
   },
 ];
 
@@ -64,33 +64,33 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full border border-accent/40 bg-accent/10 text-xs text-accent2 font-pixel">
             <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            1.75M+ learners and counting
+            1.75M+ 学习者，且持续增长中
           </div>
           <h1 className="font-outfit text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
-            The most <span className="gradient-text">fun</span> and{" "}
-            <span className="gradient-text-cyan">beginner-friendly</span>
-            <br className="hidden sm:block" /> way to learn to code
+            最<span className="gradient-text">有趣</span>且
+            <span className="gradient-text-cyan">入门友好</span>
+            <br className="hidden sm:block" />的学编程方式
           </h1>
           <p className="mt-6 text-lg text-muted max-w-2xl mx-auto">
-            Level up with interactive lessons, a browser code editor, XP and badges, a friendly community,
-            and an AI buddy named Lumi. Zero setup. Zero boredom.
+            通过互动课程、浏览器代码编辑器、XP 和徽章、友好的社区，
+            以及名为 Lumi 的 AI 小伙伴来提升等级。零配置。零枯燥。
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/signup"
               className="px-7 py-3.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold text-base hover:shadow-glow transition-all hover:scale-105"
             >
-              Get started — it's free
+              立即开始 — 完全免费
             </Link>
             <Link
               href="/courses"
               className="px-7 py-3.5 rounded-lg border border-rule bg-bg2/60 text-ink font-semibold text-base hover:border-accent transition"
             >
-              Explore courses
+              探索课程
             </Link>
           </div>
           <div className="mt-10">
-            <p className="text-xs uppercase tracking-widest text-muted mb-3">Supported by</p>
+            <p className="text-xs uppercase tracking-widest text-muted mb-3">支持方</p>
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
               {SUPPORTERS.map((s) => (
                 <span key={s} className="font-outfit font-bold text-muted/70 text-lg">{s}</span>
@@ -104,10 +104,10 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="font-outfit text-3xl sm:text-4xl font-bold">
-            Explore <span className="gradient-text">250+ hours</span> of free interactive coding lessons
+            探索 <span className="gradient-text">250+ 小时</span>免费互动编程课程
           </h2>
           <p className="mt-3 text-muted">
-            From your first <code className="px-1.5 py-0.5 rounded bg-bg3 text-accent3 font-mono text-sm">print(&quot;Hello&quot;)</code> to deploying real apps.
+            从你的第一行 <code className="px-1.5 py-0.5 rounded bg-bg3 text-accent3 font-mono text-sm">print(&quot;Hello&quot;)</code> 到部署真实应用。
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export default function HomePage() {
             href="/courses"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border-2 border-accent text-accent font-semibold hover:bg-accent hover:text-white transition"
           >
-            Explore all courses
+            探索所有课程
             <span aria-hidden>→</span>
           </Link>
         </div>
@@ -158,14 +158,14 @@ export default function HomePage() {
 
       {/* ============ FEATURE 1: Level up ============ */}
       <FeatureSection
-        eyebrow="Gamified learning"
-        title="Level up your learning"
-        body="Create a pixel-art character, earn XP with every exercise, and unlock badges as you go. Learning to code has never felt this much like a real RPG."
+        eyebrow="游戏化学习"
+        title="让你的学习升级"
+        body="创建一个像素风角色，每完成一个练习都能获得 XP，并沿途解锁徽章。学编程从未如此像一场真实的 RPG 冒险。"
         bullets={[
-          { icon: "⚔️", text: "Create and customize your own pixel character" },
-          { icon: "✨", text: "Earn 10-500 XP per exercise, level up automatically" },
-          { icon: "🏅", text: "Collect 12+ unique badges by hitting milestones" },
-          { icon: "🔥", text: "Build streaks — 7, 30, even 100 days in a row" },
+          { icon: "⚔️", text: "创建并自定义你自己的像素角色" },
+          { icon: "✨", text: "每个练习可获得 10-500 XP，自动升级" },
+          { icon: "🏅", text: "达成里程碑可收集 12+ 个独特徽章" },
+          { icon: "🔥", text: "建立连续学习记录 — 7 天、30 天，甚至 100 天" },
         ]}
         visual={
           <div className="space-y-4">
@@ -174,12 +174,12 @@ export default function HomePage() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 rounded-full ring-2 ring-accent" style={{ background: "linear-gradient(135deg, #7C5CFC, #FF6B9D)" }} />
                   <div>
-                    <div className="font-bold text-ink">Your Hero</div>
-                    <div className="text-xs text-muted">Level 7 · Python path</div>
+                    <div className="font-bold text-ink">你的英雄角色</div>
+                    <div className="text-xs text-muted">等级 7 · Python 路径</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-pixel text-xl text-accent2">Lvl 7</div>
+                  <div className="font-pixel text-xl text-accent2">等级 7</div>
                   <div className="text-[10px] text-muted">1,540 XP</div>
                 </div>
               </div>
@@ -187,8 +187,8 @@ export default function HomePage() {
                 <div className="h-full w-[62%] rounded-full bg-gradient-to-r from-accent to-accent2" />
               </div>
               <div className="flex justify-between mt-1 text-[10px] text-muted">
-                <span>Lvl 7</span>
-                <span>620 / 1000 XP to Lvl 8</span>
+                <span>等级 7</span>
+                <span>620 / 1000 XP 升至等级 8</span>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -205,14 +205,14 @@ export default function HomePage() {
       {/* ============ FEATURE 2: Practice ============ */}
       <FeatureSection
         reversed
-        eyebrow="Hands-on practice"
-        title="Practice your coding chops"
-        body="Every lesson comes with a real, in-browser code editor. No setup, no installs. Write code, hit Run, and see the output instantly. Then check your solution against our test cases."
+        eyebrow="动手实践"
+        title="练习你的编程技巧"
+        body="每节课都配备真实的浏览器内代码编辑器。无需配置，无需安装。编写代码，点击运行，立即看到输出。然后用我们的测试用例检查你的答案。"
         bullets={[
-          { icon: "💻", text: "Monaco editor — the same one VS Code uses" },
-          { icon: "▶️", text: "Run Python, JS, HTML, CSS right in the browser" },
-          { icon: "✅", text: "Auto-graded test cases with instant feedback" },
-          { icon: "🤖", text: "Stuck? Ask Lumi, your AI coding buddy" },
+          { icon: "💻", text: "Monaco 编辑器 — 与 VS Code 使用的是同一款" },
+          { icon: "▶️", text: "直接在浏览器中运行 Python、JS、HTML、CSS" },
+          { icon: "✅", text: "自动评分的测试用例，即时反馈" },
+          { icon: "🤖", text: "卡住了？问问 Lumi，你的 AI 编程伙伴" },
         ]}
         visual={
           <div className="rounded-xl border border-rule overflow-hidden shadow-card">
@@ -223,16 +223,16 @@ export default function HomePage() {
               <span className="ml-2 text-xs text-muted font-mono">main.py</span>
             </div>
             <pre className="bg-codebg p-4 text-xs font-mono text-ink overflow-x-auto">
-{`# Your first program
+{`# 你的第一个程序
 `}<span className="text-accent2">for</span><span className="text-ink"> i </span><span className="text-accent2">in</span><span className="text-ink"> </span><span className="text-accent3">range</span><span className="text-ink">(</span><span className="text-warning">5</span><span className="text-ink">):</span>{`
-    `}<span className="text-accent3">print</span><span className="text-ink">(</span><span className="text-success">"Level up!"</span><span className="text-ink">)</span>{`
+    `}<span className="text-accent3">print</span><span className="text-ink">(</span><span className="text-success">"升级！"</span><span className="text-ink">)</span>{`
 `}
             </pre>
             <div className="bg-bg2 px-4 py-2 text-xs font-mono text-success border-t border-rule">
-              <span className="text-muted">$ </span>Level up!{"\n"}<span className="text-muted">$ </span>Level up!{"\n"}<span className="text-muted">$ </span>Level up!...
+              <span className="text-muted">$ </span>升级！{"\n"}<span className="text-muted">$ </span>升级！{"\n"}<span className="text-muted">$ </span>升级！...
             </div>
             <div className="bg-success/10 px-4 py-2 text-xs text-success border-t border-rule flex items-center gap-2">
-              <span>✓</span> All tests passed — <span className="font-bold">+25 XP</span>
+              <span>✓</span> 所有测试通过 — <span className="font-bold">+25 XP</span>
             </div>
           </div>
         }
@@ -240,14 +240,14 @@ export default function HomePage() {
 
       {/* ============ FEATURE 3: Builds ============ */}
       <FeatureSection
-        eyebrow="Build real things"
-        title="Build an awesome portfolio"
-        body="Codédex Builds is your in-browser project studio. Build websites, games, and visualizations with HTML, CSS, and JS. Publish with one click and show off your work to the community."
+        eyebrow="构建真实作品"
+        title="打造精彩的作品集"
+        body="Codédex 作品是你的浏览器内项目工作室。使用 HTML、CSS 和 JS 构建网站、游戏和可视化作品。一键发布，向社区展示你的成果。"
         bullets={[
-          { icon: "🗂️", text: "Multi-file projects with live preview" },
-          { icon: "🚀", text: "One-click publish to a shareable link" },
-          { icon: "🍴", text: "Fork any public Build to remix it" },
-          { icon: "🌟", text: "Get featured as a Staff Pick" },
+          { icon: "🗂️", text: "支持多文件项目和在线预览" },
+          { icon: "🚀", text: "一键发布到可分享的链接" },
+          { icon: "🍴", text: "复刻任意公开作品进行再创作" },
+          { icon: "🌟", text: "有机会被选为编辑精选" },
         ]}
         visual={
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -276,21 +276,21 @@ export default function HomePage() {
       {/* ============ FEATURE 4: Community ============ */}
       <FeatureSection
         reversed
-        eyebrow="Together is better"
-        title="Join a motivating community"
-        body="You're not learning alone. Share your Builds, ask questions, post your wins, and cheer each other on in our friendly forum and active Discord server."
+        eyebrow="结伴同行更精彩"
+        title="加入充满动力的社区"
+        body="你不是一个人在学习。在友好的论坛和活跃的 Discord 服务器中分享你的作品、提出问题、分享你的成就，相互鼓励。"
         bullets={[
-          { icon: "💬", text: "4 categories: General, Career, Showcase, Intros" },
-          { icon: "🏆", text: "Monthly challenges and Game Jam events" },
-          { icon: "🌙", text: "30NitesOfCode — the annual streak challenge" },
-          { icon: "❤️", text: "Like, comment, and earn XP for helping others" },
+          { icon: "💬", text: "4 个分类：综合、职业、展示、自我介绍" },
+          { icon: "🏆", text: "每月挑战和 Game Jam 活动" },
+          { icon: "🌙", text: "30NitesOfCode — 年度连续学习挑战" },
+          { icon: "❤️", text: "点赞、评论，帮助他人即可获得 XP" },
         ]}
         visual={
           <div className="space-y-3">
             {[
-              { name: "sarah_codes", flag: "�", text: "Just shipped my first build!", likes: 142, color: "linear-gradient(135deg, #FF6B9D, #7C5CFC)" },
-              { name: "marco.dev", flag: "�", text: "Got my first dev job!!", likes: 318, color: "linear-gradient(135deg, #4ECDC4, #2D2D52)" },
-              { name: "kenji_pixel", flag: "👋", text: "Hi everyone! 14yo from Osaka", likes: 89, color: "linear-gradient(135deg, #7C5CFC, #4ECDC4)" },
+              { name: "sarah_codes", flag: "�", text: "刚发布了我的第一个作品！", likes: 142, color: "linear-gradient(135deg, #FF6B9D, #7C5CFC)" },
+              { name: "marco.dev", flag: "�", text: "拿到了我的第一份开发工作！！", likes: 318, color: "linear-gradient(135deg, #4ECDC4, #2D2D52)" },
+              { name: "kenji_pixel", flag: "👋", text: "大家好！我 14 岁，来自大阪", likes: 89, color: "linear-gradient(135deg, #7C5CFC, #4ECDC4)" },
             ].map((p, i) => (
               <div key={i} className="rounded-lg border border-rule bg-bg2 p-3 flex gap-3">
                 <div className="h-9 w-9 rounded-full shrink-0" style={{ background: p.color }} />
@@ -308,9 +308,9 @@ export default function HomePage() {
       {/* ============ LEARNER STORIES ============ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-center font-outfit text-3xl sm:text-4xl font-bold mb-2">
-          Learners like you
+          和你一样的学习者
         </h2>
-        <p className="text-center text-muted mb-10">Real stories from the Codédex community.</p>
+        <p className="text-center text-muted mb-10">来自 Codédex 社区的真实故事。</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {STORIES.map((s) => (
             <div
@@ -326,7 +326,7 @@ export default function HomePage() {
               </div>
               <p className="text-sm text-muted leading-relaxed italic">&ldquo;{s.excerpt}&rdquo;</p>
               <Link href="/blog" className="mt-4 inline-block text-sm text-accent hover:text-accent2 transition">
-                Read story →
+                阅读故事 →
               </Link>
             </div>
           ))}
@@ -339,14 +339,14 @@ export default function HomePage() {
           <div className="absolute top-4 left-4 text-3xl animate-floaty">⭐</div>
           <div className="absolute bottom-4 right-4 text-3xl animate-floaty" style={{ animationDelay: "1s" }}>🚀</div>
           <h2 className="font-outfit text-3xl sm:text-4xl font-bold mb-3">
-            Ready to start your <span className="gradient-text">coding adventure?</span>
+            准备好开始你的<span className="gradient-text">编程冒险了吗？</span>
           </h2>
-          <p className="text-muted mb-6">It's free. It's fun. It only takes one exercise to begin.</p>
+          <p className="text-muted mb-6">免费。有趣。只需一个练习即可开始。</p>
           <Link
             href="/signup"
             className="inline-block px-8 py-3.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold text-base hover:shadow-glow transition-all hover:scale-105"
           >
-            Create your free account
+            创建你的免费账户
           </Link>
         </div>
       </section>

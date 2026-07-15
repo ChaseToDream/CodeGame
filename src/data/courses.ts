@@ -11,7 +11,7 @@ export const courses: Course[] = [
     id: "c_python",
     slug: "python",
     title: "Python",
-    description: "Learn the fundamentals of Python, one of the most popular and beginner-friendly programming languages in the world.",
+    description: "学习 Python 的基础知识，这是世界上最受欢迎、最适合入门的编程语言之一。",
     difficulty: "beginner",
     isNew: false,
     bannerGradient: "linear-gradient(135deg, #3776AB 0%, #FFD43B 100%)",
@@ -24,59 +24,59 @@ export const courses: Course[] = [
       {
         id: "py_ch1",
         courseId: "c_python",
-        title: "Chapter 1: Hello, Python!",
-        description: "Write your first Python program and learn how to talk to the computer.",
+        title: "第 1 章：你好，Python！",
+        description: "编写你的第一个 Python 程序，学习如何与计算机对话。",
         sortOrder: 1,
         cutsceneUrl: "",
         exercises: [
           {
             id: "py_ex1_1",
             chapterId: "py_ch1",
-            title: "1.1 Print Your First Message",
+            title: "1.1 打印你的第一条消息",
             sortOrder: 1,
             type: "exercise",
             language: "python",
             xpReward: 10,
-            contentMd: `# Print Your First Message
+            contentMd: `# 打印你的第一条消息
 
-Welcome to Python! 🐍 The \`print()\` function is how we tell Python to display text on the screen.
+欢迎来到 Python！🐍 \`print()\` 函数是我们让 Python 在屏幕上显示文本的方式。
 
-## The print() function
+## print() 函数
 
-You put text inside quotes \`" "\` and pass it to \`print()\`:
+把文本放在引号 \`" "\` 中，然后传给 \`print()\`：
 
 \`\`\`python
 print("Hello, World!")
 \`\`\`
 
-This will output:
+这会输出：
 \`\`\`
 Hello, World!
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Use \`print()\` to display the message **Hello, Python!**
+使用 \`print()\` 显示消息 **Hello, Python!**
 
-> 💡 Tip: Don't forget the quotes around your message!`,
-            starterCode: `# Use print() to display: Hello, Python!
+> 💡 提示：别忘了在消息两边加上引号！`,
+            starterCode: `# 使用 print() 显示：Hello, Python!
 `,
             solutionCode: `print("Hello, Python!")`,
             testCases: [
-              { name: "outputs Hello, Python!", expected: "Hello, Python!\n" },
+              { name: "输出 Hello, Python!", expected: "Hello, Python!\n" },
             ],
           },
           {
             id: "py_ex1_2",
             chapterId: "py_ch1",
-            title: "1.2 Variables",
+            title: "1.2 变量",
             sortOrder: 2,
             type: "exercise",
             language: "python",
             xpReward: 15,
-            contentMd: `# Variables
+            contentMd: `# 变量
 
-A **variable** is a labeled box that stores a value. Use \`=\` to assign:
+**变量**是一个带标签的盒子，用来存储值。使用 \`=\` 来赋值：
 
 \`\`\`python
 name = "Ada"
@@ -84,47 +84,47 @@ age = 25
 print(name)
 \`\`\`
 
-## Your mission
+## 你的任务
 
-1. Create a variable \`city\` with the value \`"Tokyo"\`
-2. Print it`,
-            starterCode: `# Create variable city and print it
+1. 创建一个变量 \`city\`，值为 \`"Tokyo"\`
+2. 打印它`,
+            starterCode: `# 创建变量 city 并打印它
 `,
             solutionCode: `city = "Tokyo"\nprint(city)`,
             testCases: [
-              { name: "prints Tokyo", expected: "Tokyo\n" },
+              { name: "打印 Tokyo", expected: "Tokyo\n" },
             ],
           },
           {
             id: "py_ex1_3",
             chapterId: "py_ch1",
-            title: "1.3 Multiple Prints",
+            title: "1.3 多次打印",
             sortOrder: 3,
             type: "exercise",
             language: "python",
             xpReward: 15,
-            contentMd: `# Multiple Prints
+            contentMd: `# 多次打印
 
-You can call \`print()\` as many times as you want — each on its own line:
+你可以随意调用 \`print()\` 多次——每次都独占一行：
 
 \`\`\`python
 print("line 1")
 print("line 2")
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Print these three lines, in order:
+按顺序打印这三行：
 \`\`\`
 Roses are red
 Violets are blue
 Sugar is sweet
 \`\`\``,
-            starterCode: `# Print the three lines
+            starterCode: `# 打印这三行
 `,
             solutionCode: `print("Roses are red")\nprint("Violets are blue")\nprint("Sugar is sweet")`,
             testCases: [
-              { name: "three lines", expected: "Roses are red\nViolets are blue\nSugar is sweet\n" },
+              { name: "三行输出", expected: "Roses are red\nViolets are blue\nSugar is sweet\n" },
             ],
           },
         ],
@@ -132,65 +132,65 @@ Sugar is sweet
       {
         id: "py_ch2",
         courseId: "c_python",
-        title: "Chapter 2: Data Types",
-        description: "Numbers, strings, and booleans — the building blocks of data.",
+        title: "第 2 章：数据类型",
+        description: "数字、字符串和布尔值——数据的基本构建块。",
         sortOrder: 2,
         cutsceneUrl: "",
         exercises: [
           {
             id: "py_ex2_1",
             chapterId: "py_ch2",
-            title: "2.1 Numbers & Math",
+            title: "2.1 数字与数学",
             sortOrder: 1,
             type: "exercise",
             language: "python",
             xpReward: 20,
-            contentMd: `# Numbers & Math
+            contentMd: `# 数字与数学
 
-Python can do arithmetic. Try these operators:
+Python 可以做算术运算。试试这些运算符：
 
-| Operator | Meaning  | Example  |
-| -------- | -------- | -------- |
-| \`+\`      | add      | \`3 + 2\`  |
-| \`-\`      | subtract | \`5 - 1\`  |
-| \`*\`      | multiply | \`4 * 6\`  |
-| \`/\`      | divide   | \`10 / 2\` |
+| 运算符 | 含义     | 示例     |
+| ------ | -------- | -------- |
+| \`+\`   | 加       | \`3 + 2\`  |
+| \`-\`   | 减       | \`5 - 1\`  |
+| \`*\`   | 乘       | \`4 * 6\`  |
+| \`/\`   | 除       | \`10 / 2\` |
 
-## Your mission
+## 你的任务
 
-Compute and print the result of \`25 * 4\`.`,
-            starterCode: `# Print the result of 25 * 4
+计算并打印 \`25 * 4\` 的结果。`,
+            starterCode: `# 打印 25 * 4 的结果
 `,
             solutionCode: `print(25 * 4)`,
             testCases: [
-              { name: "prints 100", expected: "100\n" },
+              { name: "打印 100", expected: "100\n" },
             ],
           },
           {
             id: "py_ex2_2",
             chapterId: "py_ch2",
-            title: "2.2 String Concatenation",
+            title: "2.2 字符串拼接",
             sortOrder: 2,
             type: "exercise",
             language: "python",
             xpReward: 20,
-            contentMd: `# String Concatenation
+            contentMd: `# 字符串拼接
 
-Join strings with \`+\`:
+用 \`+\` 连接字符串：
 
 \`\`\`python
 greeting = "Hello, " + "World!"
 print(greeting)
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Combine \`"Code"\` and \`"dex"\` into one word and print it.`,
-            starterCode: `# Combine "Code" and "dex" then print
+把 \`"Code"\` 和 \`"dex"\` 合并成一个单词并打印出来。`,
+            starterCode: `# 合并 "Code" 和 "dex" 然后打印
 `,
             solutionCode: `print("Code" + "dex")`,
             testCases: [
-              { name: "prints Codedex", expected: "Codedex\n" },
+              { name: "打印 Codedex", expected: "Codedex\n" },
             ],
           },
         ],
@@ -198,22 +198,22 @@ Combine \`"Code"\` and \`"dex"\` into one word and print it.`,
       {
         id: "py_ch3",
         courseId: "c_python",
-        title: "Chapter 3: Control Flow",
-        description: "Make decisions with if/else and repeat with loops.",
+        title: "第 3 章：控制流",
+        description: "用 if/else 做决定，用循环重复执行。",
         sortOrder: 3,
         cutsceneUrl: "",
         exercises: [
           {
             id: "py_ex3_1",
             chapterId: "py_ch3",
-            title: "3.1 If Statements",
+            title: "3.1 if 语句",
             sortOrder: 1,
             type: "exercise",
             language: "python",
             xpReward: 25,
-            contentMd: `# If Statements
+            contentMd: `# if 语句
 
-Make decisions in code:
+在代码中做决定：
 
 \`\`\`python
 age = 18
@@ -223,69 +223,69 @@ else:
     print("Minor")
 \`\`\`
 
-> ⚠️ Indentation (4 spaces) matters in Python!
+> ⚠️ 在 Python 中，缩进（4 个空格）非常重要！
 
-## Your mission
+## 你的任务
 
-Given \`score = 85\`, print \`"Pass"\` if score is 60 or above.`,
+给定 \`score = 85\`，如果分数大于等于 60，则打印 \`"Pass"\`。`,
             starterCode: `score = 85
-# Print "Pass" if score >= 60
+# 如果 score >= 60 则打印 "Pass"
 `,
             solutionCode: `score = 85\nif score >= 60:\n    print("Pass")`,
             testCases: [
-              { name: "prints Pass", expected: "Pass\n" },
+              { name: "打印 Pass", expected: "Pass\n" },
             ],
           },
           {
             id: "py_ex3_2",
             chapterId: "py_ch3",
-            title: "3.2 For Loops",
+            title: "3.2 for 循环",
             sortOrder: 2,
             type: "exercise",
             language: "python",
             xpReward: 30,
-            contentMd: `# For Loops
+            contentMd: `# for 循环
 
-Repeat code with \`for\` and \`range()\`:
+用 \`for\` 和 \`range()\` 重复执行代码：
 
 \`\`\`python
 for i in range(3):
     print(i)
 \`\`\`
 
-Output:
+输出：
 \`\`\`
 0
 1
 2
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Use a \`for\` loop to print numbers from 1 to 5 (inclusive). Use \`range(1, 6)\`.`,
-            starterCode: `# Print 1 through 5 using a for loop
+使用 \`for\` 循环打印 1 到 5（含）的数字。使用 \`range(1, 6)\`。`,
+            starterCode: `# 使用 for 循环打印 1 到 5
 `,
             solutionCode: `for i in range(1, 6):\n    print(i)`,
             testCases: [
-              { name: "prints 1 to 5", expected: "1\n2\n3\n4\n5\n" },
+              { name: "打印 1 到 5", expected: "1\n2\n3\n4\n5\n" },
             ],
           },
           {
             id: "py_ch3_challenge",
             chapterId: "py_ch3",
-            title: "Challenge Pack: FizzBuzz",
+            title: "挑战包：FizzBuzz",
             sortOrder: 3,
             type: "challenge_pack",
             language: "python",
             xpReward: 50,
-            contentMd: `# 🎯 Challenge: FizzBuzz
+            contentMd: `# 🎯 挑战：FizzBuzz
 
-The classic! Print numbers 1 through 15. But:
-- For multiples of 3, print \`Fizz\` instead of the number
-- For multiples of 5, print \`Buzz\`
-- For multiples of both 3 and 5, print \`FizzBuzz\`
+经典题目！打印 1 到 15 的数字。但是：
+- 对于 3 的倍数，打印 \`Fizz\` 代替数字
+- 对于 5 的倍数，打印 \`Buzz\`
+- 对于 3 和 5 的公倍数，打印 \`FizzBuzz\`
 
-Example output (first 5):
+示例输出（前 5 个）：
 \`\`\`
 1
 2
@@ -293,7 +293,7 @@ Fizz
 4
 Buzz
 \`\`\``,
-            starterCode: `# Write FizzBuzz from 1 to 15
+            starterCode: `# 编写 1 到 15 的 FizzBuzz
 `,
             solutionCode: `for i in range(1, 16):\n    if i % 15 == 0:\n        print("FizzBuzz")\n    elif i % 3 == 0:\n        print("Fizz")\n    elif i % 5 == 0:\n        print("Buzz")\n    else:\n        print(i)`,
             testCases: [
@@ -312,7 +312,7 @@ Buzz
     id: "c_html",
     slug: "html",
     title: "HTML",
-    description: "Build the structure of every website on earth with HyperText Markup Language.",
+    description: "用超文本标记语言构建地球上每个网站的结构。",
     difficulty: "beginner",
     isNew: false,
     bannerGradient: "linear-gradient(135deg, #E34F26 0%, #F06529 100%)",
@@ -325,61 +325,61 @@ Buzz
       {
         id: "html_ch1",
         courseId: "c_html",
-        title: "Chapter 1: HTML Basics",
-        description: "Tags, elements, and the skeleton of a page.",
+        title: "第 1 章：HTML 基础",
+        description: "标签、元素和页面骨架。",
         sortOrder: 1,
         exercises: [
           {
             id: "html_ex1_1",
             chapterId: "html_ch1",
-            title: "1.1 Your First Heading",
+            title: "1.1 你的第一个标题",
             sortOrder: 1,
             type: "exercise",
             language: "html",
             xpReward: 10,
-            contentMd: `# Your First Heading
+            contentMd: `# 你的第一个标题
 
-HTML uses **tags** wrapped in \`< >\`. Headings use \`<h1>\` to \`<h6>\`:
+HTML 使用包裹在 \`< >\` 中的**标签**。标题使用 \`<h1>\` 到 \`<h6>\`：
 
 \`\`\`html
 <h1>Big Title</h1>
 <h2>Subtitle</h2>
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Create an \`<h1>\` with the text **Welcome to Codédex**.`,
-            starterCode: `<!-- Create an <h1> with "Welcome to Codédex" -->
+创建一个 \`<h1>\`，文本为 **Welcome to Codédex**。`,
+            starterCode: `<!-- 创建一个 <h1>，内容为 "Welcome to Codédex" -->
 `,
             solutionCode: `<h1>Welcome to Codédex</h1>`,
             testCases: [
-              { name: "contains h1 with text", expected: "<h1>Welcome to Codédex</h1>" },
+              { name: "包含 h1 和文本", expected: "<h1>Welcome to Codédex</h1>" },
             ],
           },
           {
             id: "html_ex1_2",
             chapterId: "html_ch1",
-            title: "1.2 Paragraphs",
+            title: "1.2 段落",
             sortOrder: 2,
             type: "exercise",
             language: "html",
             xpReward: 15,
-            contentMd: `# Paragraphs
+            contentMd: `# 段落
 
-Wrap text in \`<p>\` tags:
+用 \`<p>\` 标签包裹文本：
 
 \`\`\`html
 <p>This is a paragraph.</p>
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Create a paragraph with the text **I am learning HTML.**`,
-            starterCode: `<!-- Create a <p> with the text -->
+创建一个段落，文本为 **I am learning HTML.**`,
+            starterCode: `<!-- 创建一个 <p>，内容为该文本 -->
 `,
             solutionCode: `<p>I am learning HTML.</p>`,
             testCases: [
-              { name: "contains p with text", expected: "<p>I am learning HTML.</p>" },
+              { name: "包含 p 和文本", expected: "<p>I am learning HTML.</p>" },
             ],
           },
         ],
@@ -390,7 +390,7 @@ Create a paragraph with the text **I am learning HTML.**`,
     id: "c_css",
     slug: "css",
     title: "CSS",
-    description: "Style your web pages with colors, fonts, layouts, and animations.",
+    description: "用颜色、字体、布局和动画为你的网页添加样式。",
     difficulty: "beginner",
     isNew: false,
     bannerGradient: "linear-gradient(135deg, #264DE4 0%, #2965F1 100%)",
@@ -403,21 +403,21 @@ Create a paragraph with the text **I am learning HTML.**`,
       {
         id: "css_ch1",
         courseId: "c_css",
-        title: "Chapter 1: Styling Basics",
-        description: "Colors, fonts, and selectors.",
+        title: "第 1 章：样式基础",
+        description: "颜色、字体和选择器。",
         sortOrder: 1,
         exercises: [
           {
             id: "css_ex1_1",
             chapterId: "css_ch1",
-            title: "1.1 Color",
+            title: "1.1 颜色",
             sortOrder: 1,
             type: "exercise",
             language: "css",
             xpReward: 15,
-            contentMd: `# Color
+            contentMd: `# 颜色
 
-Set text color:
+设置文本颜色：
 
 \`\`\`css
 h1 {
@@ -425,14 +425,14 @@ h1 {
 }
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Write a CSS rule that sets the color of \`<p>\` to \`purple\`.`,
-            starterCode: `/* Make <p> purple */
+编写一条 CSS 规则，把 \`<p>\` 的颜色设为 \`purple\`。`,
+            starterCode: `/* 把 <p> 设为紫色 */
 `,
             solutionCode: `p {\n  color: purple;\n}`,
             testCases: [
-              { name: "rule for p with purple", expected: "p { color: purple; }" },
+              { name: "p 规则为紫色", expected: "p { color: purple; }" },
             ],
           },
         ],
@@ -443,7 +443,7 @@ Write a CSS rule that sets the color of \`<p>\` to \`purple\`.`,
     id: "c_javascript",
     slug: "javascript",
     title: "JavaScript",
-    description: "Add interactivity to your websites with the language of the web.",
+    description: "用 Web 的语言为你的网站添加交互性。",
     difficulty: "beginner",
     isNew: false,
     bannerGradient: "linear-gradient(135deg, #F7DF1E 0%, #F0DB4F 100%)",
@@ -456,61 +456,61 @@ Write a CSS rule that sets the color of \`<p>\` to \`purple\`.`,
       {
         id: "js_ch1",
         courseId: "c_javascript",
-        title: "Chapter 1: JS Basics",
-        description: "Variables, types, and console output.",
+        title: "第 1 章：JS 基础",
+        description: "变量、类型和控制台输出。",
         sortOrder: 1,
         exercises: [
           {
             id: "js_ex1_1",
             chapterId: "js_ch1",
-            title: "1.1 Console Log",
+            title: "1.1 控制台输出",
             sortOrder: 1,
             type: "exercise",
             language: "javascript",
             xpReward: 10,
-            contentMd: `# Console Log
+            contentMd: `# 控制台输出
 
-Use \`console.log()\` to print:
+使用 \`console.log()\` 打印：
 
 \`\`\`javascript
 console.log("Hello!");
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Print **Hello, JavaScript!**`,
-            starterCode: `// Print Hello, JavaScript!
+打印 **Hello, JavaScript!**`,
+            starterCode: `// 打印 Hello, JavaScript!
 `,
             solutionCode: `console.log("Hello, JavaScript!");`,
             testCases: [
-              { name: "logs message", expected: "Hello, JavaScript!\n" },
+              { name: "输出消息", expected: "Hello, JavaScript!\n" },
             ],
           },
           {
             id: "js_ex1_2",
             chapterId: "js_ch1",
-            title: "1.2 Variables",
+            title: "1.2 变量",
             sortOrder: 2,
             type: "exercise",
             language: "javascript",
             xpReward: 15,
-            contentMd: `# Variables
+            contentMd: `# 变量
 
-Use \`let\` or \`const\`:
+使用 \`let\` 或 \`const\`：
 
 \`\`\`javascript
 const name = "Ada";
 let score = 0;
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Create a \`const\` named \`platform\` with value \`"Codédex"\` and log it.`,
-            starterCode: `// Create platform and log it
+创建一个名为 \`platform\` 的 \`const\`，值为 \`"Codédex"\`，并打印它。`,
+            starterCode: `// 创建 platform 并打印它
 `,
             solutionCode: `const platform = "Codédex";\nconsole.log(platform);`,
             testCases: [
-              { name: "logs Codedex", expected: "Codédex\n" },
+              { name: "输出 Codedex", expected: "Codédex\n" },
             ],
           },
         ],
@@ -521,7 +521,7 @@ Create a \`const\` named \`platform\` with value \`"Codédex"\` and log it.`,
     id: "c_sql",
     slug: "sql",
     title: "SQL",
-    description: "Query databases and unlock the power of structured data.",
+    description: "查询数据库，释放结构化数据的力量。",
     difficulty: "beginner",
     isNew: false,
     bannerGradient: "linear-gradient(135deg, #00758F 0%, #F29111 100%)",
@@ -534,34 +534,34 @@ Create a \`const\` named \`platform\` with value \`"Codédex"\` and log it.`,
       {
         id: "sql_ch1",
         courseId: "c_sql",
-        title: "Chapter 1: SELECT",
-        description: "Read data from tables.",
+        title: "第 1 章：SELECT",
+        description: "从表中读取数据。",
         sortOrder: 1,
         exercises: [
           {
             id: "sql_ex1_1",
             chapterId: "sql_ch1",
-            title: "1.1 Select All",
+            title: "1.1 查询全部",
             sortOrder: 1,
             type: "exercise",
             language: "sql",
             xpReward: 10,
             contentMd: `# SELECT
 
-Read all columns from a table:
+从表中读取所有列：
 
 \`\`\`sql
 SELECT * FROM users;
 \`\`\`
 
-## Your mission
+## 你的任务
 
-Write a query to select all columns from the \`courses\` table.`,
-            starterCode: `-- Select all from courses
+编写一条查询，从 \`courses\` 表中选择所有列。`,
+            starterCode: `-- 从 courses 中选择全部
 `,
             solutionCode: `SELECT * FROM courses;`,
             testCases: [
-              { name: "select all", expected: "SELECT * FROM courses;" },
+              { name: "查询全部", expected: "SELECT * FROM courses;" },
             ],
           },
         ],
@@ -572,7 +572,7 @@ Write a query to select all columns from the \`courses\` table.`,
     id: "c_copilot",
     slug: "github-copilot",
     title: "GitHub Copilot",
-    description: "Pair-program with an AI assistant that writes code alongside you.",
+    description: "与一位 AI 助手结对编程，它会在你编写代码时同步生成代码。",
     difficulty: "intermediate",
     isNew: true,
     bannerGradient: "linear-gradient(135deg, #6E40C9 0%, #FF6B9D 100%)",
@@ -585,30 +585,30 @@ Write a query to select all columns from the \`courses\` table.`,
       {
         id: "copilot_ch1",
         courseId: "c_copilot",
-        title: "Chapter 1: Getting Started",
-        description: "Install Copilot and write your first AI-assisted code.",
+        title: "第 1 章：入门指南",
+        description: "安装 Copilot，编写你的第一段 AI 辅助代码。",
         sortOrder: 1,
         exercises: [
           {
             id: "copilot_ex1_1",
             chapterId: "copilot_ch1",
-            title: "1.1 Your First Suggestion",
+            title: "1.1 你的第一个建议",
             sortOrder: 1,
             type: "exercise",
             language: "javascript",
             xpReward: 15,
-            contentMd: `# Your First Suggestion
+            contentMd: `# 你的第一个建议
 
-GitHub Copilot suggests code as you type. Write a comment describing what you want, then press \`Tab\` to accept.
+GitHub Copilot 会在你输入时给出代码建议。编写一条描述你需求的注释，然后按 \`Tab\` 接受建议。
 
-## Your mission
+## 你的任务
 
-Write a function \`add(a, b)\` that returns the sum of two numbers, then log \`add(2, 3)\`.`,
-            starterCode: `// Define add(a, b) and log add(2, 3)
+编写一个函数 \`add(a, b)\`，返回两个数字的和，然后打印 \`add(2, 3)\`。`,
+            starterCode: `// 定义 add(a, b) 并打印 add(2, 3)
 `,
             solutionCode: `function add(a, b) {\n  return a + b;\n}\nconsole.log(add(2, 3));`,
             testCases: [
-              { name: "logs 5", expected: "5\n" },
+              { name: "输出 5", expected: "5\n" },
             ],
           },
         ],
@@ -628,9 +628,9 @@ Write a function \`add(a, b)\` that returns the sum of two numbers, then log \`a
     "linear-gradient(135deg, #61DAFB 0%, #282C34 100%)", ["Web Development"], ["Web Development", "Intermediate"], 12, 198000),
   makeSkeletonCourse("c_node", "nodejs", "Node.js", "intermediate", "🟢",
     "linear-gradient(135deg, #339933 0%, #43853D 100%)", ["Web Development"], ["Web Development", "Intermediate"], 10, 88000),
-  makeSkeletonCourse("c_intjs", "intermediate-javascript", "Intermediate JavaScript", "intermediate", "🔧",
+  makeSkeletonCourse("c_intjs", "intermediate-javascript", "进阶 JavaScript", "intermediate", "🔧",
     "linear-gradient(135deg, #F7DF1E 0%, #323330 100%)", ["Web Development"], ["Web Development", "Intermediate"], 11, 134000),
-  makeSkeletonCourse("c_intpy", "intermediate-python", "Intermediate Python", "intermediate", "🐍",
+  makeSkeletonCourse("c_intpy", "intermediate-python", "进阶 Python", "intermediate", "🐍",
     "linear-gradient(135deg, #3776AB 0%, #FFD43B 100%)", ["Data Science"], ["Python", "Intermediate", "Data Science"], 13, 102000),
   makeSkeletonCourse("c_numpy", "numpy", "NumPy", "intermediate", "📊",
     "linear-gradient(135deg, #013243 0%, #4DABCF 100%)", ["Data Science"], ["Data Science", "Intermediate"], 8, 71000),
@@ -638,11 +638,11 @@ Write a function \`add(a, b)\` that returns the sum of two numbers, then log \`a
     "linear-gradient(135deg, #150458 0%, #FFCA00 100%)", ["Data Science"], ["Data Science", "Beginner"], 9, 84000),
   makeSkeletonCourse("c_matplotlib", "matplotlib", "Matplotlib", "intermediate", "📈",
     "linear-gradient(135deg, #11557C 0%, #4DABCF 100%)", ["Data Science"], ["Data Science", "Intermediate"], 7, 52000),
-  makeSkeletonCourse("c_ml", "machine-learning", "Machine Learning", "intermediate", "🧠",
+  makeSkeletonCourse("c_ml", "machine-learning", "机器学习", "intermediate", "🧠",
     "linear-gradient(135deg, #00B4D8 0%, #7C5CFC 100%)", ["Data Science", "Artificial Intelligence"], ["Data Science", "Intermediate"], 20, 156000),
   makeSkeletonCourse("c_genai", "genai", "GenAI", "intermediate", "✨",
     "linear-gradient(135deg, #FF6B9D 0%, #7C5CFC 100%)", ["Artificial Intelligence"], ["Intermediate"], 9, 98000),
-  makeSkeletonCourse("c_dsa", "data-structures-algorithms", "Data Structures & Algorithms", "intermediate", "🌳",
+  makeSkeletonCourse("c_dsa", "data-structures-algorithms", "数据结构与算法", "intermediate", "🌳",
     "linear-gradient(135deg, #4ECDC4 0%, #7C5CFC 100%)", ["Computer Science"], ["Intermediate"], 22, 178000),
   makeSkeletonCourse("c_p5js", "p5js", "p5.js", "intermediate", "🖼️",
     "linear-gradient(135deg, #ED225D 0%, #2B7FFF 100%)", [], ["Creative Coding", "Intermediate"], 8, 47000),
@@ -650,9 +650,9 @@ Write a function \`add(a, b)\` that returns the sum of two numbers, then log \`a
     "linear-gradient(135deg, #FF6B9D 0%, #F0A04B 100%)", ["Game Development"], ["Creative Coding", "Intermediate"], 10, 39000),
   makeSkeletonCourse("c_lua", "lua", "Lua", "intermediate", "🌙",
     "linear-gradient(135deg, #2C2D72 0%, #000080 100%)", ["Game Development"], ["Intermediate"], 6, 28000),
-  makeSkeletonCourse("c_uiux", "ui-ux-design", "UI/UX Design", "beginner", "🖌️",
+  makeSkeletonCourse("c_uiux", "ui-ux-design", "UI/UX 设计", "beginner", "🖌️",
     "linear-gradient(135deg, #FF6B9D 0%, #4ECDC4 100%)", [], ["Tools", "Beginner"], 7, 61000),
-  makeSkeletonCourse("c_cli", "command-line", "Command Line", "beginner", "⌨️",
+  makeSkeletonCourse("c_cli", "command-line", "命令行", "beginner", "⌨️",
     "linear-gradient(135deg, #2D2D52 0%, #4ECDC4 100%)", ["Web Development"], ["Beginner", "Tools"], 4, 89000),
 ];
 
@@ -672,7 +672,7 @@ function makeSkeletonCourse(
     id,
     slug,
     title,
-    description: `${title} is one of the in-demand skills on Codédex. Start your adventure and level up!`,
+    description: `${title} 是 Codédex 上热门的技能之一。开启你的冒险，不断升级吧！`,
     difficulty,
     isNew: false,
     bannerGradient,
@@ -685,22 +685,22 @@ function makeSkeletonCourse(
       {
         id: `${id}_ch1`,
         courseId: id,
-        title: "Chapter 1: Introduction",
-        description: "Get started with the fundamentals.",
+        title: "第 1 章：入门介绍",
+        description: "从基础知识开始。",
         sortOrder: 1,
         exercises: [
           {
             id: `${id}_ex1_1`,
             chapterId: `${id}_ch1`,
-            title: "1.1 Getting Started",
+            title: "1.1 入门指南",
             sortOrder: 1,
             type: "exercise",
             language: "javascript",
             xpReward: 10,
-            contentMd: `# Getting Started\n\nWelcome to ${title}! This is a sample exercise to get you started.\n\n## Your mission\n\nPrint \`"Ready!"\` using console.log.`,
-            starterCode: `// Print "Ready!"\n`,
+            contentMd: `# 入门指南\n\n欢迎来到 ${title}！这是一个帮你入门的示例练习。\n\n## 你的任务\n\n使用 console.log 打印 \`"Ready!"\`。`,
+            starterCode: `// 打印 "Ready!"\n`,
             solutionCode: `console.log("Ready!");`,
-            testCases: [{ name: "logs Ready!", expected: "Ready!\n" }],
+            testCases: [{ name: "输出 Ready!", expected: "Ready!\n" }],
           },
         ],
       },

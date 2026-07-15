@@ -33,7 +33,7 @@ export function StreakCounter({ days, lastActiveDate, size = "md" }: StreakCount
         🔥
       </span>
       <span className="text-ink font-bold">{days}</span>
-      <span className="text-muted">day streak</span>
+      <span className="text-muted">天连续学习</span>
     </div>
   );
 }

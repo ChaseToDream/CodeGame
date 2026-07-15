@@ -33,20 +33,20 @@ export function levelFromXp(xp: number): {
   return { level, levelStart: acc, levelEnd: acc + xpForLevel(level) };
 }
 
-/** 相对时间，例如 "3h ago" */
+/** 相对时间，例如 "3小时前" */
 export function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const sec = Math.floor(diff / 1000);
-  if (sec < 60) return `${sec}s ago`;
+  if (sec < 60) return `${sec}秒前`;
   const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ago`;
+  if (min < 60) return `${min}分钟前`;
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
+  if (hr < 24) return `${hr}小时前`;
   const day = Math.floor(hr / 24);
-  if (day < 30) return `${day}d ago`;
+  if (day < 30) return `${day}天前`;
   const mo = Math.floor(day / 30);
-  if (mo < 12) return `${mo}mo ago`;
-  return `${Math.floor(mo / 12)}y ago`;
+  if (mo < 12) return `${mo}个月前`;
+  return `${Math.floor(mo / 12)}年前`;
 }
 
 /** 生成简短 ID */

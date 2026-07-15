@@ -2,32 +2,32 @@ import Link from "next/link";
 
 const FOOTER_LINKS: { title: string; links: { label: string; href: string }[] }[] = [
   {
-    title: "Product",
+    title: "产品",
     links: [
-      { label: "Courses", href: "/courses" },
-      { label: "Builds", href: "/builds" },
-      { label: "Community", href: "/community" },
-      { label: "Blog", href: "/blog" },
+      { label: "课程", href: "/courses" },
+      { label: "作品", href: "/builds" },
+      { label: "社区", href: "/community" },
+      { label: "博客", href: "/blog" },
     ],
   },
   {
-    title: "Resources",
+    title: "资源",
     links: [
-      { label: "Dashboard", href: "/dashboard" },
-      { label: "Worlds", href: "/worlds" },
-      { label: "Settings", href: "/settings" },
+      { label: "仪表盘", href: "/dashboard" },
+      { label: "世界", href: "/worlds" },
+      { label: "设置", href: "/settings" },
     ],
   },
   {
-    title: "Company",
+    title: "公司",
     links: [
-      { label: "About", href: "/blog" },
-      { label: "Learner Stories", href: "/blog" },
-      { label: "Careers", href: "/community" },
+      { label: "关于我们", href: "/blog" },
+      { label: "学习者故事", href: "/blog" },
+      { label: "招聘", href: "/community" },
     ],
   },
   {
-    title: "Connect",
+    title: "联系我们",
     links: [
       { label: "Discord", href: "/community" },
       { label: "Twitter", href: "/community" },
@@ -44,7 +44,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <div className="font-pixel text-2xl text-accent mb-2">Codédex</div>
             <p className="text-sm text-muted">
-              The most fun and beginner-friendly way to learn to code.
+              最有趣且入门友好的学编程方式。
             </p>
           </div>
           {FOOTER_LINKS.map((section) => (
@@ -69,7 +69,7 @@ export function Footer() {
         </div>
         <div className="mt-10 pt-6 border-t border-rule flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted">
-            © {new Date().getFullYear()} Codédex Clone. Built for educational purposes.
+            © {new Date().getFullYear()} Codédex 克隆版。仅用于教育目的。
           </p>
           <div className="flex items-center gap-4 text-muted">
             <span className="text-lg" title="Discord">💬</span>

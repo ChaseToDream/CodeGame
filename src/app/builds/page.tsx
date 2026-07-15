@@ -29,16 +29,16 @@ export default function BuildsGalleryPage() {
       <div className="text-center mb-10">
         <div className="text-5xl mb-3">🏗️</div>
         <h1 className="font-outfit text-4xl font-bold">
-          Community <span className="gradient-text">Builds</span>
+          社区 <span className="gradient-text">作品</span>
         </h1>
         <p className="text-muted mt-2 max-w-2xl mx-auto">
-          Projects built by learners like you. Fork them, remix them, or get inspired to build your own.
+          由像你一样的学习者创建的作品。复刻它们、重新混音，或从中获取灵感来创建你自己的作品。
         </p>
         <Link
           href="/builds/new"
           className="inline-block mt-5 px-6 py-3 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
         >
-          + Create a new Build
+          + 创建新作品
         </Link>
       </div>
 
@@ -53,7 +53,7 @@ export default function BuildsGalleryPage() {
                 sort === s ? "border-accent bg-accent text-white" : "border-rule bg-bg2 text-muted hover:text-ink"
               }`}
             >
-              {s === "top" ? "🔥 Top" : "🆕 Newest"}
+              {s === "top" ? "🔥 热门" : "🆕 最新"}
             </button>
           ))}
         </div>
@@ -64,7 +64,7 @@ export default function BuildsGalleryPage() {
             onChange={(e) => setShowOnlyMine(e.target.checked)}
             className="accent-accent"
           />
-          Show all (incl. drafts)
+          显示全部（含草稿）
         </label>
       </div>
 
@@ -72,7 +72,7 @@ export default function BuildsGalleryPage() {
       {allBuilds.length === 0 ? (
         <div className="text-center py-20 text-muted">
           <div className="text-5xl mb-3">📭</div>
-          No builds yet. Be the first!
+          还没有作品。来成为第一个吧！
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -91,13 +91,13 @@ export default function BuildsGalleryPage() {
                 </span>
                 {b.forkedFrom && (
                   <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-bg/70 text-[10px] text-ink font-bold">
-                    🍴 Forked
+                    🍴 已复刻
                   </span>
                 )}
               </div>
               <div className="p-4">
                 <div className="font-bold text-ink group-hover:text-accent transition line-clamp-1">{b.title}</div>
-                <p className="text-xs text-muted line-clamp-2 mt-1 h-8">{b.description || "No description"}</p>
+                <p className="text-xs text-muted line-clamp-2 mt-1 h-8">{b.description || "暂无描述"}</p>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="h-6 w-6 rounded-full shrink-0" style={{ background: b.authorAvatar }} />
                   <span className="text-[11px] text-muted truncate">@{b.authorName}</span>

@@ -26,7 +26,7 @@ export function CourseCard({ course, className, compact }: CourseCardProps) {
         </span>
         {course.isNew && (
           <span className="absolute top-2 right-2 px-2 py-0.5 rounded bg-accent2 text-bg text-xs font-bold font-pixel">
-            NEW!
+            新！
           </span>
         )}
       </div>
@@ -43,13 +43,13 @@ export function CourseCard({ course, className, compact }: CourseCardProps) {
                 : "bg-warning/20 text-warning",
             )}
           >
-            {course.difficulty}
+            {course.difficulty === "beginner" ? "入门" : "进阶"}
           </span>
         </div>
         <p className="text-xs text-muted line-clamp-2 leading-relaxed">{course.description}</p>
         <div className="mt-3 flex items-center justify-between text-[11px] text-muted">
-          <span>👥 {(course.learnerCount / 1000).toFixed(0)}K learners</span>
-          <span>⏱ {course.estimatedHours}h</span>
+          <span>👥 {(course.learnerCount / 1000).toFixed(0)}K 学习者</span>
+          <span>⏱ {course.estimatedHours} 小时</span>
         </div>
       </div>
     </Link>

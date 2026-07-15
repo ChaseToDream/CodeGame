@@ -11,35 +11,35 @@ export const learningJourneys: JourneyMeta[] = [
   {
     name: "Web Development",
     description:
-      "Build websites and web apps from scratch. Master HTML, CSS, JavaScript, and modern frameworks like React and Node.js.",
+      "从零开始构建网站和 Web 应用。掌握 HTML、CSS、JavaScript 以及 React 和 Node.js 等现代框架。",
     emoji: "🌐",
     gradient: "linear-gradient(135deg, #FF6B9D, #7C5CFC)",
   },
   {
     name: "Data Science",
     description:
-      "Wrangle, analyze, and visualize data. Learn Python, SQL, NumPy, Pandas, and Matplotlib to turn raw data into insight.",
+      "处理、分析和可视化数据。学习 Python、SQL、NumPy、Pandas 和 Matplotlib，将原始数据转化为洞察。",
     emoji: "📊",
     gradient: "linear-gradient(135deg, #4ECDC4, #2D2D52)",
   },
   {
     name: "Artificial Intelligence",
     description:
-      "Dive into machine learning and generative AI. From the fundamentals of Python to training your first models.",
+      "深入机器学习和生成式 AI。从 Python 基础到训练你的第一个模型。",
     emoji: "🤖",
     gradient: "linear-gradient(135deg, #7C5CFC, #FF6B9D)",
   },
   {
     name: "Computer Science",
     description:
-      "Build rock-solid foundations. Data structures, algorithms, and core languages like C++, Java, and more.",
+      "打下坚实的基础。数据结构、算法以及 C++、Java 等核心语言。",
     emoji: "🧠",
     gradient: "linear-gradient(135deg, #4ECDC4, #7C5CFC)",
   },
   {
     name: "Game Development",
     description:
-      "Make games! Start with C# and Lua, then level up to game engines like Phaser for browser-based adventures.",
+      "制作游戏！从 C# 和 Lua 开始，然后进阶到 Phaser 等游戏引擎，创建浏览器游戏。",
     emoji: "🎮",
     gradient: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
   },

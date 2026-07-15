@@ -18,11 +18,11 @@ export default function SignupPage() {
     e.preventDefault();
     setErr("");
     if (!email || !username || !password) {
-      setErr("Please fill in all fields.");
+      setErr("请填写所有字段。");
       return;
     }
     if (password.length < 4) {
-      setErr("Password must be at least 4 characters.");
+      setErr("密码至少需要 4 个字符。");
       return;
     }
     setLoading(true);
@@ -44,8 +44,8 @@ export default function SignupPage() {
     <div className="mx-auto max-w-md px-4 py-16">
       <div className="text-center mb-8">
         <div className="font-pixel text-3xl gradient-text mb-2">Codédex</div>
-        <h1 className="font-outfit text-2xl font-bold">Begin your quest</h1>
-        <p className="text-muted text-sm mt-1">Create a free account and start leveling up.</p>
+        <h1 className="font-outfit text-2xl font-bold">开启你的冒险之旅</h1>
+        <p className="text-muted text-sm mt-1">创建免费账号，开始升级之旅。</p>
       </div>
 
       <div className="rounded-xl border border-rule bg-bg2 p-6 shadow-card">
@@ -66,14 +66,14 @@ export default function SignupPage() {
 
         <div className="flex items-center gap-3 my-4">
           <div className="flex-1 h-px bg-rule" />
-          <span className="text-xs text-muted">or</span>
+          <span className="text-xs text-muted">或</span>
           <div className="flex-1 h-px bg-rule" />
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-muted uppercase tracking-wide mb-1.5">
-              Username
+              用户名
             </label>
             <input
               type="text"
@@ -85,7 +85,7 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="block text-xs font-bold text-muted uppercase tracking-wide mb-1.5">
-              Email
+              邮箱
             </label>
             <input
               type="email"
@@ -97,13 +97,13 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="block text-xs font-bold text-muted uppercase tracking-wide mb-1.5">
-              Password
+              密码
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 4 characters"
+              placeholder="至少 4 个字符"
               className="w-full px-3 py-2.5 rounded-lg bg-bg3 border border-rule text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition"
             />
           </div>
@@ -113,19 +113,19 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition disabled:opacity-60"
           >
-            {loading ? "Creating account..." : "Create free account"}
+            {loading ? "创建账号中..." : "创建免费账号"}
           </button>
         </form>
       </div>
 
       <p className="text-center text-sm text-muted mt-5">
-        Already have an account?{" "}
+        已有账号？{" "}
         <Link href="/login" className="text-accent hover:text-accent2 font-medium">
-          Log in →
+          登录 →
         </Link>
       </p>
       <p className="text-center text-[11px] text-muted/70 mt-3">
-        By signing up you agree to our Terms and Privacy Policy.
+        注册即表示你同意我们的服务条款和隐私政策。
       </p>
     </div>
   );

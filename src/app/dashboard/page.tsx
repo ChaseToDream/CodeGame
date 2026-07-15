@@ -77,7 +77,7 @@ export default function DashboardPage() {
 
   if (!user || !xpInfo) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted">Loading...</div>
+      <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted">加载中...</div>
     );
   }
 
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             href="/settings"
             className="px-4 py-2 rounded-lg border border-rule text-sm text-ink hover:border-accent transition"
           >
-            Edit Profile
+            编辑资料
           </Link>
         </div>
         <div className="mt-5">
@@ -126,15 +126,15 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-6">
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-outfit text-lg font-bold">Continue Learning</h2>
-              <Link href="/courses" className="text-xs text-accent hover:text-accent2">All courses →</Link>
+              <h2 className="font-outfit text-lg font-bold">继续学习</h2>
+              <Link href="/courses" className="text-xs text-accent hover:text-accent2">全部课程 →</Link>
             </div>
             {startedCourses.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-4xl mb-2">🚀</div>
-                <p className="text-muted mb-3">You haven&apos;t started any courses yet.</p>
+                <p className="text-muted mb-3">你还没有开始任何课程。</p>
                 <Link href="/courses" className="inline-block px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">
-                  Browse courses
+                  浏览课程
                 </Link>
               </div>
             ) : (
@@ -163,7 +163,7 @@ export default function DashboardPage() {
                           href={`/${course.slug}/${next.chapterId}/${next.id}`}
                           className="px-3 py-1.5 rounded text-xs font-semibold bg-accent text-white hover:shadow-glow transition shrink-0"
                         >
-                          Continue →
+                          继续 →
                         </Link>
                       )}
                     </div>
@@ -176,15 +176,15 @@ export default function DashboardPage() {
           {/* Your builds */}
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-outfit text-lg font-bold">Your Builds</h2>
-              <Link href="/builds" className="text-xs text-accent hover:text-accent2">Open editor →</Link>
+              <h2 className="font-outfit text-lg font-bold">你的作品</h2>
+              <Link href="/builds" className="text-xs text-accent hover:text-accent2">打开编辑器 →</Link>
             </div>
             {userBuilds.length === 0 ? (
               <div className="text-center py-6">
                 <div className="text-3xl mb-2">🏗️</div>
-                <p className="text-muted text-sm mb-3">No builds yet.</p>
+                <p className="text-muted text-sm mb-3">还没有作品。</p>
                 <Link href="/builds" className="inline-block px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">
-                  Create your first Build
+                  创建你的第一个作品
                 </Link>
               </div>
             ) : (
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="font-bold text-sm text-ink line-clamp-1">{b.title}</div>
                     <div className="text-[10px] text-muted mt-1 flex justify-between">
-                      <span>{b.isPublished ? "✓ Published" : "Draft"}</span>
+                      <span>{b.isPublished ? "✓ 已发布" : "草稿"}</span>
                       <span>👁 {formatNumber(b.viewCount)}</span>
                     </div>
                   </Link>
@@ -211,13 +211,13 @@ export default function DashboardPage() {
 
           {/* Community activity */}
           <section className="rounded-xl border border-rule bg-bg2 p-5">
-            <h2 className="font-outfit text-lg font-bold mb-4">Your Community Activity</h2>
+            <h2 className="font-outfit text-lg font-bold mb-4">你的社区动态</h2>
             {userPosts.length === 0 ? (
               <div className="text-center py-6">
                 <div className="text-3xl mb-2">💬</div>
-                <p className="text-muted text-sm mb-3">You haven&apos;t posted yet.</p>
+                <p className="text-muted text-sm mb-3">你还没有发帖。</p>
                 <Link href="/community" className="inline-block px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold">
-                  Visit community
+                  访问社区
                 </Link>
               </div>
             ) : (
@@ -244,29 +244,29 @@ export default function DashboardPage() {
         <div className="space-y-6">
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-outfit text-lg font-bold">Badges</h2>
+              <h2 className="font-outfit text-lg font-bold">徽章</h2>
               <span className="text-xs text-muted">{earnedBadges.length}/{badgeState.length}</span>
             </div>
             <BadgeGrid badges={badgeState.slice(0, 6)} />
             <Link href="#all-badges" className="block text-center text-xs text-accent mt-3 hover:text-accent2">
-              View all badges →
+              查看全部徽章 →
             </Link>
           </section>
 
           <section className="rounded-xl border border-rule bg-bg2 p-5">
-            <h2 className="font-outfit text-lg font-bold mb-4">Quick Stats</h2>
+            <h2 className="font-outfit text-lg font-bold mb-4">快速统计</h2>
             <div className="space-y-3 text-sm">
-              <Stat label="Total XP" value={user.xpTotal.toLocaleString()} icon="✨" />
-              <Stat label="Current Level" value={`Lvl ${user.level}`} icon="🎮" />
-              <Stat label="Day Streak" value={`${user.streakDays} days`} icon="🔥" />
-              <Stat label="Exercises Done" value={String(Object.values(progress.statuses).filter((s) => s === "completed").length)} icon="🎯" />
-              <Stat label="Builds" value={String(userBuilds.length)} icon="🏗️" />
-              <Stat label="Posts" value={String(userPosts.length)} icon="💬" />
+              <Stat label="总 XP" value={user.xpTotal.toLocaleString()} icon="✨" />
+              <Stat label="当前等级" value={`Lvl ${user.level}`} icon="🎮" />
+              <Stat label="连续学习天数" value={`${user.streakDays} days`} icon="🔥" />
+              <Stat label="已完成练习数" value={String(Object.values(progress.statuses).filter((s) => s === "completed").length)} icon="🎯" />
+              <Stat label="作品" value={String(userBuilds.length)} icon="🏗️" />
+              <Stat label="帖子" value={String(userPosts.length)} icon="💬" />
             </div>
           </section>
 
           <section id="all-badges" className="rounded-xl border border-rule bg-bg2 p-5">
-            <h2 className="font-outfit text-lg font-bold mb-4">All Badges</h2>
+            <h2 className="font-outfit text-lg font-bold mb-4">全部徽章</h2>
             <BadgeGrid badges={badgeState} />
           </section>
         </div>

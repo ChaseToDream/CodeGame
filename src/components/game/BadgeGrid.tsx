@@ -17,7 +17,7 @@ export function BadgeGrid({ badges }: BadgeGridProps) {
               ? "border-accent/60 bg-bg3 hover:shadow-glow"
               : "border-rule bg-bg2 opacity-50 grayscale",
           )}
-          title={b.earned ? `${b.name} — ${b.description}` : `Locked: ${b.criteria}`}
+          title={b.earned ? `${b.name} — ${b.description}` : `未解锁：${b.criteria}`}
         >
           <div className="text-2xl sm:text-3xl">{b.emoji}</div>
           <div className="mt-1 text-[10px] sm:text-xs text-center text-muted leading-tight line-clamp-2">

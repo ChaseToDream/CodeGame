@@ -22,13 +22,13 @@ export function LevelProgressBar({
     <div className={cn("w-full", className)}>
       <div className="flex justify-between items-center mb-1.5 text-xs">
         <span className="text-muted">
-          Level <span className="text-accent2 font-bold">{level}</span>
+          等级 <span className="text-accent2 font-bold">{level}</span>
         </span>
         <span className="text-muted">
           <span className="text-accent font-bold">{within}</span> / {range} XP
         </span>
         <span className="text-muted">
-          Next: <span className="text-accent2 font-bold">Lvl {level + 1}</span>
+          下一级：<span className="text-accent2 font-bold">Lv {level + 1}</span>
         </span>
       </div>
       <div className="h-3 rounded-full bg-bg2 overflow-hidden border border-rule">

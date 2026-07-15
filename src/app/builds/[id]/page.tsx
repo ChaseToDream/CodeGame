@@ -10,7 +10,7 @@ import { timeAgo, formatNumber, cn } from "@/lib/utils";
 
 const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center h-full text-muted text-sm">Loading...</div>,
+  loading: () => <div className="flex items-center justify-center h-full text-muted text-sm">加载中...</div>,
 });
 
 const MONACO_LANG: Record<string, string> = { html: "html", css: "css", js: "javascript" };
@@ -32,8 +32,8 @@ export default function BuildDetailPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <div className="text-5xl mb-4">🧭</div>
-        <h1 className="font-outfit text-2xl font-bold mb-2">Build not found</h1>
-        <Link href="/builds" className="text-accent hover:text-accent2">← Back to Builds</Link>
+        <h1 className="font-outfit text-2xl font-bold mb-2">未找到作品</h1>
+        <Link href="/builds" className="text-accent hover:text-accent2">← 返回作品</Link>
       </div>
     );
   }
@@ -65,7 +65,7 @@ export default function BuildDetailPage() {
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <nav className="text-sm text-muted mb-4">
-        <Link href="/builds" className="hover:text-ink">Builds</Link>
+        <Link href="/builds" className="hover:text-ink">作品</Link>
         <span className="mx-2">/</span>
         <span className="text-ink">{build.title}</span>
       </nav>
@@ -79,7 +79,7 @@ export default function BuildDetailPage() {
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="font-outfit text-2xl sm:text-3xl font-bold">{build.title}</h1>
-          <p className="text-muted text-sm mt-1">{build.description || "No description"}</p>
+          <p className="text-muted text-sm mt-1">{build.description || "暂无描述"}</p>
           <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-muted">
             <div className="flex items-center gap-1.5">
               <div className="h-5 w-5 rounded-full" style={{ background: build.authorAvatar }} />
@@ -88,9 +88,9 @@ export default function BuildDetailPage() {
             <span>·</span>
             <span>{timeAgo(build.createdAt)}</span>
             <span>·</span>
-            <span>👁 {formatNumber(build.viewCount)} views</span>
+            <span>👁 {formatNumber(build.viewCount)} 次浏览</span>
             <span>·</span>
-            <span>❤️ {build.likeCount} likes</span>
+            <span>❤️ {build.likeCount} 个赞</span>
           </div>
         </div>
         <div className="flex gap-2 shrink-0">
@@ -98,13 +98,13 @@ export default function BuildDetailPage() {
             onClick={handleFork}
             className="px-4 py-2 rounded-lg border border-rule text-sm text-ink hover:border-accent transition flex items-center gap-1.5"
           >
-            🍴 Fork
+            🍴 复刻
           </button>
           <Link
             href="/builds/new"
             className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white text-sm font-semibold hover:shadow-glow transition"
           >
-            + New Build
+            + 新建作品
           </Link>
         </div>
       </div>
@@ -120,7 +120,7 @@ export default function BuildDetailPage() {
               view === v ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink",
             )}
           >
-            {v === "preview" ? "👁 Live Demo" : "💻 View Code"}
+            {v === "preview" ? "👁 在线演示" : "💻 查看代码"}
           </button>
         ))}
       </div>
@@ -172,8 +172,8 @@ export default function BuildDetailPage() {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-muted">
-          Built with ❤️ on Codédex.{" "}
-          <Link href="/builds/new" className="text-accent hover:underline">Create your own →</Link>
+          用 ❤️ 在 Codédex 上构建。{" "}
+          <Link href="/builds/new" className="text-accent hover:underline">创建你自己的 →</Link>
         </p>
       </div>
     </div>

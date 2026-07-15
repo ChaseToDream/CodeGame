@@ -93,7 +93,7 @@ export function CodeEditor({
             running && "opacity-60 cursor-wait",
           )}
         >
-          {running ? <Spinner /> : "▶"} Run
+          {running ? <Spinner /> : "▶"} 运行
         </button>
         <button
           onClick={onCheck}
@@ -104,21 +104,21 @@ export function CodeEditor({
             checking && "opacity-60 cursor-wait",
           )}
         >
-          {checking ? <Spinner /> : "✓"} Check
+          {checking ? <Spinner /> : "✓"} 检查
         </button>
         <button
           onClick={handleReset}
           className="px-3 py-1.5 rounded text-xs font-bold border border-rule text-muted hover:text-ink hover:border-muted transition"
         >
-          ↺ Reset
+          ↺ 重置
         </button>
         {confirmReset.current && (
-          <span className="text-[11px] text-warning animate-pulse">Click again to confirm reset</span>
+          <span className="text-[11px] text-warning animate-pulse">再次点击确认重置</span>
         )}
         <div className="ml-auto text-[11px] text-muted flex items-center gap-2">
-          {saveStatus === "saving" && <><Spinner /> Saving...</>}
-          {saveStatus === "saved" && <span className="text-success">✓ Saved</span>}
-          {saveStatus === "idle" && <span>Unsaved</span>}
+          {saveStatus === "saving" && <><Spinner /> 保存中...</>}
+          {saveStatus === "saved" && <span className="text-success">✓ 已保存</span>}
+          {saveStatus === "idle" && <span>未保存</span>}
         </div>
       </div>
 
@@ -148,12 +148,12 @@ export function CodeEditor({
       {/* Console */}
       <div className="h-[180px] bg-codebg border-t border-rule flex flex-col">
         <div className="px-3 py-1.5 bg-bg2 text-[11px] text-muted uppercase tracking-wide flex items-center justify-between border-b border-rule">
-          <span>Console</span>
-          <span className="text-[10px]">Ctrl+Enter to run</span>
+          <span>控制台</span>
+          <span className="text-[10px]">Ctrl+Enter 运行</span>
         </div>
         <div className="flex-1 overflow-auto p-3 font-mono text-xs leading-relaxed">
           {!runResult && !checkResult && (
-            <span className="text-muted">Console output will appear here.</span>
+            <span className="text-muted">控制台输出将显示在这里。</span>
           )}
           {runResult?.stdout && (
             <pre className="whitespace-pre-wrap text-ink">{runResult.stdout}</pre>
@@ -179,15 +179,15 @@ export function CodeEditor({
                   </div>
                   {!r.passed && (
                     <div className="mt-1 font-mono text-[11px] text-muted">
-                      <div>Expected: <span className="text-success">{JSON.stringify(r.expected)}</span></div>
-                      <div>Actual: <span className="text-accent2">{JSON.stringify(r.actual)}</span></div>
+                      <div>期望输出：<span className="text-success">{JSON.stringify(r.expected)}</span></div>
+                      <div>实际输出：<span className="text-accent2">{JSON.stringify(r.actual)}</span></div>
                     </div>
                   )}
                 </div>
               ))}
               {checkResult.passed && (
                 <div className="px-2 py-2 rounded bg-success/10 text-success font-bold text-sm">
-                  🎉 All tests passed!
+                  🎉 所有测试通过！
                 </div>
               )}
             </div>

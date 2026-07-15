@@ -10,12 +10,19 @@ import type { PostCategory } from "@/types";
 import { NewPostModal } from "@/components/community/NewPostModal";
 
 const CATEGORIES: { key: PostCategory | "all"; label: string; emoji: string }[] = [
-  { key: "all", label: "All", emoji: "📋" },
-  { key: "general", label: "General", emoji: "💬" },
-  { key: "career", label: "Career", emoji: "💼" },
-  { key: "project_showcase", label: "Project Showcase", emoji: "🏗️" },
-  { key: "introductions", label: "Introductions", emoji: "👋" },
+  { key: "all", label: "全部", emoji: "📋" },
+  { key: "general", label: "综合", emoji: "💬" },
+  { key: "career", label: "职业", emoji: "💼" },
+  { key: "project_showcase", label: "作品展示", emoji: "🏗️" },
+  { key: "introductions", label: "自我介绍", emoji: "👋" },
 ];
+
+const CATEGORY_LABEL: Record<string, string> = {
+  general: "综合",
+  career: "职业",
+  project_showcase: "作品展示",
+  introductions: "自我介绍",
+};
 
 export default function CommunityPage() {
   const { posts, user, isAuthed, togglePostLike } = useUserStore();
@@ -39,15 +46,15 @@ export default function CommunityPage() {
       <div className="text-center mb-8">
         <div className="text-5xl mb-3">💬</div>
         <h1 className="font-outfit text-4xl font-bold">
-          Codédex <span className="gradient-text">Community</span>
+          Codédex <span className="gradient-text">社区</span>
         </h1>
-        <p className="text-muted mt-2">Share your wins, ask questions, and cheer each other on.</p>
+        <p className="text-muted mt-2">分享你的成就，提出问题，互相鼓励。</p>
       </div>
 
       {/* XP gate notice */}
       {isAuthed && user && !canPost && (
         <div className="rounded-lg border border-warning/40 bg-warning/10 p-4 mb-6 text-sm text-ink">
-          🔒 You need <strong className="text-warning">100 XP</strong> to post in the community. You have <strong>{user.xpTotal} XP</strong> — complete a few more exercises to unlock posting!
+          🔒 你需要 <strong className="text-warning">100 XP</strong> 才能在社区发帖。你目前有 <strong>{user.xpTotal} XP</strong> —— 再完成几个练习即可解锁发帖功能！
         </div>
       )}
 
@@ -80,7 +87,7 @@ export default function CommunityPage() {
                 sort === s ? "border-accent2 bg-accent2 text-bg" : "border-rule bg-bg2 text-muted hover:text-ink",
               )}
             >
-              {s === "top" ? "🔥 Top" : "🆕 Newest"}
+              {s === "top" ? "🔥 热门" : "🆕 最新"}
             </button>
           ))}
         </div>
@@ -99,7 +106,7 @@ export default function CommunityPage() {
             >
               {p.isStaffPick && (
                 <span className="absolute -top-2 left-4 px-2 py-0.5 rounded bg-gradient-to-r from-warning to-accent2 text-bg text-[10px] font-bold font-pixel">
-                  ⭐ STAFF PICK
+                  ⭐ 编辑精选
                 </span>
               )}
               <div className="flex gap-3">
@@ -115,7 +122,7 @@ export default function CommunityPage() {
                     <span>{timeAgo(p.createdAt)}</span>
                     <span>·</span>
                     <span className="text-accent uppercase tracking-wide text-[10px] font-bold">
-                      {p.category.replace("_", " ")}
+                      {CATEGORY_LABEL[p.category] ?? p.category.replace("_", " ")}
                     </span>
                   </div>
                   <Link href={`/community/${p.category}/${p.id}`}>
@@ -141,8 +148,8 @@ export default function CommunityPage() {
                         <div className="text-[10px] text-muted">@{attachedBuild.authorName}</div>
                       </div>
                       <div className="flex gap-1 shrink-0">
-                        <span className="px-2 py-1 rounded text-[10px] bg-accent/20 text-accent">▶ Live Demo</span>
-                        <span className="px-2 py-1 rounded text-[10px] bg-bg2 text-muted">&lt;/&gt; Code</span>
+                        <span className="px-2 py-1 rounded text-[10px] bg-accent/20 text-accent">▶ 在线演示</span>
+                        <span className="px-2 py-1 rounded text-[10px] bg-bg2 text-muted">&lt;/&gt; 代码</span>
                       </div>
                     </Link>
                   )}
@@ -175,7 +182,7 @@ export default function CommunityPage() {
       <button
         onClick={() => {
           if (!canPost) {
-            alert(`🔒 You need 100 XP to post. You have ${user?.xpTotal ?? 0} XP. Complete a few exercises first!`);
+            alert(`🔒 你需要 100 XP 才能发帖。你目前有 ${user?.xpTotal ?? 0} XP。请先完成几个练习！`);
             return;
           }
           setShowNewPost(true);
@@ -183,7 +190,7 @@ export default function CommunityPage() {
         className="fixed bottom-6 right-6 h-14 w-14 sm:h-auto sm:w-auto sm:px-5 sm:py-3 rounded-full bg-gradient-to-r from-accent to-accent2 text-white font-semibold shadow-glow hover:scale-105 transition flex items-center justify-center gap-2 z-30"
       >
         <span className="text-xl">✏️</span>
-        <span className="hidden sm:inline">New Post</span>
+        <span className="hidden sm:inline">发新帖</span>
       </button>
 
       {showNewPost && <NewPostModal onClose={() => setShowNewPost(false)} />}

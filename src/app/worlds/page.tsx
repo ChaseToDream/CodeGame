@@ -15,16 +15,16 @@ export default function WorldsPage() {
   const [hair, setHair] = useState(HAIRSTYLES[0]);
   const [outfit, setOutfit] = useState(OUTFITS[0]);
   const [accessory, setAccessory] = useState(ACCESSORIES[0]);
-  const [name, setName] = useState(user?.username ?? "Your Hero");
+  const [name, setName] = useState(user?.username ?? "你的英雄");
 
   if (!isAuthed || !user) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
         <div className="text-5xl mb-4">🗺️</div>
-        <h1 className="font-outfit text-2xl font-bold mb-2">Explore the Worlds</h1>
-        <p className="text-muted mb-6">Log in to customize your pixel character.</p>
+        <h1 className="font-outfit text-2xl font-bold mb-2">探索世界</h1>
+        <p className="text-muted mb-6">登录以自定义你的像素角色。</p>
         <a href="/login" className="px-5 py-2.5 rounded-lg bg-accent text-white font-semibold inline-block">
-          Log in
+          登录
         </a>
       </div>
     );
@@ -35,15 +35,15 @@ export default function WorldsPage() {
       <div className="text-center mb-8">
         <div className="text-5xl mb-3">🗺️</div>
         <h1 className="font-outfit text-3xl font-bold">
-          The <span className="gradient-text">Worlds</span>
+          <span className="gradient-text">世界</span>
         </h1>
-        <p className="text-muted mt-2">Customize your pixel hero. New items unlock as you level up.</p>
+        <p className="text-muted mt-2">自定义你的像素英雄。随着等级提升，将解锁更多物品。</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Preview */}
         <div className="rounded-2xl border border-rule bg-gradient-to-br from-bg2 to-bg3 p-8 flex flex-col items-center justify-center">
-          <div className="text-xs text-muted mb-3 uppercase tracking-wider">Preview</div>
+          <div className="text-xs text-muted mb-3 uppercase tracking-wider">预览</div>
           <div
             className="h-40 w-40 rounded-2xl flex items-center justify-center text-7xl relative"
             style={{ background: `linear-gradient(135deg, ${skin}, ${skin}aa)` }}
@@ -53,15 +53,15 @@ export default function WorldsPage() {
             <span className="absolute -bottom-2 text-4xl">{outfit}</span>
           </div>
           <div className="mt-5 font-pixel text-xl text-ink">{name}</div>
-          <div className="text-xs text-accent2 mt-1">Level {user.level} · {user.xpTotal} XP</div>
+          <div className="text-xs text-accent2 mt-1">等级 {user.level} · {user.xpTotal} XP</div>
           <div className="mt-3 text-[11px] text-muted text-center max-w-xs">
-            Your character travels with you across every course and community post.
+            你的角色将伴随你穿梭于每门课程和社区帖子之间。
           </div>
         </div>
 
         {/* Customizer */}
         <div className="space-y-5">
-          <Section label="Name">
+          <Section label="名称">
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -69,7 +69,7 @@ export default function WorldsPage() {
             />
           </Section>
 
-          <Section label="Skin Tone">
+          <Section label="肤色">
             <div className="flex flex-wrap gap-2">
               {SKIN_TONES.map((c) => (
                 <button
@@ -85,7 +85,7 @@ export default function WorldsPage() {
             </div>
           </Section>
 
-          <Section label="Hairstyle">
+          <Section label="发型">
             <div className="flex flex-wrap gap-2">
               {HAIRSTYLES.map((h) => (
                 <button
@@ -102,7 +102,7 @@ export default function WorldsPage() {
             </div>
           </Section>
 
-          <Section label="Outfit">
+          <Section label="服装">
             <div className="flex flex-wrap gap-2">
               {OUTFITS.map((o) => (
                 <button
@@ -119,7 +119,7 @@ export default function WorldsPage() {
             </div>
           </Section>
 
-          <Section label="Accessory">
+          <Section label="配饰">
             <div className="flex flex-wrap gap-2">
               {ACCESSORIES.map((a) => (
                 <button
@@ -137,10 +137,10 @@ export default function WorldsPage() {
           </Section>
 
           <button
-            onClick={() => alert("✨ Character saved! (Demo)")}
+            onClick={() => alert("✨ 角色已保存！（演示）")}
             className="w-full py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
           >
-            Save Character
+            保存角色
           </button>
         </div>
       </div>

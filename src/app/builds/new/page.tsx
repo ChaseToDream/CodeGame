@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils";
 
 const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center h-full text-muted text-sm">Loading editor...</div>,
+  loading: () => <div className="flex items-center justify-center h-full text-muted text-sm">编辑器加载中...</div>,
 });
 
 const TEMPLATES: { name: string; emoji: string; files: BuildFile[] }[] = [
   {
-    name: "Blank Project",
+    name: "空白项目",
     emoji: "📄",
     files: [
       { name: "index.html", language: "html", content: "<!DOCTYPE html>\n<html>\n<head>\n  <title>My Build</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <h1>Hello, Codédex!</h1>\n  <script src=\"script.js\"></script>\n</body>\n</html>" },
@@ -23,7 +23,7 @@ const TEMPLATES: { name: string; emoji: string; files: BuildFile[] }[] = [
     ],
   },
   {
-    name: "Personal Website",
+    name: "个人网站",
     emoji: "👤",
     files: [
       { name: "index.html", language: "html", content: "<!DOCTYPE html>\n<html>\n<head>\n  <title>About Me</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <header>\n    <h1>Hi, I'm a Codédex Learner</h1>\n    <p>Future developer in training ⚔️</p>\n  </header>\n  <main>\n    <section>\n      <h2>My Skills</h2>\n      <ul>\n        <li>HTML</li>\n        <li>CSS</li>\n        <li>JavaScript (learning!)</li>\n      </ul>\n    </section>\n  </main>\n  <script src=\"script.js\"></script>\n</body>\n</html>" },
@@ -32,7 +32,7 @@ const TEMPLATES: { name: string; emoji: string; files: BuildFile[] }[] = [
     ],
   },
   {
-    name: "Pixel Game",
+    name: "像素游戏",
     emoji: "🎮",
     files: [
       { name: "index.html", language: "html", content: "<!DOCTYPE html>\n<html>\n<head>\n  <title>Click Game</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <h1>Click the Target!</h1>\n  <p>Score: <span id=\"score\">0</span></p>\n  <button id=\"target\">🎯</button>\n  <script src=\"script.js\"></script>\n</body>\n</html>" },
@@ -49,7 +49,7 @@ export default function BuildsEditorPage() {
   const { user, isAuthed, createBuild, updateBuild, publishBuild, builds } = useUserStore();
   const [files, setFiles] = useState<BuildFile[]>(TEMPLATES[0].files);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [title, setTitle] = useState("My Awesome Build");
+  const [title, setTitle] = useState("我的精彩作品");
   const [currentBuildId, setCurrentBuildId] = useState<string | null>(null);
   const [showTemplates, setShowTemplates] = useState(true);
   const [showPublish, setShowPublish] = useState(false);
@@ -92,7 +92,7 @@ export default function BuildsEditorPage() {
   };
 
   const addFile = () => {
-    const name = prompt("File name (e.g. about.html, theme.css, app.js):");
+    const name = prompt("文件名（例如 about.html、theme.css、app.js）：");
     if (!name) return;
     const lang = name.endsWith(".css") ? "css" : name.endsWith(".js") ? "js" : "html";
     setFiles((prev) => [...prev, { name, language: lang as BuildFile["language"], content: "" }]);
@@ -128,7 +128,7 @@ export default function BuildsEditorPage() {
     setShowPublish(false);
     setPublishDesc("");
     setSaveStatus("saved");
-    alert("🎉 Build published! It's now visible in the community.");
+    alert("🎉 作品已发布！现在在社区中可见。");
   };
 
   const deviceWidth = device === "mobile" ? "375px" : device === "tablet" ? "768px" : "100%";
@@ -138,8 +138,8 @@ export default function BuildsEditorPage() {
       <div className="mx-auto max-w-4xl px-4 py-12">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">🏗️</div>
-          <h1 className="font-outfit text-3xl font-bold">Start a new Build</h1>
-          <p className="text-muted mt-2">Pick a template or start from scratch.</p>
+          <h1 className="font-outfit text-3xl font-bold">开始新作品</h1>
+          <p className="text-muted mt-2">选择一个模板或从零开始。</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {TEMPLATES.map((t) => (
@@ -150,17 +150,17 @@ export default function BuildsEditorPage() {
             >
               <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">{t.emoji}</div>
               <div className="font-bold text-ink">{t.name}</div>
-              <div className="text-xs text-muted mt-1">{t.files.length} files</div>
+              <div className="text-xs text-muted mt-1">{t.files.length} 个文件</div>
             </button>
           ))}
         </div>
         {!isAuthed && (
           <p className="text-center text-sm text-muted mt-6">
-            <Link href="/login" className="text-accent hover:underline">Log in</Link> to save and publish your builds.
+            <Link href="/login" className="text-accent hover:underline">登录</Link>以保存和发布你的作品。
           </p>
         )}
         <div className="text-center mt-8">
-          <Link href="/builds" className="text-sm text-muted hover:text-ink">← Browse community builds</Link>
+          <Link href="/builds" className="text-sm text-muted hover:text-ink">← 浏览社区作品</Link>
         </div>
       </div>
     );
@@ -176,21 +176,21 @@ export default function BuildsEditorPage() {
           className="bg-transparent font-bold text-ink text-sm px-2 py-1 rounded border border-transparent hover:border-rule focus:border-accent focus:outline-none transition flex-1 min-w-[150px]"
         />
         <div className="text-[11px] text-muted flex items-center gap-1">
-          {saveStatus === "saving" && "Saving..."}
-          {saveStatus === "saved" && <span className="text-success">✓ Saved</span>}
-          {saveStatus === "idle" && "Unsaved"}
+          {saveStatus === "saving" && "保存中..."}
+          {saveStatus === "saved" && <span className="text-success">✓ 已保存</span>}
+          {saveStatus === "idle" && "未保存"}
         </div>
         <button
           onClick={() => setShowPublish(true)}
           className="px-3 py-1.5 rounded text-xs font-semibold bg-gradient-to-r from-accent to-accent2 text-white hover:shadow-glow transition"
         >
-          🚀 Publish
+          🚀 发布
         </button>
         <Link
           href="/builds"
           className="px-3 py-1.5 rounded text-xs border border-rule text-muted hover:text-ink transition"
         >
-          Exit
+          退出
         </Link>
       </div>
 
@@ -200,13 +200,13 @@ export default function BuildsEditorPage() {
           onClick={() => setView("editor")}
           className={cn("flex-1 py-2 text-xs font-medium border-b-2", view === "editor" ? "border-accent text-accent" : "border-transparent text-muted")}
         >
-          💻 Code
+          💻 代码
         </button>
         <button
           onClick={() => setView("preview")}
           className={cn("flex-1 py-2 text-xs font-medium border-b-2", view === "preview" ? "border-accent text-accent" : "border-transparent text-muted")}
         >
-          👁 Preview
+          👁 预览
         </button>
       </div>
 
@@ -219,7 +219,7 @@ export default function BuildsEditorPage() {
               onClick={addFile}
               className="w-full mb-2 px-2 py-1.5 rounded text-xs border border-dashed border-rule text-muted hover:border-accent hover:text-accent transition"
             >
-              + New File
+              + 新建文件
             </button>
             {files.map((f, i) => (
               <div
@@ -270,7 +270,7 @@ export default function BuildsEditorPage() {
         {/* Preview */}
         <div className={cn("flex-1 flex flex-col border-l border-rule", view === "preview" ? "flex" : "hidden md:flex")}>
           <div className="px-3 py-2 bg-bg2 border-b border-rule flex items-center gap-2">
-            <span className="text-[11px] text-muted uppercase tracking-wide">Live Preview</span>
+            <span className="text-[11px] text-muted uppercase tracking-wide">实时预览</span>
             <div className="ml-auto flex items-center gap-1">
               {(["desktop", "tablet", "mobile"] as const).map((d) => (
                 <button
@@ -301,18 +301,18 @@ export default function BuildsEditorPage() {
       {showPublish && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
           <div className="bg-bg2 border border-rule rounded-xl p-6 max-w-md w-full">
-            <h3 className="font-outfit text-lg font-bold mb-3">Publish Build</h3>
+            <h3 className="font-outfit text-lg font-bold mb-3">发布作品</h3>
             <p className="text-sm text-muted mb-4">
-              Publishing makes your build visible in the community showcase. You can edit it anytime.
+              发布后你的作品将显示在社区展示中。你可以随时编辑。
             </p>
             <label className="block text-xs font-bold text-muted uppercase tracking-wide mb-1.5">
-              Description
+              描述
             </label>
             <textarea
               value={publishDesc}
               onChange={(e) => setPublishDesc(e.target.value)}
               rows={3}
-              placeholder="What does your build do?"
+              placeholder="你的作品是做什么的？"
               className="w-full px-3 py-2 rounded-lg bg-bg3 border border-rule text-sm text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition mb-4"
             />
             <div className="flex gap-2 justify-end">
@@ -320,13 +320,13 @@ export default function BuildsEditorPage() {
                 onClick={() => setShowPublish(false)}
                 className="px-4 py-2 rounded-lg text-sm text-muted hover:text-ink transition"
               >
-                Cancel
+                取消
               </button>
               <button
                 onClick={handlePublish}
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white text-sm font-semibold hover:shadow-glow transition"
               >
-                Publish 🚀
+                发布 🚀
               </button>
             </div>
           </div>

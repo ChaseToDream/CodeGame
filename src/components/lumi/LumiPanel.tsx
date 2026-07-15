@@ -17,7 +17,7 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
   const [messages, setMessages] = useState<LumiMessage[]>([
     {
       role: "assistant",
-      content: `Hi! I'm **Lumi** 🤖, your coding buddy. Stuck on this exercise? Ask me for a hint — I won't give away the answer, but I'll guide you there! 💪`,
+      content: `你好！我是 **Lumi** 🤖，你的编程伙伴。在这个练习上卡住了吗？向我要个提示吧——我不会直接告诉你答案，但会引导你找到它！💪`,
     },
   ]);
   const [input, setInput] = useState("");
@@ -72,14 +72,14 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
               <div>
                 <div className="font-bold text-sm text-ink">Lumi</div>
                 <div className="text-[10px] text-muted flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success" /> Online
+                  <span className="w-1.5 h-1.5 rounded-full bg-success" /> 在线
                 </div>
               </div>
             </div>
             <button
               onClick={onClose}
               className="p-1.5 rounded text-muted hover:text-ink hover:bg-bg2 transition"
-              aria-label="Close Lumi"
+              aria-label="关闭 Lumi"
             >
               ✕
             </button>
@@ -116,7 +116,7 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
           {/* Suggested prompts */}
           {messages.length <= 1 && (
             <div className="px-4 pb-2 flex flex-wrap gap-2">
-              {["Give me a hint", "Explain this concept", "Help debug my code"].map((p) => (
+              {["给我个提示", "解释这个概念", "帮我调试代码"].map((p) => (
                 <button
                   key={p}
                   onClick={() => setInput(p)}
@@ -141,7 +141,7 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
                   }
                 }}
                 rows={1}
-                placeholder="Ask Lumi anything..."
+                placeholder="向 Lumi 提问..."
                 className="flex-1 resize-none px-3 py-2 rounded-lg bg-bg2 border border-rule text-sm text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition max-h-24"
               />
               <button
@@ -149,11 +149,11 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
                 disabled={!input.trim() || streaming}
                 className="px-3 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:bg-accent/90 disabled:opacity-50 transition"
               >
-                Send
+                发送
               </button>
             </div>
             <p className="text-[10px] text-muted mt-1.5 text-center">
-              Lumi gives hints, not answers. 💡
+              Lumi 提供提示，而非答案。💡
             </p>
           </div>
         </motion.div>

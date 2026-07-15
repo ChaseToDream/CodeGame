@@ -11,22 +11,22 @@ export interface LumiMessage {
  * 模拟 SSE 流式输出，逐 token 推送。
  */
 export function buildLumiSystemPrompt(exercise: Exercise, userCode: string): string {
-  return `You are Lumi, the friendly AI coding buddy on Codédex.
-Current exercise: ${exercise.title}
-Exercise type: ${exercise.type}
-Language: ${exercise.language}
+  return `你是 Lumi，Codédex 上友好的 AI 编程伙伴。
+当前练习：${exercise.title}
+练习类型：${exercise.type}
+语言：${exercise.language}
 
-Rules:
-1. Use simple, friendly language suitable for beginners.
-2. NEVER give the direct answer. Guide the learner to think.
-3. Give progressive hints — start subtle, get more specific if asked again.
-4. If the user's code has a bug, point out WHERE and WHY, but let them fix it.
-5. Keep replies under 200 words. Use Markdown.
-6. Be encouraging and positive.
+规则：
+1. 使用适合初学者的简单、友好的语言。
+2. 绝不直接给出答案。引导学习者思考。
+3. 给出渐进式提示——先含蓄，若再次询问则更具体。
+4. 如果用户代码有 bug，指出在哪里以及为什么，但让他们自己修复。
+5. 回复保持在 200 字以内。使用 Markdown。
+6. 要鼓励、积极。
 
-User's current code:
+用户当前代码：
 \`\`\`${exercise.language}
-${userCode || "(empty)"}
+${userCode || "(空)"}
 \`\`\``;
 }
 
@@ -41,55 +41,55 @@ export function generateLumiReply(
 
   // 检测关键词并给出对应提示
   if (/(stuck|help|don't know|dont know|hint|stuck|卡|不会)/i.test(msg)) {
-    return `No worries — let's break it down together! 🌟
+    return `别担心——我们一起拆解它！🌟
 
-Looking at this exercise, you need to **${summarizeGoal(exercise)}**.
+看一下这个练习，你需要**${summarizeGoal(exercise)}**。
 
-Here's a nudge:
-- What ${lang === "python" ? "function" : "tool"} have we learned that displays output?
-- Try writing it step by step in plain English first, then translate to ${lang}.
+给你一点提示：
+- 我们学过的哪个${lang === "python" ? "函数" : "工具"}可以显示输出？
+- 试着先用通俗的语言一步步写出来，再翻译成 ${lang}。
 
-Show me what you've tried and I'll help you spot what's off! 💪`;
+把你尝试过的代码给我看看，我帮你找出问题！💪`;
   }
 
   if (/(error|bug|wrong|not work|fail|报错|错)/i.test(msg)) {
     if (!userCode.trim()) {
-      return `I don't see any code yet — try writing something in the editor first! Even a partial attempt helps me help you. ✨
+      return `我还没看到任何代码——先在编辑器里写点什么吧！即使是部分尝试也能帮我更好地帮你。✨
 
-Start with what the exercise is asking: ${summarizeGoal(exercise)}.`;
+从这个练习的要求开始：${summarizeGoal(exercise)}。`;
     }
-    return `Let's debug together! 🐛
+    return `我们一起调试吧！🐛
 
-Looking at your code:
+看一下你的代码：
 \`\`\`${lang}
 ${userCode}
 \`\`\`
 
-A few things to check:
-1. Are your quotes balanced? (\`"...\`" needs a matching \`"\`)
-2. Is the ${lang === "python" ? "indentation" : "syntax"} correct?
-3. Does your output **exactly** match what the test expects? (Even an extra space counts!)
+检查几点：
+1. 引号是否成对？（\`"...\`" 需要配对的 \`"\`）
+2. ${lang === "python" ? "缩进" : "语法"}是否正确？
+3. 你的输出是否**完全**匹配测试期望？（即使多一个空格也算！）
 
-Tell me what output you're getting vs. what you expected, and we'll narrow it down. 🔍`;
+告诉我你得到的输出和期望的输出，我们一起缩小范围。🔍`;
   }
 
   if (/(how|what|why|explain|概念|怎么)/i.test(msg)) {
-    return `Great question! 💡
+    return `好问题！💡
 
 ${explainConcept(exercise)}
 
-Want me to give you a more specific hint about your current code? Just ask!`;
+需要我就你当前的代码给出更具体的提示吗？尽管问！`;
   }
 
   // 默认回复
-  return `I'm Lumi, your coding buddy! 🤖
+  return `我是 Lumi，你的编程伙伴！🤖
 
-Here's what I know about this exercise:
-- **Goal**: ${summarizeGoal(exercise)}
-- **Language**: ${lang}
-- **XP reward**: ${exercise.xpReward}
+关于这个练习，我知道这些：
+- **目标**：${summarizeGoal(exercise)}
+- **语言**：${lang}
+- **XP 奖励**：${exercise.xpReward}
 
-Try writing your solution in the editor. If you get stuck, ask me for a **hint**, or paste an **error** and I'll help debug. You've got this! 💪`;
+试着在编辑器里写出你的解决方案。如果卡住了，向我要个**提示**，或者贴出**错误**，我帮你调试。你能行的！💪`;
 }
 
 function summarizeGoal(exercise: Exercise): string {
@@ -97,42 +97,42 @@ function summarizeGoal(exercise: Exercise): string {
   const tc = exercise.testCases[0];
   if (tc) {
     if (exercise.language === "python" || exercise.language === "javascript") {
-      return `produce the output \`${tc.expected.trim()}\``;
+      return `生成输出 \`${tc.expected.trim()}\``;
     }
-    return `produce code matching \`${tc.expected.trim().slice(0, 60)}\``;
+    return `生成匹配 \`${tc.expected.trim().slice(0, 60)}\` 的代码`;
   }
-  return "complete the exercise";
+  return "完成练习";
 }
 
 function explainConcept(exercise: Exercise): string {
   const lang = exercise.language;
   if (lang === "python") {
-    return `**Python basics**:
-- \`print()\` displays text on the screen
-- Variables store values: \`name = "Ada"\`
-- Strings go in quotes, numbers don't
-- Indentation (4 spaces) matters for blocks`;
+    return `**Python 基础**：
+- \`print()\` 在屏幕上显示文本
+- 变量存储值：\`name = "Ada"\`
+- 字符串用引号括起来，数字不用
+- 缩进（4 个空格）对代码块很重要`;
   }
   if (lang === "javascript") {
-    return `**JavaScript basics**:
-- \`console.log()\` prints to the console
-- Use \`let\` or \`const\` to declare variables
-- Strings use \`"\` or \`'\`
-- Statements end with \`;\``;
+    return `**JavaScript 基础**：
+- \`console.log()\` 打印到控制台
+- 用 \`let\` 或 \`const\` 声明变量
+- 字符串用 \`"\` 或 \`'\`
+- 语句以 \`;\` 结尾`;
   }
   if (lang === "html") {
-    return `**HTML basics**:
-- Tags wrap content: \`<tag>...</tag>\`
-- Common tags: \`<h1>\`, \`<p>\`, \`<a>\`, \`<div>\`
-- Most tags need a closing tag`;
+    return `**HTML 基础**：
+- 标签包裹内容：\`<tag>...</tag>\`
+- 常见标签：\`<h1>\`、\`<p>\`、\`<a>\`、\`<div>\`
+- 大多数标签需要闭合标签`;
   }
   if (lang === "css") {
-    return `**CSS basics**:
-- Select an element, then style it
+    return `**CSS 基础**：
+- 选择一个元素，然后设置样式
 - \`selector { property: value; }\`
-- Example: \`p { color: purple; }\``;
+- 示例：\`p { color: purple; }\``;
   }
-  return `This is a ${lang} exercise. Write your solution in the editor and run it!`;
+  return `这是一个 ${lang} 练习。在编辑器里写出你的解决方案并运行它！`;
 }
 
 /** 模拟流式输出 —— 逐 token 回调 */

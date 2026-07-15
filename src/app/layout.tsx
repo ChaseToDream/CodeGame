@@ -33,13 +33,13 @@ const pixel = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Codédex — The most fun way to learn to code",
+  title: "Codédex — 最有趣的学编程方式",
   description:
-    "Codédex is a gamified, beginner-friendly platform to learn Python, HTML, CSS, JavaScript and more. Level up, earn XP, and build real projects.",
-  keywords: ["learn to code", "python", "javascript", "html", "css", "coding for beginners", "gamified learning"],
+    "Codédex 是一个游戏化的入门友好平台，学习 Python、HTML、CSS、JavaScript 等。提升等级、获得 XP，构建真实项目。",
+  keywords: ["学编程", "python", "javascript", "html", "css", "编程入门", "游戏化学习"],
   openGraph: {
-    title: "Codédex — The most fun way to learn to code",
-    description: "Level up your coding skills with gamified lessons, a browser code editor, and a friendly community.",
+    title: "Codédex — 最有趣的学编程方式",
+    description: "通过游戏化课程、浏览器代码编辑器和友好的社区，提升你的编程技能。",
     type: "website",
   },
 };
@@ -51,7 +51,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang="zh-CN"
       className={`${outfit.variable} ${outfitBold.variable} ${work.variable} ${mono.variable} ${pixel.variable}`}
     >
       <body className="relative">

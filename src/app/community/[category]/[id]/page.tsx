@@ -8,6 +8,13 @@ import { communityPosts as seedPosts } from "@/data/posts";
 import { builds as seedBuilds } from "@/data/builds";
 import { timeAgo, cn } from "@/lib/utils";
 
+const CATEGORY_LABEL: Record<string, string> = {
+  general: "综合",
+  career: "职业",
+  project_showcase: "作品展示",
+  introductions: "自我介绍",
+};
+
 export default function PostDetailPage() {
   const params = useParams<{ category: string; id: string }>();
   const { posts, togglePostLike, addComment, user, isAuthed } = useUserStore();
@@ -22,8 +29,8 @@ export default function PostDetailPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <div className="text-5xl mb-4">🧭</div>
-        <h1 className="font-outfit text-2xl font-bold mb-2">Post not found</h1>
-        <Link href="/community" className="text-accent hover:text-accent2">← Back to community</Link>
+        <h1 className="font-outfit text-2xl font-bold mb-2">未找到帖子</h1>
+        <Link href="/community" className="text-accent hover:text-accent2">← 返回社区</Link>
       </div>
     );
   }
@@ -41,15 +48,15 @@ export default function PostDetailPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
       <nav className="text-sm text-muted mb-4">
-        <Link href="/community" className="hover:text-ink">Community</Link>
+        <Link href="/community" className="hover:text-ink">社区</Link>
         <span className="mx-2">/</span>
-        <span className="text-ink capitalize">{post.category.replace("_", " ")}</span>
+        <span className="text-ink capitalize">{CATEGORY_LABEL[post.category] ?? post.category.replace("_", " ")}</span>
       </nav>
 
       <article className="rounded-xl border border-rule bg-bg2 p-6 mb-6 relative">
         {post.isStaffPick && (
           <span className="absolute -top-2 left-6 px-2 py-0.5 rounded bg-gradient-to-r from-warning to-accent2 text-bg text-[10px] font-bold font-pixel">
-            ⭐ STAFF PICK
+            ⭐ 编辑精选
           </span>
         )}
         <div className="flex items-center gap-3 mb-4">
@@ -61,7 +68,7 @@ export default function PostDetailPage() {
             </div>
           </div>
           <span className="ml-auto px-2 py-1 rounded bg-bg3 text-[10px] text-accent uppercase tracking-wide font-bold">
-            {post.category.replace("_", " ")}
+            {CATEGORY_LABEL[post.category] ?? post.category.replace("_", " ")}
           </span>
         </div>
 
@@ -84,7 +91,7 @@ export default function PostDetailPage() {
               <div className="font-bold text-ink line-clamp-1">{attachedBuild.title}</div>
               <div className="text-xs text-muted line-clamp-1">{attachedBuild.description}</div>
             </div>
-            <span className="px-3 py-1.5 rounded text-xs bg-accent text-white font-semibold shrink-0">▶ Live Demo</span>
+            <span className="px-3 py-1.5 rounded text-xs bg-accent text-white font-semibold shrink-0">▶ 在线演示</span>
           </Link>
         )}
 
@@ -98,13 +105,13 @@ export default function PostDetailPage() {
           >
             ❤️ {post.likeCount}
           </button>
-          <span className="text-sm text-muted">💬 {post.comments.length} comments</span>
+          <span className="text-sm text-muted">💬 {post.comments.length} 条评论</span>
         </div>
       </article>
 
       {/* Comments */}
       <section>
-        <h2 className="font-outfit text-lg font-bold mb-4">Comments</h2>
+        <h2 className="font-outfit text-lg font-bold mb-4">评论</h2>
 
         {isAuthed ? (
           <div className="mb-6 flex gap-3">
@@ -114,7 +121,7 @@ export default function PostDetailPage() {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
-                placeholder="Write a comment..."
+                placeholder="写下你的评论..."
                 className="w-full px-3 py-2 rounded-lg bg-bg2 border border-rule text-sm text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition resize-y"
               />
               <div className="mt-2 flex justify-end">
@@ -123,20 +130,20 @@ export default function PostDetailPage() {
                   disabled={!comment.trim()}
                   className="px-4 py-1.5 rounded-lg bg-accent text-white text-sm font-semibold hover:bg-accent/90 disabled:opacity-50 transition"
                 >
-                  Comment
+                  评论
                 </button>
               </div>
             </div>
           </div>
         ) : (
           <div className="mb-6 p-4 rounded-lg border border-rule bg-bg2 text-center text-sm text-muted">
-            <Link href="/login" className="text-accent hover:underline">Log in</Link> to join the conversation.
+            <Link href="/login" className="text-accent hover:underline">登录</Link>以参与讨论。
           </div>
         )}
 
         <div className="space-y-4">
           {post.comments.length === 0 ? (
-            <p className="text-center text-sm text-muted py-6">No comments yet. Be the first!</p>
+            <p className="text-center text-sm text-muted py-6">还没有评论。来抢沙发！</p>
           ) : (
             post.comments.map((c) => (
               <div key={c.id} className="flex gap-3">

@@ -24,7 +24,7 @@ export function XPBadge({ xp, level, size = "md", showLevel = true }: XPBadgePro
       title={`${xp} XP`}
     >
       {showLevel && (
-        <span className="text-accent2 font-bold">Lvl {level}</span>
+        <span className="text-accent2 font-bold">Lv {level}</span>
       )}
       <span className="text-accent font-bold">{xp.toLocaleString()} XP</span>
     </div>

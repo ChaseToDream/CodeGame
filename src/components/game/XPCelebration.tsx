@@ -43,7 +43,7 @@ export function XPCelebration({ xp, trigger, onComplete }: XPCelebrationProps) {
         <div className="font-pixel text-6xl sm:text-7xl gradient-text font-bold drop-shadow-[0_0_30px_rgba(124,92,252,0.6)]">
           +{xp} XP
         </div>
-        <div className="text-center mt-2 text-xl font-outfit text-ink">Exercise complete! 🎉</div>
+        <div className="text-center mt-2 text-xl font-outfit text-ink">练习完成！🎉</div>
       </div>
     </div>
   );

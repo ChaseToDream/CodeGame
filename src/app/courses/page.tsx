@@ -18,6 +18,16 @@ const ALL_TAGS: CourseTag[] = [
   "Creative Coding",
 ];
 
+const TAG_LABELS: Record<CourseTag, string> = {
+  Beginner: "入门",
+  Intermediate: "进阶",
+  Python: "Python",
+  "Web Development": "Web 开发",
+  "Data Science": "数据科学",
+  Tools: "工具",
+  "Creative Coding": "创意编程",
+};
+
 export default function CoursesPage() {
   const [activeTags, setActiveTags] = useState<CourseTag[]>([]);
   const [expandedJourney, setExpandedJourney] = useState<string | null>(null);
@@ -39,23 +49,23 @@ export default function CoursesPage() {
       <div className="text-center mb-14">
         <div className="text-5xl mb-4">🏔️</div>
         <h1 className="font-outfit text-4xl sm:text-5xl font-bold">
-          Explore the <span className="gradient-text">World of Codédex</span>
+          探索 <span className="gradient-text">Codédex 的世界</span>
         </h1>
         <p className="mt-3 text-muted max-w-2xl mx-auto">
-          Pick a path or browse all 25+ courses. Every course is interactive, free to start, and built for beginners.
+          选择一条路径，或浏览全部 25+ 门课程。每门课程都是互动式的，免费开始，专为初学者打造。
         </p>
         <Link
           href="/signup"
           className="inline-block mt-6 px-6 py-3 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
         >
-          Start your coding adventure →
+          开启你的编程冒险 →
         </Link>
       </div>
 
       {/* Learning Journeys */}
       <section className="mb-16">
         <h2 className="font-outfit text-2xl font-bold mb-5 flex items-center gap-2">
-          <span>🗺️</span> Learning Journeys
+          <span>🗺️</span> 学习路径
         </h2>
         <div className="space-y-3">
           {learningJourneys.map((j) => {
@@ -84,8 +94,8 @@ export default function CoursesPage() {
                     <div className="text-sm text-muted line-clamp-1">{j.description}</div>
                   </div>
                   <div className="hidden sm:flex items-center gap-4 text-xs text-muted shrink-0">
-                    <span>📚 {list.length} courses</span>
-                    <span>⏱ {list.reduce((a, c) => a + c.estimatedHours, 0)}h</span>
+                    <span>📚 {list.length} 门课程</span>
+                    <span>⏱ {list.reduce((a, c) => a + c.estimatedHours, 0)} 小时</span>
                   </div>
                   <span className={cn("text-muted transition-transform shrink-0", isOpen && "rotate-180")}>
                     ▼
@@ -95,7 +105,7 @@ export default function CoursesPage() {
                   <div className="px-4 pb-4 pt-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-slideUp">
                     {list.length === 0 ? (
                       <p className="text-sm text-muted col-span-full py-4">
-                        More courses coming soon to this journey!
+                        更多课程即将加入此路径！
                       </p>
                     ) : (
                       list.map((c) => <CourseCard key={c.id} course={c} compact />)
@@ -111,12 +121,12 @@ export default function CoursesPage() {
       {/* All Courses */}
       <section>
         <h2 className="font-outfit text-2xl font-bold mb-5 flex items-center gap-2">
-          <span>📚</span> All Courses
+          <span>📚</span> 全部课程
         </h2>
 
         {/* Tag filter */}
         <div className="flex flex-wrap gap-2 mb-6">
-          <span className="text-xs text-muted self-center mr-1">Filter:</span>
+          <span className="text-xs text-muted self-center mr-1">筛选：</span>
           {ALL_TAGS.map((t) => (
             <button
               key={t}
@@ -128,7 +138,7 @@ export default function CoursesPage() {
                   : "border-rule bg-bg2 text-muted hover:text-ink hover:border-accent/50",
               )}
             >
-              {t}
+              {TAG_LABELS[t]}
             </button>
           ))}
           {activeTags.length > 0 && (
@@ -136,7 +146,7 @@ export default function CoursesPage() {
               onClick={() => setActiveTags([])}
               className="px-3 py-1.5 rounded-full text-xs text-accent2 hover:underline"
             >
-              Clear all
+              清除全部
             </button>
           )}
         </div>
@@ -149,7 +159,7 @@ export default function CoursesPage() {
         {filteredCourses.length === 0 && (
           <div className="text-center py-16 text-muted">
             <div className="text-4xl mb-3">🔍</div>
-            No courses match these filters.
+            没有符合条件的课程。
           </div>
         )}
       </section>

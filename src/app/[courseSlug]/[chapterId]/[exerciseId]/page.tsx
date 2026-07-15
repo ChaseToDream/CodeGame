@@ -116,8 +116,8 @@ export default function ExercisePage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <div className="text-5xl mb-4">🧭</div>
-        <h1 className="font-outfit text-2xl font-bold mb-2">Exercise not found</h1>
-        <Link href="/courses" className="text-accent hover:text-accent2">← Back to courses</Link>
+        <h1 className="font-outfit text-2xl font-bold mb-2">未找到练习</h1>
+        <Link href="/courses" className="text-accent hover:text-accent2">← 返回课程</Link>
       </div>
     );
   }
@@ -170,10 +170,10 @@ export default function ExercisePage() {
               className="px-2.5 py-1.5 rounded text-xs border border-rule text-muted hover:text-ink hover:border-accent transition"
               title={prev.ex.title}
             >
-              ← <span className="hidden sm:inline">Prev</span>
+              ← <span className="hidden sm:inline">上一题</span>
             </button>
           ) : (
-            <span className="px-2.5 py-1.5 text-xs text-muted/40">← <span className="hidden sm:inline">Prev</span></span>
+            <span className="px-2.5 py-1.5 text-xs text-muted/40">← <span className="hidden sm:inline">上一题</span></span>
           )}
           {next ? (
             <button
@@ -186,21 +186,21 @@ export default function ExercisePage() {
               )}
               title={next.ex.title}
             >
-              <span className="hidden sm:inline">Next</span> →
+              <span className="hidden sm:inline">下一题</span> →
             </button>
           ) : (
             <Link
               href={`/${course.slug}`}
               className="px-2.5 py-1.5 rounded text-xs font-semibold border border-success text-success hover:bg-success hover:text-bg transition"
             >
-              Done ✓
+              完成 ✓
             </Link>
           )}
           <button
             onClick={() => setLumiOpen(true)}
             className="px-3 py-1.5 rounded text-xs font-semibold bg-gradient-to-r from-accent to-accent2 text-white hover:shadow-glow transition flex items-center gap-1.5"
           >
-            🤖 <span className="hidden sm:inline">Ask Lumi</span>
+            🤖 <span className="hidden sm:inline">向 Lumi 提问</span>
           </button>
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function ExercisePage() {
             mobileTab === "lesson" ? "border-accent text-accent" : "border-transparent text-muted",
           )}
         >
-          📖 Lesson
+          📖 课程
         </button>
         <button
           onClick={() => setMobileTab("code")}
@@ -223,7 +223,7 @@ export default function ExercisePage() {
             mobileTab === "code" ? "border-accent text-accent" : "border-transparent text-muted",
           )}
         >
-          💻 Code
+          💻 代码
         </button>
       </div>
 
@@ -246,9 +246,9 @@ export default function ExercisePage() {
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{exercise.contentMd}</ReactMarkdown>
             </div>
             <div className="mt-8 p-4 rounded-lg border border-accent/30 bg-accent/5 text-sm">
-              <div className="font-bold text-accent mb-1">🎯 Your mission</div>
+              <div className="font-bold text-accent mb-1">🎯 你的任务</div>
               <p className="text-muted">
-                Complete the exercise in the editor on the right. Click <strong className="text-success">Check</strong> to verify your solution and earn <strong className="text-accent2">+{exercise.xpReward} XP</strong>.
+                在右侧编辑器中完成练习。点击<strong className="text-success">检查</strong>验证你的答案，并赚取 <strong className="text-accent2">+{exercise.xpReward} XP</strong>。
               </p>
             </div>
           </div>
@@ -284,7 +284,7 @@ export default function ExercisePage() {
       {/* Bottom info */}
       <div className="border-t border-rule bg-bg2 px-4 py-2 text-[11px] text-muted flex items-center justify-between">
         <span>{chapter.title}</span>
-        <span>Exercise {currentIdx + 1} of {flatExercises.length}</span>
+        <span>第 {currentIdx + 1} 题，共 {flatExercises.length} 题</span>
       </div>
 
       {/* Lumi */}

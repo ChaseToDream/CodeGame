@@ -72,12 +72,12 @@ export default function UserProfilePage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
         <div className="text-5xl mb-4">🔍</div>
-        <h1 className="font-outfit text-2xl font-bold mb-2">User not found</h1>
+        <h1 className="font-outfit text-2xl font-bold mb-2">未找到用户</h1>
         <p className="text-muted mb-6">
-          {`We couldn't find @${username || "username"}. This clone only stores the local logged-in user.`}
+          {`我们找不到 @${username || "username"}。此克隆版本仅存储本地登录用户。`}
         </p>
         <Link href="/community" className="px-5 py-2.5 rounded-lg bg-accent text-white font-semibold inline-block">
-          Browse community
+          浏览社区
         </Link>
       </div>
     );
@@ -111,7 +111,7 @@ export default function UserProfilePage() {
             <div className="mt-3 flex items-center gap-3 flex-wrap">
               <XPBadge xp={user.xpTotal} level={user.level} size="md" />
               <span className="text-xs text-muted">
-                🔥 {user.streakDays}d streak · joined {timeAgo(user.createdAt)}
+                🔥 连续学习 {user.streakDays} 天 · 加入于 {timeAgo(user.createdAt)}
               </span>
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function UserProfilePage() {
               href="/settings"
               className="px-4 py-2 rounded-lg border border-rule text-sm text-ink hover:border-accent transition"
             >
-              Edit Profile
+              编辑资料
             </Link>
           )}
         </div>
@@ -136,19 +136,19 @@ export default function UserProfilePage() {
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-        <StatCard label="Total XP" value={formatNumber(user.xpTotal)} icon="✨" />
-        <StatCard label="Level" value={`Lv ${user.level}`} icon="🎮" />
-        <StatCard label="Exercises" value={String(completedCount)} icon="🎯" />
-        <StatCard label="Badges" value={`${earnedBadges.length}/${badgeState.length}`} icon="🏅" />
+        <StatCard label="总 XP" value={formatNumber(user.xpTotal)} icon="✨" />
+        <StatCard label="等级" value={`Lv ${user.level}`} icon="🎮" />
+        <StatCard label="练习数" value={String(completedCount)} icon="🎯" />
+        <StatCard label="徽章" value={`${earnedBadges.length}/${badgeState.length}`} icon="🏅" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: learning + builds + posts */}
         <div className="lg:col-span-2 space-y-6">
           <section className="rounded-xl border border-rule bg-bg2 p-5">
-            <h2 className="font-outfit text-lg font-bold mb-4">Learning Journey</h2>
+            <h2 className="font-outfit text-lg font-bold mb-4">学习历程</h2>
             {startedCourses.length === 0 ? (
-              <p className="text-muted text-sm">No courses started yet.</p>
+              <p className="text-muted text-sm">还没有开始任何课程。</p>
             ) : (
               <div className="space-y-3">
                 {startedCourses.map(({ course, done, total }) => {
@@ -186,11 +186,11 @@ export default function UserProfilePage() {
 
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-outfit text-lg font-bold">Builds</h2>
-              <span className="text-xs text-muted">{userBuilds.length} total</span>
+              <h2 className="font-outfit text-lg font-bold">作品</h2>
+              <span className="text-xs text-muted">{userBuilds.length} 总计</span>
             </div>
             {userBuilds.length === 0 ? (
-              <p className="text-muted text-sm">No builds yet.</p>
+              <p className="text-muted text-sm">还没有作品。</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {userBuilds.slice(0, 4).map((b) => (
@@ -207,7 +207,7 @@ export default function UserProfilePage() {
                     </div>
                     <div className="font-bold text-sm text-ink line-clamp-1">{b.title}</div>
                     <div className="text-[10px] text-muted mt-1 flex justify-between">
-                      <span>{b.isPublished ? "✓ Published" : "Draft"}</span>
+                      <span>{b.isPublished ? "✓ 已发布" : "草稿"}</span>
                       <span>👁 {formatNumber(b.viewCount)}</span>
                     </div>
                   </Link>
@@ -218,11 +218,11 @@ export default function UserProfilePage() {
 
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-outfit text-lg font-bold">Community Posts</h2>
-              <span className="text-xs text-muted">{userPosts.length} total</span>
+              <h2 className="font-outfit text-lg font-bold">社区帖子</h2>
+              <span className="text-xs text-muted">{userPosts.length} 总计</span>
             </div>
             {userPosts.length === 0 ? (
-              <p className="text-muted text-sm">No posts yet.</p>
+              <p className="text-muted text-sm">还没有帖子。</p>
             ) : (
               <ul className="space-y-2">
                 {userPosts.slice(0, 5).map((p) => (
@@ -247,7 +247,7 @@ export default function UserProfilePage() {
         <div className="space-y-6">
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-outfit text-lg font-bold">Badges</h2>
+              <h2 className="font-outfit text-lg font-bold">徽章</h2>
               <span className="text-xs text-muted">{earnedBadges.length}/{badgeState.length}</span>
             </div>
             <BadgeGrid badges={badgeState} />

@@ -4,189 +4,189 @@ export const blogPosts: BlogPost[] = [
   {
     id: "bp_1",
     slug: "30-nites-of-code-2026",
-    title: "30NitesOfCode 2026 is here — join the challenge!",
+    title: "30NitesOfCode 2026 来了——加入挑战吧！",
     excerpt:
-      "Our annual coding streak challenge returns. Code for 30 nights in a row, earn an exclusive badge, and level up your skills together with thousands of learners worldwide.",
+      "我们的年度编程连续学习挑战回归了。连续 30 个夜晚编写代码，赢取专属徽章，与全球数千名学习者一起提升技能。",
     category: "Announcements",
     author: "codex_team",
     authorAvatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
     publishedAt: "2026-07-01T09:00:00Z",
     readingMinutes: 4,
     coverGradient: "linear-gradient(135deg, #7C5CFC, #FF6B9D)",
-    content: `# 30NitesOfCode 2026 is here!
+    content: `# 30NitesOfCode 2026 来了！
 
-The challenge that changed how thousands of learners build a habit is back. **30 nights. 30 exercises. One unforgettable streak.**
+改变了数千名学习者习惯的挑战回归了。**30 个夜晚。30 个练习。一段难忘的连续学习。**
 
-## How it works
+## 如何参与
 
-1. **Sign up** on the dashboard to opt in.
-2. **Complete at least one exercise every night** for 30 consecutive nights.
-3. **Earn the exclusive 30Nites badge** and a 200 XP bonus.
+1. 在仪表盘上**报名**参与。
+2. 连续 30 个夜晚，**每晚至少完成一个练习**。
+3. **赢取专属 30Nites 徽章**和 200 XP 奖励。
 
-## Why nights?
+## 为什么是夜晚？
 
-Because the best time to learn is the time you actually have. For most of us, that's after dinner. 30NitesOfCode turns your evenings into a habit that sticks.
+因为最适合学习的时间，是你真正拥有的时间。对我们大多数人来说，那就是晚饭后。30NitesOfCode 把你的夜晚变成一个能坚持的习惯。
 
-## Tips from last year's finishers
+## 来自去年完成者的建议
 
-- **Start small.** One exercise counts. Don't burn out on night 3.
-- **Tell a friend.** Learners who joined with a buddy finished 3x more often.
-- **Forgive yourself.** Life happens. You get one "grace night" — use it wisely.
+- **从小处开始。** 一个练习也算。别在第 3 天就燃尽自己。
+- **告诉朋友。** 与伙伴一起参与的学习者完成率高出 3 倍。
+- **原谅自己。** 生活总有意外。你有一次"宽限夜"——明智地使用它。
 
-> "I went from 'I'm not a tech person' to shipping my first website in 30 days." — last year's finisher
+> "我从'我不是技术人'变成了 30 天内发布了自己的第一个网站。"——去年的完成者
 
-Ready? Head to your **dashboard** and hit the **Join 30Nites** button. 🌙`,
+准备好了吗？前往你的**仪表盘**，点击**加入 30Nites** 按钮。🌙`,
   },
   {
     id: "bp_2",
     slug: "meet-lumi-your-ai-coding-companion",
-    title: "Meet Lumi: your AI coding companion",
+    title: "认识 Lumi：你的 AI 编程伙伴",
     excerpt:
-      "Lumi is the friendly AI assistant built into every Codédex exercise. Get unstuck, debug your code, and brainstorm projects — all without leaving your browser.",
+      "Lumi 是内置于每个 Codédex 练习中的友好 AI 助手。帮你突破卡点、调试代码、头脑风暴项目创意——所有这些都不用离开浏览器。",
     category: "Product Updates",
     author: "codex_team",
     authorAvatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
     publishedAt: "2026-06-20T10:00:00Z",
     readingMinutes: 5,
     coverGradient: "linear-gradient(135deg, #4ECDC4, #7C5CFC)",
-    content: `# Meet Lumi 🤖
+    content: `# 认识 Lumi 🤖
 
-Stuck on a tricky concept? Lumi is here to help — without giving away the answer.
+被一个棘手的概念卡住了？Lumi 来帮你——而且不会直接透露答案。
 
-## What Lumi does
+## Lumi 能做什么
 
-- **Explains concepts** in beginner-friendly language
-- **Debugs your code** by pointing out where things go wrong (but you fix it!)
-- **Brainstorms project ideas** for your next Build
-- **Gives hints** that nudge you toward the solution
+- 用入门友好的语言**解释概念**
+- **调试你的代码**，指出哪里出错了（但要你自己来修复！）
+- 为你的下一个作品**头脑风暴项目创意**
+- **提供提示**，引导你走向答案
 
-## What Lumi won't do
+## Lumi 不会做什么
 
-Lumi is your study buddy, not your answer key. It won't solve exercises for you. That's where the learning happens.
+Lumi 是你的学习伙伴，不是你的答案书。它不会替你解决练习。学习正是在这个过程中发生的。
 
-## How to use it
+## 如何使用
 
-Click the **Ask Lumi** button on any exercise page. A panel slides in from the right. Type your question, and Lumi streams a response back in real time.
+在任何练习页面点击**向 Lumi 提问**按钮。一个面板会从右侧滑入。输入你的问题，Lumi 会实时流式返回回答。
 
-Lumi knows what course you're on, what exercise you're stuck on, and even what code you've written so far — so you don't have to explain from scratch.
+Lumi 知道你正在学哪门课程、卡在哪个练习上，甚至知道你已经写了什么代码——所以你不必从头解释。
 
-Happy learning! ✨`,
+祝你学习愉快！✨`,
   },
   {
     id: "bp_3",
     slug: "from-barista-to-developer-marcos-story",
-    title: "From barista to developer: Marco's story",
+    title: "从咖啡师到开发者：Marco 的故事",
     excerpt:
-      "Marco spent 4 years pulling espresso shots. After 6 months on Codédex, he just accepted his first junior developer offer. Here's how he did it.",
+      "Marco 做了 4 年咖啡师。在 Codédex 学习 6 个月后，他刚刚接受了人生第一份初级开发者 offer。下面是他的故事。",
     category: "Learner Stories",
     author: "codex_team",
     authorAvatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
     publishedAt: "2026-06-15T12:00:00Z",
     readingMinutes: 6,
     coverGradient: "linear-gradient(135deg, #4ECDC4, #6bcf7f)",
-    content: `# From barista to developer ☕→💻
+    content: `# 从咖啡师到开发者 ☕→💻
 
-Marco, 27, used to make lattes in a café in Lisbon. Today, he's debugging React components.
+Marco，27 岁，曾经在里斯本一家咖啡馆做拿铁。如今，他在调试 React 组件。
 
-## The spark
+## 启发
 
-"I saw a customer reading a coding book and asked him about it. He said anyone could learn. I didn't believe him — but I signed up for Codédex that night."
+"我看到一位客人在读一本编程书，就问他这件事。他说谁都能学会。我不信——但那天晚上我还是注册了 Codédex。"
 
-## The routine
+## 日常
 
-Marco kept his day job and studied after his shifts. **One hour, every evening, for six months.**
+Marco 保留了白天的工作，下班后学习。**每晚一小时，坚持了六个月。**
 
-"The streak system kept me honest. I didn't want to break a 30-day streak, so even on tired nights I'd do one exercise."
+"连续学习系统让我保持诚实。我不想打破 30 天的连续学习，所以即使累得不行，我也会做一个练习。"
 
-## The projects
+## 项目
 
-After finishing JavaScript, Marco built three projects in the Builds editor:
+学完 JavaScript 后，Marco 在作品编辑器中做了三个项目：
 
-1. A coffee-order calculator
-2. A café shift scheduler
-3. A latte-art gallery (his favorite)
+1. 一个咖啡点单计算器
+2. 一个咖啡馆排班工具
+3. 一个拉花艺术画廊（他的最爱）
 
-He put all three on his portfolio.
+他把这三个项目都放进了作品集。
 
-## The offer
+## Offer
 
-"A café regular who'd become a friend mentioned his company was hiring juniors. I showed him my Builds. Two weeks later, I had an offer."
+"一位成了朋友的咖啡馆常客提到他公司在招初级开发者。我把我的作品给他看了。两周后，我就拿到了 offer。"
 
-> "If a barista can do it, so can you. One exercise at a time."`,
+> "如果咖啡师都能做到，你也可以。一次一个练习。"`,
   },
   {
     id: "bp_4",
     slug: "introducing-builds-2",
-    title: "Introducing Builds: publish your code to the world",
+    title: "作品功能登场：把你的代码发布给全世界",
     excerpt:
-      "Builds is our in-browser project studio. Write HTML, CSS, and JS, preview live, then publish to the community with one click. Here's what's new.",
+      "作品是我们内置浏览器中的项目工作室。编写 HTML、CSS 和 JS，实时预览，然后一键发布到社区。来看看新功能。",
     category: "Product Updates",
     author: "codex_team",
     authorAvatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
     publishedAt: "2026-05-28T09:30:00Z",
     readingMinutes: 3,
     coverGradient: "linear-gradient(135deg, #FF6B9D, #F0A04B)",
-    content: `# Introducing Builds 🏗️
+    content: `# 作品功能登场 🏗️
 
-Today we're excited to launch **Builds** — the easiest way to turn your code into something you can share.
+今天我们很激动地发布**作品**——把你的代码变成可分享作品的最简单方式。
 
-## What is Builds?
+## 什么是作品？
 
-Builds is a full project editor right in your browser. No setup. No terminal. Just open it and start coding.
+作品是浏览器中的完整项目编辑器。无需配置。无需终端。打开就能开始编程。
 
-## Features
+## 功能
 
-- **Multi-file** projects (HTML, CSS, JS)
-- **Live preview** that updates as you type
-- **One-click publish** to the community
-- **Fork** any public Build to remix it
-- **Live demo link** to share with anyone
+- **多文件**项目（HTML、CSS、JS）
+- 边输入边更新的**实时预览**
+- **一键发布**到社区
+- **Fork** 任何公开作品进行再创作
+- **实时演示链接**，可分享给任何人
 
-## Get started
+## 开始使用
 
-Head to **/builds** and pick a template (or start blank). You'll be publishing in minutes.
+前往 **/builds**，选择一个模板（或从空白开始）。几分钟内你就能发布作品。
 
-We can't wait to see what you build. 🌟`,
+我们迫不及待想看到你做出的作品。🌟`,
   },
   {
     id: "bp_5",
     slug: "how-to-stay-motivated-while-learning-to-code",
-    title: "How to stay motivated while learning to code",
+    title: "学编程如何保持动力",
     excerpt:
-      "Learning to code is a marathon, not a sprint. Here are 5 battle-tested strategies to keep showing up — even when the going gets tough.",
+      "学编程是一场马拉松，不是短跑。这里有 5 个经过实战检验的策略，帮你坚持下来——即使在最难的时候。",
     category: "Tutorials",
     author: "codex_team",
     authorAvatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
     publishedAt: "2026-05-10T08:00:00Z",
     readingMinutes: 7,
     coverGradient: "linear-gradient(135deg, #6bcf7f, #4ECDC4)",
-    content: `# How to stay motivated while learning to code 🚀
+    content: `# 学编程如何保持动力 🚀
 
-Every learner hits a wall. Here's how to climb over it.
+每个学习者都会撞墙。下面是如何翻过它。
 
-## 1. Build streaks, not marathons
+## 1. 累积连续学习，而非马拉松
 
-15 minutes a day beats 5 hours once a week. Use the streak counter — it's there for a reason.
+每天 15 分钟胜过每周一次 5 小时。用连续学习计数器——它存在是有原因的。
 
-## 2. Ship tiny projects
+## 2. 做些小项目
 
-Finished a chapter? Build something tiny with what you learned. A button. A list. A color picker. Small wins compound.
+学完一个章节？用学到的知识做点小东西。一个按钮。一个列表。一个取色器。小胜利会复利累积。
 
-## 3. Find your people
+## 3. 找到你的伙伴
 
-Hop into the community. Post your progress. Cheer for others. Loneliness kills motivation.
+加入社区。发布你的进度。为他人加油。孤独会扼杀动力。
 
-## 4. Track your wins
+## 4. 记录你的胜利
 
-Your XP and badges aren't just decoration — they're proof you're growing. Look back at them when you doubt yourself.
+你的 XP 和徽章不只是装饰——它们是你成长的证明。怀疑自己的时候，回头看看。
 
-## 5. Ask for help early
+## 5. 尽早求助
 
-Stuck for 20 minutes? Ask Lumi. Stuck for an hour? Post in the community. Don't suffer in silence.
+卡了 20 分钟？问 Lumi。卡了一个小时？在社区发帖。别默默忍受。
 
-> "The secret to getting ahead is getting started." — and the secret to staying ahead is showing up tomorrow.
+> "领先的秘诀是开始。"——而保持领先的秘诀是明天依然出现。
 
-You've got this. 💪`,
+你能做到的。💪`,
   },
 ];
 

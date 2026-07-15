@@ -5,10 +5,20 @@ import Link from "next/link";
 import { blogPosts } from "@/data/blog";
 import { timeAgo, cn } from "@/lib/utils";
 
-const CATEGORIES = ["All", "Product Updates", "Learner Stories", "Announcements", "Tutorials"] as const;
+const CATEGORIES = [
+  { key: "All", label: "全部" },
+  { key: "Product Updates", label: "产品更新" },
+  { key: "Learner Stories", label: "学习者故事" },
+  { key: "Announcements", label: "公告" },
+  { key: "Tutorials", label: "教程" },
+] as const;
+
+const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(
+  CATEGORIES.map((c) => [c.key, c.label]),
+);
 
 export default function BlogPage() {
-  const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("All");
+  const [cat, setCat] = useState<string>("All");
 
   const posts = useMemo(() => {
     let list = [...blogPosts].sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
@@ -24,23 +34,23 @@ export default function BlogPage() {
       <div className="text-center mb-10">
         <div className="text-5xl mb-3">📝</div>
         <h1 className="font-outfit text-4xl font-bold">
-          The Codédex <span className="gradient-text">Blog</span>
+          Codédex <span className="gradient-text">博客</span>
         </h1>
-        <p className="text-muted mt-2">Product updates, learner stories, and coding tips.</p>
+        <p className="text-muted mt-2">产品更新、学习者故事和编程技巧。</p>
       </div>
 
       {/* Category filter */}
       <div className="flex flex-wrap justify-center gap-2 mb-8">
         {CATEGORIES.map((c) => (
           <button
-            key={c}
-            onClick={() => setCat(c)}
+            key={c.key}
+            onClick={() => setCat(c.key)}
             className={cn(
               "px-3 py-1.5 rounded-full text-xs font-medium border transition",
-              cat === c ? "border-accent bg-accent text-white" : "border-rule bg-bg2 text-muted hover:text-ink",
+              cat === c.key ? "border-accent bg-accent text-white" : "border-rule bg-bg2 text-muted hover:text-ink",
             )}
           >
-            {c}
+            {c.label}
           </button>
         ))}
       </div>
@@ -55,7 +65,7 @@ export default function BlogPage() {
             <div className="h-48 md:h-auto" style={{ background: featured.coverGradient }} />
             <div className="p-6">
               <span className="text-[10px] uppercase tracking-wider text-accent2 font-bold">
-                {featured.category} · Featured
+                {CATEGORY_LABEL[featured.category] ?? featured.category} · 精选
               </span>
               <h2 className="font-outfit text-2xl font-bold mt-2 group-hover:text-accent transition">
                 {featured.title}
@@ -67,7 +77,7 @@ export default function BlogPage() {
                 <span>·</span>
                 <span>{timeAgo(featured.publishedAt)}</span>
                 <span>·</span>
-                <span>{featured.readingMinutes} min read</span>
+                <span>{featured.readingMinutes} 分钟阅读</span>
               </div>
             </div>
           </div>
@@ -84,11 +94,11 @@ export default function BlogPage() {
           >
             <div className="h-32" style={{ background: p.coverGradient }} />
             <div className="p-4">
-              <span className="text-[10px] uppercase tracking-wider text-accent2 font-bold">{p.category}</span>
+              <span className="text-[10px] uppercase tracking-wider text-accent2 font-bold">{CATEGORY_LABEL[p.category] ?? p.category}</span>
               <h3 className="font-outfit font-bold mt-1 group-hover:text-accent transition line-clamp-2">{p.title}</h3>
               <p className="text-xs text-muted mt-2 line-clamp-2">{p.excerpt}</p>
               <div className="mt-3 text-[11px] text-muted">
-                {timeAgo(p.publishedAt)} · {p.readingMinutes} min
+                {timeAgo(p.publishedAt)} · {p.readingMinutes} 分钟阅读
               </div>
             </div>
           </Link>

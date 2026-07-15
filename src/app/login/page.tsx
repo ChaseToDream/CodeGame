@@ -17,7 +17,7 @@ export default function LoginPage() {
     e.preventDefault();
     setErr("");
     if (!email || !password) {
-      setErr("Please fill in both fields.");
+      setErr("请填写两个字段。");
       return;
     }
     setLoading(true);
@@ -39,8 +39,8 @@ export default function LoginPage() {
     <div className="mx-auto max-w-md px-4 py-16">
       <div className="text-center mb-8">
         <div className="font-pixel text-3xl gradient-text mb-2">Codédex</div>
-        <h1 className="font-outfit text-2xl font-bold">Welcome back, hero!</h1>
-        <p className="text-muted text-sm mt-1">Log in to continue your adventure.</p>
+        <h1 className="font-outfit text-2xl font-bold">欢迎回来，英雄！</h1>
+        <p className="text-muted text-sm mt-1">登录以继续你的冒险。</p>
       </div>
 
       <div className="rounded-xl border border-rule bg-bg2 p-6 shadow-card">
@@ -61,14 +61,14 @@ export default function LoginPage() {
 
         <div className="flex items-center gap-3 my-4">
           <div className="flex-1 h-px bg-rule" />
-          <span className="text-xs text-muted">or</span>
+          <span className="text-xs text-muted">或</span>
           <div className="flex-1 h-px bg-rule" />
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-muted uppercase tracking-wide mb-1.5">
-              Email
+              邮箱
             </label>
             <input
               type="email"
@@ -80,7 +80,7 @@ export default function LoginPage() {
           </div>
           <div>
             <label className="block text-xs font-bold text-muted uppercase tracking-wide mb-1.5">
-              Password
+              密码
             </label>
             <input
               type="password"
@@ -96,19 +96,19 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition disabled:opacity-60"
           >
-            {loading ? "Logging in..." : "Log in"}
+            {loading ? "登录中..." : "登录"}
           </button>
         </form>
       </div>
 
       <p className="text-center text-sm text-muted mt-5">
-        New to Codédex?{" "}
+        还没有 Codédex 账号？{" "}
         <Link href="/signup" className="text-accent hover:text-accent2 font-medium">
-          Create an account →
+          创建账号 →
         </Link>
       </p>
       <p className="text-center text-[11px] text-muted/70 mt-3">
-        Demo: enter any email & password to log in.
+        演示：输入任意邮箱和密码即可登录。
       </p>
     </div>
   );

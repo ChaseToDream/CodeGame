@@ -29,10 +29,10 @@ export default function CourseDetailPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <div className="text-5xl mb-4">🧭</div>
-        <h1 className="font-outfit text-2xl font-bold mb-2">Course not found</h1>
-        <p className="text-muted mb-6">We couldn&apos;t find that course.</p>
+        <h1 className="font-outfit text-2xl font-bold mb-2">未找到课程</h1>
+        <p className="text-muted mb-6">我们找不到该课程。</p>
         <Link href="/courses" className="text-accent hover:text-accent2">
-          ← Back to all courses
+          ← 返回全部课程
         </Link>
       </div>
     );
@@ -61,7 +61,7 @@ export default function CourseDetailPage() {
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumb */}
       <nav className="text-sm text-muted mb-4">
-        <Link href="/courses" className="hover:text-ink">Courses</Link>
+        <Link href="/courses" className="hover:text-ink">课程</Link>
         <span className="mx-2">/</span>
         <span className="text-ink">{course.title}</span>
       </nav>
@@ -92,16 +92,16 @@ export default function CourseDetailPage() {
                 </span>
                 {course.isNew && (
                   <span className="px-2 py-0.5 rounded bg-accent2 text-bg text-[10px] font-bold font-pixel">
-                    NEW!
+                    新！
                   </span>
                 )}
               </div>
               <p className="text-white/90 max-w-2xl">{course.description}</p>
               <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-white/80">
-                <span>👥 {(course.learnerCount / 1000).toFixed(0)}K learners</span>
-                <span>⏱ {course.estimatedHours}h</span>
-                <span>📚 {course.chapters.length} chapters</span>
-                <span>🎯 {allExercises.length} exercises</span>
+                <span>👥 {(course.learnerCount / 1000).toFixed(0)}K 学习者</span>
+                <span>⏱ {course.estimatedHours} 小时</span>
+                <span>📚 {course.chapters.length} 章节</span>
+                <span>🎯 {allExercises.length} 个练习</span>
               </div>
             </div>
           </div>
@@ -113,9 +113,9 @@ export default function CourseDetailPage() {
         <div className="rounded-xl border border-rule bg-bg2 p-5 mb-8">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
             <div>
-              <div className="text-sm text-muted">Your progress</div>
+              <div className="text-sm text-muted">你的进度</div>
               <div className="font-outfit text-xl font-bold">
-                {completedCount} / {allExercises.length} exercises ·{" "}
+                {completedCount} / {allExercises.length} 个练习 ·{" "}
                 <span className="text-accent">{pct}%</span>
               </div>
             </div>
@@ -127,11 +127,11 @@ export default function CourseDetailPage() {
                 }}
                 className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
               >
-                {completedCount === 0 ? "Start learning →" : "Continue →"}
+                {completedCount === 0 ? "开始学习 →" : "继续 →"}
               </button>
             ) : (
               <span className="px-4 py-2 rounded-lg bg-success/20 text-success font-semibold">
-                ✓ Course complete!
+                ✓ 课程已完成！
               </span>
             )}
           </div>
@@ -148,9 +148,9 @@ export default function CourseDetailPage() {
         <div className="rounded-xl border border-accent/40 bg-accent/5 p-5 mb-8 text-center">
           <p className="text-ink">
             <Link href="/signup" className="text-accent font-semibold hover:underline">
-              Sign up free
+              免费注册
             </Link>{" "}
-            to save your progress and earn XP. You can preview exercises without an account.
+            即可保存进度并赚取 XP。你也可以在没有账号的情况下预览练习。
           </p>
         </div>
       )}
@@ -158,9 +158,9 @@ export default function CourseDetailPage() {
       {/* Tabs */}
       <div className="flex gap-1 border-b border-rule mb-6">
         {([
-          ["chapters", "Chapters"],
-          ["progress", "Progress"],
-          ["resources", "Resources"],
+          ["chapters", "章节"],
+          ["progress", "进度"],
+          ["resources", "资源"],
         ] as const).map(([key, label]) => (
           <button
             key={key}
@@ -216,11 +216,11 @@ export default function CourseDetailPage() {
                     const isLocked = status === "locked";
                     const isCompleted = status === "completed";
                     const typeLabel: Record<string, string> = {
-                      exercise: "Exercise",
-                      bonus_article: "Bonus",
-                      challenge_pack: "Challenge",
-                      checkpoint: "Checkpoint",
-                      final_project: "Final Project",
+                      exercise: "练习",
+                      bonus_article: "附加",
+                      challenge_pack: "挑战",
+                      checkpoint: "检查点",
+                      final_project: "期末项目",
                     };
                     return (
                       <li key={ex.id}>
@@ -250,7 +250,7 @@ export default function CourseDetailPage() {
                           </span>
                           <span className="flex-1 text-sm text-ink">{ex.title}</span>
                           <span className="text-[10px] text-muted uppercase tracking-wide">
-                            {typeLabel[ex.type] ?? "Exercise"}
+                            {typeLabel[ex.type] ?? "练习"}
                           </span>
                           <span className="text-xs text-accent2 font-pixel">+{ex.xpReward} XP</span>
                         </Link>
@@ -269,7 +269,7 @@ export default function CourseDetailPage() {
           {isAuthed && user && xpInfo ? (
             <>
               <div className="rounded-xl border border-rule bg-bg2 p-5">
-                <h3 className="font-outfit text-lg font-bold mb-4">XP & Level</h3>
+                <h3 className="font-outfit text-lg font-bold mb-4">XP 与等级</h3>
                 <XPBadge xp={user.xpTotal} level={user.level} size="lg" />
                 <div className="mt-4">
                   <LevelProgressBar
@@ -281,7 +281,7 @@ export default function CourseDetailPage() {
                 </div>
               </div>
               <div className="rounded-xl border border-rule bg-bg2 p-5">
-                <h3 className="font-outfit text-lg font-bold mb-4">Chapter Completion</h3>
+                <h3 className="font-outfit text-lg font-bold mb-4">章节完成度</h3>
                 <div className="space-y-3">
                   {course.chapters.map((ch, i) => {
                     const exs = ch.exercises;
@@ -290,7 +290,7 @@ export default function CourseDetailPage() {
                     return (
                       <div key={ch.id}>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-ink">Ch {i + 1}: {ch.title}</span>
+                          <span className="text-ink">第 {i + 1} 章：{ch.title}</span>
                           <span className="text-muted">{done}/{exs.length}</span>
                         </div>
                         <div className="h-2 rounded-full bg-bg3 overflow-hidden">
@@ -304,7 +304,7 @@ export default function CourseDetailPage() {
             </>
           ) : (
             <div className="text-center py-12 text-muted">
-              <Link href="/login" className="text-accent hover:underline">Log in</Link> to track your progress.
+              <Link href="/login" className="text-accent hover:underline">登录</Link>以跟踪你的进度。
             </div>
           )}
         </div>
@@ -313,17 +313,17 @@ export default function CourseDetailPage() {
       {tab === "resources" && (
         <div className="space-y-4">
           <div className="rounded-xl border border-rule bg-bg2 p-5">
-            <h3 className="font-outfit text-lg font-bold mb-3">📚 Resources</h3>
+            <h3 className="font-outfit text-lg font-bold mb-3">📚 资源</h3>
             <ul className="space-y-2 text-sm text-muted">
-              <li>• Cheat sheet for {course.title} (coming soon)</li>
-              <li>• Official documentation & community links</li>
-              <li>• Project templates in the Builds editor</li>
+              <li>• {course.title} 速查表（即将推出）</li>
+              <li>• 官方文档与社区链接</li>
+              <li>• 作品编辑器中的项目模板</li>
             </ul>
           </div>
           <div className="rounded-xl border border-rule bg-bg2 p-5">
-            <h3 className="font-outfit text-lg font-bold mb-3">🤖 Need help?</h3>
+            <h3 className="font-outfit text-lg font-bold mb-3">🤖 需要帮助？</h3>
             <p className="text-sm text-muted">
-              Every exercise has a built-in AI assistant named Lumi. Click &quot;Ask Lumi&quot; anytime you&apos;re stuck.
+              每个练习都内置了名为 Lumi 的 AI 助手。任何时候遇到困难，点击&ldquo;向 Lumi 提问&rdquo;即可。
             </p>
           </div>
         </div>
