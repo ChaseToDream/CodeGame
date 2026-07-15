@@ -42,7 +42,7 @@ export const blogPosts: BlogPost[] = [
     slug: "meet-lumi-your-ai-coding-companion",
     title: "认识 Lumi：你的 AI 编程伙伴",
     excerpt:
-      "Lumi 是内置于每个 Codédex 练习中的友好 AI 助手。帮你突破卡点、调试代码、头脑风暴项目创意——所有这些都不用离开浏览器。",
+      "Lumi 是内置于每个 CodeGame 练习中的友好 AI 助手。帮你突破卡点、调试代码、头脑风暴项目创意——所有这些都不用离开浏览器。",
     category: "Product Updates",
     author: "codex_team",
     authorAvatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
@@ -77,7 +77,7 @@ Lumi 知道你正在学哪门课程、卡在哪个练习上，甚至知道你已
     slug: "from-barista-to-developer-marcos-story",
     title: "从咖啡师到开发者：Marco 的故事",
     excerpt:
-      "Marco 做了 4 年咖啡师。在 Codédex 学习 6 个月后，他刚刚接受了人生第一份初级开发者 offer。下面是他的故事。",
+      "Marco 做了 4 年咖啡师。在 CodeGame 学习 6 个月后，他刚刚接受了人生第一份初级开发者 offer。下面是他的故事。",
     category: "Learner Stories",
     author: "codex_team",
     authorAvatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
@@ -90,7 +90,7 @@ Marco，27 岁，曾经在里斯本一家咖啡馆做拿铁。如今，他在调
 
 ## 启发
 
-"我看到一位客人在读一本编程书，就问他这件事。他说谁都能学会。我不信——但那天晚上我还是注册了 Codédex。"
+"我看到一位客人在读一本编程书，就问他这件事。他说谁都能学会。我不信——但那天晚上我还是打开了 CodeGame。"
 
 ## 日常
 

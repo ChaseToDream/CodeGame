@@ -49,13 +49,13 @@ export default function CoursesPage() {
       <div className="text-center mb-14">
         <div className="text-5xl mb-4">🏔️</div>
         <h1 className="font-outfit text-4xl sm:text-5xl font-bold">
-          探索 <span className="gradient-text">Codédex 的世界</span>
+          探索 <span className="gradient-text">CodeGame 的世界</span>
         </h1>
         <p className="mt-3 text-muted max-w-2xl mx-auto">
           选择一条路径，或浏览全部 25+ 门课程。每门课程都是互动式的，免费开始，专为初学者打造。
         </p>
         <Link
-          href="/signup"
+          href="/courses"
           className="inline-block mt-6 px-6 py-3 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
         >
           开启你的编程冒险 →

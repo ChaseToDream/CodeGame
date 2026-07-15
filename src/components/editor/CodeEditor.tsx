@@ -51,7 +51,7 @@ export function CodeEditor({
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     // 自定义暗色主题
-    monaco.editor.defineTheme("codedex-dark", {
+    monaco.editor.defineTheme("codegame-dark", {
       base: "vs-dark",
       inherit: true,
       rules: [],
@@ -66,7 +66,7 @@ export function CodeEditor({
         "editorIndentGuide.background": "#2a2a44",
       },
     });
-    monaco.editor.setTheme("codedex-dark");
+    monaco.editor.setTheme("codegame-dark");
     // Ctrl+Enter 运行
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun);
   };
@@ -130,7 +130,7 @@ export function CodeEditor({
           value={value}
           onChange={(v) => onChange(v ?? "")}
           onMount={handleMount}
-          theme="codedex-dark"
+          theme="codegame-dark"
           options={{
             fontSize: 14,
             fontFamily: "var(--font-mono), monospace",

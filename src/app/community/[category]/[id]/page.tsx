@@ -17,7 +17,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export default function PostDetailPage() {
   const params = useParams<{ category: string; id: string }>();
-  const { posts, togglePostLike, addComment, user, isAuthed } = useUserStore();
+  const { posts, togglePostLike, addComment, user } = useUserStore();
   const [comment, setComment] = useState("");
 
   const post = useMemo(
@@ -40,7 +40,7 @@ export default function PostDetailPage() {
     : null;
 
   const submitComment = () => {
-    if (!comment.trim() || !isAuthed) return;
+    if (!comment.trim()) return;
     addComment(post.id, comment.trim());
     setComment("");
   };
@@ -113,33 +113,27 @@ export default function PostDetailPage() {
       <section>
         <h2 className="font-outfit text-lg font-bold mb-4">评论</h2>
 
-        {isAuthed ? (
-          <div className="mb-6 flex gap-3">
-            <div className="h-9 w-9 rounded-full shrink-0" style={{ background: user?.avatarGradient }} />
-            <div className="flex-1">
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={3}
-                placeholder="写下你的评论..."
-                className="w-full px-3 py-2 rounded-lg bg-bg2 border border-rule text-sm text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition resize-y"
-              />
-              <div className="mt-2 flex justify-end">
-                <button
-                  onClick={submitComment}
-                  disabled={!comment.trim()}
-                  className="px-4 py-1.5 rounded-lg bg-accent text-white text-sm font-semibold hover:bg-accent/90 disabled:opacity-50 transition"
-                >
-                  评论
-                </button>
-              </div>
+        <div className="mb-6 flex gap-3">
+          <div className="h-9 w-9 rounded-full shrink-0" style={{ background: user.avatarGradient }} />
+          <div className="flex-1">
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={3}
+              placeholder="写下你的评论..."
+              className="w-full px-3 py-2 rounded-lg bg-bg2 border border-rule text-sm text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition resize-y"
+            />
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={submitComment}
+                disabled={!comment.trim()}
+                className="px-4 py-1.5 rounded-lg bg-accent text-white text-sm font-semibold hover:bg-accent/90 disabled:opacity-50 transition"
+              >
+                评论
+              </button>
             </div>
           </div>
-        ) : (
-          <div className="mb-6 p-4 rounded-lg border border-rule bg-bg2 text-center text-sm text-muted">
-            <Link href="/login" className="text-accent hover:underline">登录</Link>以参与讨论。
-          </div>
-        )}
+        </div>
 
         <div className="space-y-4">
           {post.comments.length === 0 ? (

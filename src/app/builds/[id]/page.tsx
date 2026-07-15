@@ -19,7 +19,7 @@ const LANG_ICON: Record<string, string> = { html: "📄", css: "🎨", js: "⚡"
 export default function BuildDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { builds, forkBuild, user, isAuthed } = useUserStore();
+  const { builds, forkBuild } = useUserStore();
   const [activeFile, setActiveFile] = useState(0);
   const [view, setView] = useState<"preview" | "code">("preview");
 
@@ -53,10 +53,6 @@ export default function BuildDetailPage() {
   }, [build]);
 
   const handleFork = () => {
-    if (!isAuthed) {
-      router.push("/login");
-      return;
-    }
     const id = forkBuild(build.id);
     if (id) router.push(`/builds/${id}`);
   };
@@ -172,7 +168,7 @@ export default function BuildDetailPage() {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-muted">
-          用 ❤️ 在 Codédex 上构建。{" "}
+          用 ❤️ 在 CodeGame 上构建。{" "}
           <Link href="/builds/new" className="text-accent hover:underline">创建你自己的 →</Link>
         </p>
       </div>

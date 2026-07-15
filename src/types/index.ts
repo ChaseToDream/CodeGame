@@ -146,7 +146,6 @@ export interface BlogPost {
 
 export interface User {
   id: string;
-  email: string;
   username: string;
   avatarGradient: string;
   bio: string;

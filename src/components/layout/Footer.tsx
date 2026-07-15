@@ -42,7 +42,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <div className="font-pixel text-2xl text-accent mb-2">Codédex</div>
+            <div className="font-pixel text-2xl text-accent mb-2">CodeGame</div>
             <p className="text-sm text-muted">
               最有趣且入门友好的学编程方式。
             </p>
@@ -69,7 +69,7 @@ export function Footer() {
         </div>
         <div className="mt-10 pt-6 border-t border-rule flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted">
-            © {new Date().getFullYear()} Codédex 克隆版。仅用于教育目的。
+            © {new Date().getFullYear()} CodeGame. 保留所有权利。
           </p>
           <div className="flex items-center gap-4 text-muted">
             <span className="text-lg" title="Discord">💬</span>

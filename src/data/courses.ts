@@ -185,12 +185,12 @@ print(greeting)
 
 ## 你的任务
 
-把 \`"Code"\` 和 \`"dex"\` 合并成一个单词并打印出来。`,
-            starterCode: `# 合并 "Code" 和 "dex" 然后打印
+把 \`"Code"\` 和 \`"Game"\` 合并成一个单词并打印出来。`,
+            starterCode: `# 合并 "Code" 和 "Game" 然后打印
 `,
-            solutionCode: `print("Code" + "dex")`,
+            solutionCode: `print("Code" + "Game")`,
             testCases: [
-              { name: "打印 Codedex", expected: "Codedex\n" },
+              { name: "打印 CodeGame", expected: "CodeGame\n" },
             ],
           },
         ],
@@ -348,12 +348,12 @@ HTML 使用包裹在 \`< >\` 中的**标签**。标题使用 \`<h1>\` 到 \`<h6>
 
 ## 你的任务
 
-创建一个 \`<h1>\`，文本为 **Welcome to Codédex**。`,
-            starterCode: `<!-- 创建一个 <h1>，内容为 "Welcome to Codédex" -->
+创建一个 \`<h1>\`，文本为 **Welcome to CodeGame**。`,
+            starterCode: `<!-- 创建一个 <h1>，内容为 "Welcome to CodeGame" -->
 `,
-            solutionCode: `<h1>Welcome to Codédex</h1>`,
+            solutionCode: `<h1>Welcome to CodeGame</h1>`,
             testCases: [
-              { name: "包含 h1 和文本", expected: "<h1>Welcome to Codédex</h1>" },
+              { name: "包含 h1 和文本", expected: "<h1>Welcome to CodeGame</h1>" },
             ],
           },
           {
@@ -505,12 +505,12 @@ let score = 0;
 
 ## 你的任务
 
-创建一个名为 \`platform\` 的 \`const\`，值为 \`"Codédex"\`，并打印它。`,
+创建一个名为 \`platform\` 的 \`const\`，值为 \`"CodeGame"\`，并打印它。`,
             starterCode: `// 创建 platform 并打印它
 `,
-            solutionCode: `const platform = "Codédex";\nconsole.log(platform);`,
+            solutionCode: `const platform = "CodeGame";\nconsole.log(platform);`,
             testCases: [
-              { name: "输出 Codedex", expected: "Codédex\n" },
+              { name: "输出 CodeGame", expected: "CodeGame\n" },
             ],
           },
         ],
@@ -672,7 +672,7 @@ function makeSkeletonCourse(
     id,
     slug,
     title,
-    description: `${title} 是 Codédex 上热门的技能之一。开启你的冒险，不断升级吧！`,
+    description: `${title} 是 CodeGame 上热门的技能之一。开启你的冒险，不断升级吧！`,
     difficulty,
     isNew: false,
     bannerGradient,

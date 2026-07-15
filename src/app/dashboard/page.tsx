@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
 import { courses } from "@/data/courses";
 import { badges as allBadges } from "@/data/badges";
@@ -13,20 +12,16 @@ import { BadgeGrid } from "@/components/game/BadgeGrid";
 import { levelFromXp, formatNumber } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { user, isAuthed, progress, builds, posts, ensureCourseInit } = useUserStore();
+  const { user, progress, builds, posts, ensureCourseInit } = useUserStore();
 
   useEffect(() => {
-    if (!isAuthed || !user) {
-      router.push("/login");
-    }
-  }, [isAuthed, user, router]);
+    ensureCourseInit("python");
+  }, [ensureCourseInit]);
 
-  const xpInfo = user ? levelFromXp(user.xpTotal) : null;
+  const xpInfo = levelFromXp(user.xpTotal);
 
   // 已开始的课程
   const startedCourses = useMemo(() => {
-    if (!user) return [];
     return courses
       .map((c) => {
         const exs = c.chapters.flatMap((ch) => ch.exercises);
@@ -45,17 +40,17 @@ export default function DashboardPage() {
       })
       .filter((x) => x.started)
       .slice(0, 4);
-  }, [user, progress]);
+  }, [progress]);
 
   // 用户 builds
   const userBuilds = useMemo(
-    () => (user ? builds.filter((b) => b.userId === user.id) : []),
+    () => builds.filter((b) => b.userId === user.id),
     [user, builds],
   );
 
   // 用户 posts
   const userPosts = useMemo(
-    () => (user ? posts.filter((p) => p.userId === user.id) : []),
+    () => posts.filter((p) => p.userId === user.id),
     [user, posts],
   );
 
@@ -63,23 +58,17 @@ export default function DashboardPage() {
   const badgeState = useMemo(() => {
     return allBadges.map((b) => {
       let earned = false;
-      if (b.id === "bdg_first_steps" && user) {
+      if (b.id === "bdg_first_steps") {
         earned = Object.values(progress.statuses).some((s) => s === "completed");
-      } else if (b.id === "bdg_streak_7") earned = (user?.streakDays ?? 0) >= 7;
-      else if (b.id === "bdg_streak_30") earned = (user?.streakDays ?? 0) >= 30;
-      else if (b.id === "bdg_streak_100") earned = (user?.streakDays ?? 0) >= 100;
+      } else if (b.id === "bdg_streak_7") earned = user.streakDays >= 7;
+      else if (b.id === "bdg_streak_30") earned = user.streakDays >= 30;
+      else if (b.id === "bdg_streak_100") earned = user.streakDays >= 100;
       else if (b.id === "bdg_first_build") earned = userBuilds.some((b2) => b2.isPublished);
       else if (b.id === "bdg_first_post") earned = userPosts.length > 0;
-      else if (b.id === "bdg_level_10") earned = (user?.level ?? 0) >= 10;
+      else if (b.id === "bdg_level_10") earned = user.level >= 10;
       return { ...b, earned };
     });
   }, [user, progress, userBuilds, userPosts]);
-
-  if (!user || !xpInfo) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted">加载中...</div>
-    );
-  }
 
   const earnedBadges = badgeState.filter((b) => b.earned);
 

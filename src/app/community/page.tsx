@@ -25,7 +25,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 export default function CommunityPage() {
-  const { posts, user, isAuthed, togglePostLike } = useUserStore();
+  const { posts, user, togglePostLike } = useUserStore();
   const [sort, setSort] = useState<"top" | "newest">("top");
   const [category, setCategory] = useState<PostCategory | "all">("all");
   const [showNewPost, setShowNewPost] = useState(false);
@@ -38,7 +38,7 @@ export default function CommunityPage() {
     return list;
   }, [posts, sort, category]);
 
-  const canPost = isAuthed && user && user.xpTotal >= 100;
+  const canPost = user.xpTotal >= 100;
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
@@ -46,13 +46,13 @@ export default function CommunityPage() {
       <div className="text-center mb-8">
         <div className="text-5xl mb-3">💬</div>
         <h1 className="font-outfit text-4xl font-bold">
-          Codédex <span className="gradient-text">社区</span>
+          CodeGame <span className="gradient-text">社区</span>
         </h1>
         <p className="text-muted mt-2">分享你的成就，提出问题，互相鼓励。</p>
       </div>
 
       {/* XP gate notice */}
-      {isAuthed && user && !canPost && (
+      {!canPost && (
         <div className="rounded-lg border border-warning/40 bg-warning/10 p-4 mb-6 text-sm text-ink">
           🔒 你需要 <strong className="text-warning">100 XP</strong> 才能在社区发帖。你目前有 <strong>{user.xpTotal} XP</strong> —— 再完成几个练习即可解锁发帖功能！
         </div>

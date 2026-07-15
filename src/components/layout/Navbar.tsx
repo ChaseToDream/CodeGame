@@ -16,7 +16,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const { user, isAuthed, logout } = useUserStore();
+  const user = useUserStore((s) => s.user);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -49,9 +49,8 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <span className="font-pixel text-2xl text-accent group-hover:text-accent2 transition-colors">
-            Codédex
+            CodeGame
           </span>
-          <span className="hidden sm:inline-block text-xs text-muted -mt-1">克隆版</span>
         </Link>
 
         {/* Desktop nav */}
@@ -74,70 +73,45 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="hidden md:flex items-center gap-3">
-          {isAuthed && user ? (
-            <>
-              <XPBadge xp={user.xpTotal} level={user.level} size="sm" />
-              <Link
-                href="/dashboard"
-                className="relative h-9 w-9 rounded-full overflow-hidden ring-2 ring-accent/50 hover:ring-accent transition"
-                style={{ background: user.avatarGradient }}
-                aria-label="仪表盘"
-              >
-                <span className="sr-only">{user.username}</span>
-              </Link>
-              <div className="relative">
-                <button
-                  onClick={() => setMenuOpen((v) => !v)}
-                  className="p-2 rounded-md text-muted hover:text-ink hover:bg-bg2 transition"
-                  aria-label="菜单"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M2 4h12v2H2zM2 7h12v2H2zM2 10h12v2H2z" />
-                  </svg>
-                </button>
-                {menuOpen && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-44 z-20 bg-bg2 border border-rule rounded-lg shadow-card overflow-hidden">
-                      <Link href="/dashboard" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
-                        仪表盘
-                      </Link>
-                      <Link href="/worlds" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
-                        世界
-                      </Link>
-                      <Link href="/settings" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
-                        设置
-                      </Link>
-                      <button
-                        onClick={() => {
-                          logout();
-                          setMenuOpen(false);
-                        }}
-                        className="block w-full text-left px-4 py-2.5 text-sm text-accent2 hover:bg-bg3"
-                      >
-                        退出登录
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="px-3 py-2 text-sm font-medium text-muted hover:text-ink transition"
-              >
-                登录
-              </Link>
-              <Link
-                href="/signup"
-                className="px-4 py-2 rounded-md bg-accent text-white text-sm font-semibold hover:bg-accent/90 hover:shadow-glow transition"
-              >
-                注册
-              </Link>
-            </>
-          )}
+          <XPBadge xp={user.xpTotal} level={user.level} size="sm" />
+          <Link
+            href="/dashboard"
+            className="relative h-9 w-9 rounded-full overflow-hidden ring-2 ring-accent/50 hover:ring-accent transition"
+            style={{ background: user.avatarGradient }}
+            aria-label="仪表盘"
+          >
+            <span className="sr-only">{user.username}</span>
+          </Link>
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="p-2 rounded-md text-muted hover:text-ink hover:bg-bg2 transition"
+              aria-label="菜单"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M2 4h12v2H2zM2 7h12v2H2zM2 10h12v2H2z" />
+              </svg>
+            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 mt-2 w-44 z-20 bg-bg2 border border-rule rounded-lg shadow-card overflow-hidden">
+                  <Link href="/dashboard" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
+                    仪表盘
+                  </Link>
+                  <Link href="/worlds" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
+                    世界
+                  </Link>
+                  <Link href="/u" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
+                    我的资料
+                  </Link>
+                  <Link href="/settings" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
+                    设置
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Mobile toggle */}
@@ -173,34 +147,12 @@ export function Navbar() {
               </Link>
             ))}
             <div className="pt-2 border-t border-rule mt-2">
-              {isAuthed && user ? (
-                <>
-                  <Link href="/dashboard" className="block px-3 py-2.5 text-ink">
-                    仪表盘
-                  </Link>
-                  <button
-                    onClick={() => logout()}
-                    className="block w-full text-left px-3 py-2.5 text-accent2"
-                  >
-                    退出登录
-                  </button>
-                </>
-              ) : (
-                <div className="flex gap-2">
-                  <Link
-                    href="/login"
-                    className="flex-1 text-center px-3 py-2.5 rounded-md border border-rule text-ink"
-                  >
-                    登录
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="flex-1 text-center px-3 py-2.5 rounded-md bg-accent text-white font-semibold"
-                  >
-                    注册
-                  </Link>
-                </div>
-              )}
+              <Link href="/dashboard" className="block px-3 py-2.5 text-ink">
+                仪表盘
+              </Link>
+              <Link href="/settings" className="block px-3 py-2.5 text-ink">
+                设置
+              </Link>
             </div>
           </div>
         </div>

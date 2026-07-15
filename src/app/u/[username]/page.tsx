@@ -15,18 +15,18 @@ export default function UserProfilePage() {
   const params = useParams<{ username: string }>();
   const username = decodeURIComponent(params?.username ?? "");
 
-  const { user, isAuthed, progress, builds, posts } = useUserStore();
+  const { user, progress, builds, posts } = useUserStore();
 
-  // 当前 mock 只有一个本地用户；如果路径上的 username 与当前用户一致，展示数据；否则给出 not-found
-  const isOwner = isAuthed && user?.username === username;
+  // 当前只有一个本地用户；如果路径上的 username 与当前用户一致，展示数据；否则给出 not-found
+  const isOwner = user.username === username;
 
   // 用户 builds / posts
   const userBuilds = useMemo(
-    () => (user ? builds.filter((b) => b.userId === user.id) : []),
+    () => builds.filter((b) => b.userId === user.id),
     [user, builds],
   );
   const userPosts = useMemo(
-    () => (user ? posts.filter((p) => p.userId === user.id) : []),
+    () => posts.filter((p) => p.userId === user.id),
     [user, posts],
   );
 
@@ -40,21 +40,20 @@ export default function UserProfilePage() {
   const badgeState = useMemo(() => {
     return allBadges.map((b) => {
       let earned = false;
-      if (b.id === "bdg_first_steps" && user) {
+      if (b.id === "bdg_first_steps") {
         earned = Object.values(progress.statuses).some((s) => s === "completed");
-      } else if (b.id === "bdg_streak_7") earned = (user?.streakDays ?? 0) >= 7;
-      else if (b.id === "bdg_streak_30") earned = (user?.streakDays ?? 0) >= 30;
-      else if (b.id === "bdg_streak_100") earned = (user?.streakDays ?? 0) >= 100;
+      } else if (b.id === "bdg_streak_7") earned = user.streakDays >= 7;
+      else if (b.id === "bdg_streak_30") earned = user.streakDays >= 30;
+      else if (b.id === "bdg_streak_100") earned = user.streakDays >= 100;
       else if (b.id === "bdg_first_build") earned = userBuilds.some((b2) => b2.isPublished);
       else if (b.id === "bdg_first_post") earned = userPosts.length > 0;
-      else if (b.id === "bdg_level_10") earned = (user?.level ?? 0) >= 10;
+      else if (b.id === "bdg_level_10") earned = user.level >= 10;
       return { ...b, earned };
     });
   }, [user, progress, userBuilds, userPosts]);
 
   // 学习中的课程
   const startedCourses = useMemo(() => {
-    if (!user) return [];
     return courses
       .map((c) => {
         const exs = c.chapters.flatMap((ch) => ch.exercises);
@@ -68,13 +67,13 @@ export default function UserProfilePage() {
       .slice(0, 6);
   }, [user, progress]);
 
-  if (!isOwner || !user) {
+  if (!isOwner) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
         <div className="text-5xl mb-4">🔍</div>
         <h1 className="font-outfit text-2xl font-bold mb-2">未找到用户</h1>
         <p className="text-muted mb-6">
-          {`我们找不到 @${username || "username"}。此克隆版本仅存储本地登录用户。`}
+          {`我们找不到 @${username || "username"}。`}
         </p>
         <Link href="/community" className="px-5 py-2.5 rounded-lg bg-accent text-white font-semibold inline-block">
           浏览社区

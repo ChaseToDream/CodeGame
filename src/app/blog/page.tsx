@@ -34,7 +34,7 @@ export default function BlogPage() {
       <div className="text-center mb-10">
         <div className="text-5xl mb-3">📝</div>
         <h1 className="font-outfit text-4xl font-bold">
-          Codédex <span className="gradient-text">博客</span>
+          CodeGame <span className="gradient-text">博客</span>
         </h1>
         <p className="text-muted mt-2">产品更新、学习者故事和编程技巧。</p>
       </div>

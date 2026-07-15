@@ -10,25 +10,12 @@ const OUTFITS = ["👕", "👚", "🥼", "🦺", "👔", "🧥", "🎭", "🦸"]
 const ACCESSORIES = ["👓", "🕶️", "🎩", "🧢", "⭐", "🌙", "🔥", "💎"];
 
 export default function WorldsPage() {
-  const { user, isAuthed } = useUserStore();
+  const user = useUserStore((s) => s.user);
   const [skin, setSkin] = useState(SKIN_TONES[0]);
   const [hair, setHair] = useState(HAIRSTYLES[0]);
   const [outfit, setOutfit] = useState(OUTFITS[0]);
   const [accessory, setAccessory] = useState(ACCESSORIES[0]);
-  const [name, setName] = useState(user?.username ?? "你的英雄");
-
-  if (!isAuthed || !user) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="text-5xl mb-4">🗺️</div>
-        <h1 className="font-outfit text-2xl font-bold mb-2">探索世界</h1>
-        <p className="text-muted mb-6">登录以自定义你的像素角色。</p>
-        <a href="/login" className="px-5 py-2.5 rounded-lg bg-accent text-white font-semibold inline-block">
-          登录
-        </a>
-      </div>
-    );
-  }
+  const [name, setName] = useState(user.username);
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10">

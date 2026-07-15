@@ -10,7 +10,7 @@ export const communityPosts: CommunityPost[] = [
     category: "project_showcase",
     title: "刚完成了我的像素宠物花园作品！🌱",
     content:
-      "在 Codédex 上学了 3 周 HTML/CSS/JS 后，我终于发布了自己的第一个交互式项目。这是一个虚拟花园，你可以给像素宠物浇水。最难的部分是搞定点击事件处理，但完成练习时的庆祝动画让我一直保持动力！\n\n很想听听大家对样式的反馈——我还不太确定配色方案。",
+      "在 CodeGame 上学了 3 周 HTML/CSS/JS 后，我终于发布了自己的第一个交互式项目。这是一个虚拟花园，你可以给像素宠物浇水。最难的部分是搞定点击事件处理，但完成练习时的庆祝动画让我一直保持动力！\n\n很想听听大家对样式的反馈——我还不太确定配色方案。",
     attachedBuildId: "b_1",
     isStaffPick: true,
     likeCount: 142,
@@ -44,7 +44,7 @@ export const communityPosts: CommunityPost[] = [
     authorAvatar: "linear-gradient(135deg, #4ECDC4, #2D2D52)",
     authorLevel: 18,
     category: "career",
-    title: "在 Codédex 学了 6 个月后，我拿到了第一份开发工作 🎉",
+    title: "在 CodeGame 学了 6 个月后，我拿到了第一份开发工作 🎉",
     content:
       "今年一月我开始学的时候，编程知识为零。先学 Python，再学 JavaScript，然后是 React。这里的 XP 系统让我每天都能开心地坚持下来。我在作品编辑器里做了 3 个项目，放进了作品集。上周我拿到了一份初级前端岗位的 offer！\n\n致所有怀疑自己能不能做到的人：你可以的。一次一个练习。",
     isStaffPick: false,
@@ -98,7 +98,7 @@ export const communityPosts: CommunityPost[] = [
     category: "introductions",
     title: "大家好！14 岁，来自日本大阪 🇯🇵",
     content:
-      "Konnichiwa（你好）！我是 Kenji，上周刚开始在 Codédex 上学习。我很喜欢这里的像素艺术风格——它让我想起我最爱的老游戏。目前正在学 HTML，希望有一天能做出自己的游戏网站。\n\n很高兴认识大家！",
+      "Konnichiwa（你好）！我是 Kenji，上周刚开始在 CodeGame 上学习。我很喜欢这里的像素艺术风格——它让我想起我最爱的老游戏。目前正在学 HTML，希望有一天能做出自己的游戏网站。\n\n很高兴认识大家！",
     isStaffPick: false,
     likeCount: 89,
     commentCount: 12,

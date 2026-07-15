@@ -33,12 +33,12 @@ const pixel = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Codédex — 最有趣的学编程方式",
+  title: "CodeGame — 最有趣的学编程方式",
   description:
-    "Codédex 是一个游戏化的入门友好平台，学习 Python、HTML、CSS、JavaScript 等。提升等级、获得 XP，构建真实项目。",
+    "CodeGame 是一个游戏化的入门友好平台，学习 Python、HTML、CSS、JavaScript 等。提升等级、获得 XP，构建真实项目。",
   keywords: ["学编程", "python", "javascript", "html", "css", "编程入门", "游戏化学习"],
   openGraph: {
-    title: "Codédex — 最有趣的学编程方式",
+    title: "CodeGame — 最有趣的学编程方式",
     description: "通过游戏化课程、浏览器代码编辑器和友好的社区，提升你的编程技能。",
     type: "website",
   },

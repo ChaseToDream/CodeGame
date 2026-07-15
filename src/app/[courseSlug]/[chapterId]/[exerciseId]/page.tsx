@@ -24,8 +24,6 @@ export default function ExercisePage() {
   );
 
   const {
-    user,
-    isAuthed,
     progress,
     ensureCourseInit,
     saveCodeSnapshot,
@@ -61,7 +59,6 @@ export default function ExercisePage() {
   // 自动保存（防抖 3s）
   const scheduleSave = useCallback(
     (newCode: string) => {
-      if (!isAuthed) return;
       setSaveStatus("saving");
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => {
@@ -69,15 +66,13 @@ export default function ExercisePage() {
         setSaveStatus("saved");
       }, 1500);
     },
-    [exerciseId, isAuthed, saveCodeSnapshot],
+    [exerciseId, saveCodeSnapshot],
   );
 
   const handleChange = (newCode: string) => {
     setCode(newCode);
-    if (isAuthed) {
-      setExerciseStatus(exerciseId, "in_progress");
-      scheduleSave(newCode);
-    }
+    setExerciseStatus(exerciseId, "in_progress");
+    scheduleSave(newCode);
   };
 
   const handleRun = async () => {
@@ -109,7 +104,7 @@ export default function ExercisePage() {
     setCode(found!.exercise.starterCode);
     setRunResult(null);
     setCheckResult(null);
-    if (isAuthed) scheduleSave(found!.exercise.starterCode);
+    scheduleSave(found!.exercise.starterCode);
   };
 
   if (!found) {

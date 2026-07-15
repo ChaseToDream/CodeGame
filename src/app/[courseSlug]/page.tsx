@@ -17,13 +17,13 @@ export default function CourseDetailPage() {
   const router = useRouter();
   const courseSlug = params.courseSlug;
   const course = getCourseBySlug(courseSlug);
-  const { user, isAuthed, progress, ensureCourseInit } = useUserStore();
+  const { user, progress, ensureCourseInit } = useUserStore();
   const [tab, setTab] = useState<Tab>("chapters");
 
   // Init progress on first view
   useMemo(() => {
-    if (course && isAuthed) ensureCourseInit(course.slug);
-  }, [course, isAuthed, ensureCourseInit]);
+    if (course) ensureCourseInit(course.slug);
+  }, [course, ensureCourseInit]);
 
   if (!course) {
     return (
@@ -55,7 +55,7 @@ export default function CourseDetailPage() {
   };
   const nextEx = findNextExercise();
 
-  const xpInfo = user ? levelFromXp(user.xpTotal) : null;
+  const xpInfo = levelFromXp(user.xpTotal);
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
@@ -109,51 +109,38 @@ export default function CourseDetailPage() {
       </div>
 
       {/* Progress + CTA */}
-      {isAuthed && user && (
-        <div className="rounded-xl border border-rule bg-bg2 p-5 mb-8">
-          <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
-            <div>
-              <div className="text-sm text-muted">你的进度</div>
-              <div className="font-outfit text-xl font-bold">
-                {completedCount} / {allExercises.length} 个练习 ·{" "}
-                <span className="text-accent">{pct}%</span>
-              </div>
+      <div className="rounded-xl border border-rule bg-bg2 p-5 mb-8">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
+          <div>
+            <div className="text-sm text-muted">你的进度</div>
+            <div className="font-outfit text-xl font-bold">
+              {completedCount} / {allExercises.length} 个练习 ·{" "}
+              <span className="text-accent">{pct}%</span>
             </div>
-            {nextEx ? (
-              <button
-                onClick={() => {
-                  ensureCourseInit(course.slug);
-                  router.push(`/${course.slug}/${nextEx.chapterId}/${nextEx.id}`);
-                }}
-                className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
-              >
-                {completedCount === 0 ? "开始学习 →" : "继续 →"}
-              </button>
-            ) : (
-              <span className="px-4 py-2 rounded-lg bg-success/20 text-success font-semibold">
-                ✓ 课程已完成！
-              </span>
-            )}
           </div>
-          <div className="h-2.5 rounded-full bg-bg3 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-accent to-accent2 transition-all duration-700"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
+          {nextEx ? (
+            <button
+              onClick={() => {
+                ensureCourseInit(course.slug);
+                router.push(`/${course.slug}/${nextEx.chapterId}/${nextEx.id}`);
+              }}
+              className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
+            >
+              {completedCount === 0 ? "开始学习 →" : "继续 →"}
+            </button>
+          ) : (
+            <span className="px-4 py-2 rounded-lg bg-success/20 text-success font-semibold">
+              ✓ 课程已完成！
+            </span>
+          )}
         </div>
-      )}
-
-      {!isAuthed && (
-        <div className="rounded-xl border border-accent/40 bg-accent/5 p-5 mb-8 text-center">
-          <p className="text-ink">
-            <Link href="/signup" className="text-accent font-semibold hover:underline">
-              免费注册
-            </Link>{" "}
-            即可保存进度并赚取 XP。你也可以在没有账号的情况下预览练习。
-          </p>
+        <div className="h-2.5 rounded-full bg-bg3 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-accent to-accent2 transition-all duration-700"
+            style={{ width: `${pct}%` }}
+          />
         </div>
-      )}
+      </div>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-rule mb-6">
@@ -212,7 +199,7 @@ export default function CourseDetailPage() {
                 </div>
                 <ul>
                   {chExercises.map((ex) => {
-                    const status = progress.statuses[ex.id] ?? (isAuthed ? "locked" : "unlocked");
+                    const status = progress.statuses[ex.id] ?? "locked";
                     const isLocked = status === "locked";
                     const isCompleted = status === "completed";
                     const typeLabel: Record<string, string> = {
@@ -266,47 +253,39 @@ export default function CourseDetailPage() {
 
       {tab === "progress" && (
         <div className="space-y-6">
-          {isAuthed && user && xpInfo ? (
-            <>
-              <div className="rounded-xl border border-rule bg-bg2 p-5">
-                <h3 className="font-outfit text-lg font-bold mb-4">XP 与等级</h3>
-                <XPBadge xp={user.xpTotal} level={user.level} size="lg" />
-                <div className="mt-4">
-                  <LevelProgressBar
-                    currentXP={user.xpTotal}
-                    levelStartXP={xpInfo.levelStart}
-                    levelEndXP={xpInfo.levelEnd}
-                    level={xpInfo.level}
-                  />
-                </div>
-              </div>
-              <div className="rounded-xl border border-rule bg-bg2 p-5">
-                <h3 className="font-outfit text-lg font-bold mb-4">章节完成度</h3>
-                <div className="space-y-3">
-                  {course.chapters.map((ch, i) => {
-                    const exs = ch.exercises;
-                    const done = exs.filter((e) => progress.statuses[e.id] === "completed").length;
-                    const p = exs.length === 0 ? 0 : Math.round((done / exs.length) * 100);
-                    return (
-                      <div key={ch.id}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-ink">第 {i + 1} 章：{ch.title}</span>
-                          <span className="text-muted">{done}/{exs.length}</span>
-                        </div>
-                        <div className="h-2 rounded-full bg-bg3 overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-accent to-accent2" style={{ width: `${p}%` }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-12 text-muted">
-              <Link href="/login" className="text-accent hover:underline">登录</Link>以跟踪你的进度。
+          <div className="rounded-xl border border-rule bg-bg2 p-5">
+            <h3 className="font-outfit text-lg font-bold mb-4">XP 与等级</h3>
+            <XPBadge xp={user.xpTotal} level={user.level} size="lg" />
+            <div className="mt-4">
+              <LevelProgressBar
+                currentXP={user.xpTotal}
+                levelStartXP={xpInfo.levelStart}
+                levelEndXP={xpInfo.levelEnd}
+                level={xpInfo.level}
+              />
             </div>
-          )}
+          </div>
+          <div className="rounded-xl border border-rule bg-bg2 p-5">
+            <h3 className="font-outfit text-lg font-bold mb-4">章节完成度</h3>
+            <div className="space-y-3">
+              {course.chapters.map((ch, i) => {
+                const exs = ch.exercises;
+                const done = exs.filter((e) => progress.statuses[e.id] === "completed").length;
+                const p = exs.length === 0 ? 0 : Math.round((done / exs.length) * 100);
+                return (
+                  <div key={ch.id}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-ink">第 {i + 1} 章：{ch.title}</span>
+                      <span className="text-muted">{done}/{exs.length}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-bg3 overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-accent to-accent2" style={{ width: `${p}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 

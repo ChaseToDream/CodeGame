@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUserStore } from "@/stores/user-store";
 import { cn } from "@/lib/utils";
@@ -20,35 +19,22 @@ const AVATAR_PRESETS: { name: string; gradient: string }[] = [
 const FLAGS = ["🏳️", "🇺🇸", "🇨🇳", "🇮🇳", "🇧🇷", "🇬🇧", "🇩🇪", "🇫🇷", "🇯🇵", "🇰🇷", "🇨🇦", "🇦🇺", "🇲🇽", "🇪🇸", "🇮🇹", "🇷🇺"];
 
 export default function SettingsPage() {
-  const router = useRouter();
-  const { user, isAuthed, updateUser, logout } = useUserStore();
+  const { user, updateUser, resetLocalData } = useUserStore();
 
   // 本地草稿：在 Save 时才提交到 store
-  const [username, setUsername] = useState(user?.username ?? "");
-  const [bio, setBio] = useState(user?.bio ?? "");
-  const [avatarGradient, setAvatarGradient] = useState(user?.avatarGradient ?? AVATAR_PRESETS[0].gradient);
-  const [countryFlag, setCountryFlag] = useState(user?.countryFlag ?? "🏳️");
-  const [activeTab, setActiveTab] = useState<"profile" | "account" | "notifications">("profile");
+  const [username, setUsername] = useState(user.username);
+  const [bio, setBio] = useState(user.bio);
+  const [avatarGradient, setAvatarGradient] = useState(user.avatarGradient);
+  const [countryFlag, setCountryFlag] = useState(user.countryFlag);
+  const [activeTab, setActiveTab] = useState<"profile" | "notifications">("profile");
   const [savedToast, setSavedToast] = useState(false);
 
   useEffect(() => {
-    if (!isAuthed || !user) {
-      router.push("/login");
-    }
-  }, [isAuthed, user, router]);
-
-  useEffect(() => {
-    if (user) {
-      setUsername(user.username);
-      setBio(user.bio);
-      setAvatarGradient(user.avatarGradient);
-      setCountryFlag(user.countryFlag);
-    }
+    setUsername(user.username);
+    setBio(user.bio);
+    setAvatarGradient(user.avatarGradient);
+    setCountryFlag(user.countryFlag);
   }, [user]);
-
-  if (!user) {
-    return <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted">加载中...</div>;
-  }
 
   const onSave = () => {
     updateUser({
@@ -61,23 +47,17 @@ export default function SettingsPage() {
     setTimeout(() => setSavedToast(false), 2200);
   };
 
-  const onLogout = () => {
-    logout();
-    router.push("/");
-  };
-
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10">
       <header className="mb-8">
         <h1 className="font-outfit text-3xl font-bold">设置</h1>
-        <p className="text-muted mt-1 text-sm">管理你的资料、账号和偏好设置。</p>
+        <p className="text-muted mt-1 text-sm">管理你的资料和偏好设置。</p>
       </header>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 border-b border-rule">
         {([
           { id: "profile", label: "资料" },
-          { id: "account", label: "账号" },
           { id: "notifications", label: "通知" },
         ] as const).map((t) => (
           <button
@@ -167,6 +147,21 @@ export default function SettingsPage() {
             </Field>
           </section>
 
+          <section className="rounded-xl border border-rule bg-bg2 p-5">
+            <h2 className="font-outfit text-lg font-bold mb-2">数据管理</h2>
+            <p className="text-sm text-muted mb-4">重置所有本地进度、作品和帖子。此操作不可撤销。</p>
+            <button
+              onClick={() => {
+                if (confirm("重置所有本地进度、作品和帖子？此操作不可撤销。")) {
+                  resetLocalData();
+                }
+              }}
+              className="px-4 py-2 rounded-lg border border-rule text-muted text-sm hover:border-accent2 hover:text-accent2 transition"
+            >
+              重置本地数据
+            </button>
+          </section>
+
           <div className="flex items-center justify-end gap-3">
             <Link href="/dashboard" className="px-4 py-2 text-sm text-muted hover:text-ink">
               取消
@@ -181,78 +176,14 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {activeTab === "account" && (
-        <div className="space-y-6">
-          <section className="rounded-xl border border-rule bg-bg2 p-5 space-y-4">
-            <h2 className="font-outfit text-lg font-bold">账号信息</h2>
-            <Field label="Email">
-              <input
-                value={user.email}
-                disabled
-                className="w-full px-3 py-2 rounded-lg bg-bg3/50 border border-rule text-muted cursor-not-allowed"
-              />
-              <p className="text-[11px] text-muted mt-1">此演示中邮箱不可更改。</p>
-            </Field>
-            <Field label="用户 ID">
-              <input
-                value={user.id}
-                disabled
-                className="w-full px-3 py-2 rounded-lg bg-bg3/50 border border-rule text-muted cursor-not-allowed font-mono text-xs"
-              />
-            </Field>
-            <Field label="注册时间">
-              <input
-                value={new Date(user.createdAt).toLocaleDateString()}
-                disabled
-                className="w-full px-3 py-2 rounded-lg bg-bg3/50 border border-rule text-muted cursor-not-allowed"
-              />
-            </Field>
-            <Field label="角色">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-bg3 border border-rule">
-                <span className="text-sm font-semibold text-accent3 uppercase tracking-wide">
-                  {user.role}
-                </span>
-              </div>
-            </Field>
-          </section>
-
-          <section className="rounded-xl border border-rule bg-bg2 p-5">
-            <h2 className="font-outfit text-lg font-bold mb-2">危险操作区</h2>
-            <p className="text-sm text-muted mb-4">在此设备上退出你的账号。</p>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={onLogout}
-                className="px-4 py-2 rounded-lg border border-accent2 text-accent2 text-sm font-semibold hover:bg-accent2/10 transition"
-              >
-                退出登录
-              </button>
-              <button
-                onClick={() => {
-                  if (confirm("重置所有本地进度、作品和帖子？此操作不可撤销。")) {
-                    localStorage.removeItem("codedex-clone-store");
-                    location.href = "/";
-                  }
-                }}
-                className="px-4 py-2 rounded-lg border border-rule text-muted text-sm hover:border-accent2 hover:text-accent2 transition"
-              >
-                重置本地数据
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
-
       {activeTab === "notifications" && (
         <div className="space-y-6">
           <section className="rounded-xl border border-rule bg-bg2 p-5 space-y-4">
             <h2 className="font-outfit text-lg font-bold">偏好设置</h2>
-            <Toggle label="获得新徽章时邮件通知" defaultOn />
-            <Toggle label="有人回复我的帖子时邮件通知" defaultOn />
+            <Toggle label="获得新徽章时通知" defaultOn />
+            <Toggle label="有人回复我的帖子时通知" defaultOn />
             <Toggle label="每周连续学习摘要" defaultOn={false} />
             <Toggle label="产品更新与新闻" defaultOn />
-            <p className="text-[11px] text-muted pt-2 border-t border-rule">
-              此演示中的通知仅为模拟，不会实际发送邮件。
-            </p>
           </section>
         </div>
       )}

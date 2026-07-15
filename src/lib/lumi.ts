@@ -11,7 +11,7 @@ export interface LumiMessage {
  * 模拟 SSE 流式输出，逐 token 推送。
  */
 export function buildLumiSystemPrompt(exercise: Exercise, userCode: string): string {
-  return `你是 Lumi，Codédex 上友好的 AI 编程伙伴。
+  return `你是 Lumi，CodeGame 上友好的 AI 编程伙伴。
 当前练习：${exercise.title}
 练习类型：${exercise.type}
 语言：${exercise.language}

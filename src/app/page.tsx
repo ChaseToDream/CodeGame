@@ -29,7 +29,7 @@ const STORIES = [
     role: "计算机科学学生",
     avatar: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
     excerpt:
-      "我试过其他 3 个平台。Codédex 是唯一一个不让我觉得自己笨的平台。Lumi 真是救星。",
+      "我试过其他 3 个平台。CodeGame 是唯一一个不让我觉得自己笨的平台。Lumi 真是救星。",
   },
   {
     name: "Kenji Tanaka",
@@ -77,16 +77,16 @@ export default function HomePage() {
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              href="/signup"
+              href="/courses"
               className="px-7 py-3.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold text-base hover:shadow-glow transition-all hover:scale-105"
             >
               立即开始 — 完全免费
             </Link>
             <Link
-              href="/courses"
+              href="/builds"
               className="px-7 py-3.5 rounded-lg border border-rule bg-bg2/60 text-ink font-semibold text-base hover:border-accent transition"
             >
-              探索课程
+              探索作品
             </Link>
           </div>
           <div className="mt-10">
@@ -242,7 +242,7 @@ export default function HomePage() {
       <FeatureSection
         eyebrow="构建真实作品"
         title="打造精彩的作品集"
-        body="Codédex 作品是你的浏览器内项目工作室。使用 HTML、CSS 和 JS 构建网站、游戏和可视化作品。一键发布，向社区展示你的成果。"
+        body="CodeGame 作品是你的浏览器内项目工作室。使用 HTML、CSS 和 JS 构建网站、游戏和可视化作品。一键发布，向社区展示你的成果。"
         bullets={[
           { icon: "🗂️", text: "支持多文件项目和在线预览" },
           { icon: "🚀", text: "一键发布到可分享的链接" },
@@ -310,7 +310,7 @@ export default function HomePage() {
         <h2 className="text-center font-outfit text-3xl sm:text-4xl font-bold mb-2">
           和你一样的学习者
         </h2>
-        <p className="text-center text-muted mb-10">来自 Codédex 社区的真实故事。</p>
+        <p className="text-center text-muted mb-10">来自 CodeGame 社区的真实故事。</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {STORIES.map((s) => (
             <div
@@ -343,10 +343,10 @@ export default function HomePage() {
           </h2>
           <p className="text-muted mb-6">免费。有趣。只需一个练习即可开始。</p>
           <Link
-            href="/signup"
+            href="/courses"
             className="inline-block px-8 py-3.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold text-base hover:shadow-glow transition-all hover:scale-105"
           >
-            创建你的免费账户
+            开始你的编程冒险
           </Link>
         </div>
       </section>

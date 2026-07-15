@@ -9,17 +9,11 @@ import { communityPosts as seedPosts } from "@/data/posts";
 import { genId, levelFromXp } from "@/lib/utils";
 
 interface UserStoreState {
-  user: User | null;
-  isAuthed: boolean;
+  user: User;
   progress: ProgressState;
   earnedBadgeIds: string[];
   builds: Build[];
   posts: CommunityPost[];
-
-  // auth
-  signup: (email: string, username: string, password: string) => User;
-  login: (email: string) => User | null;
-  logout: () => void;
 
   // progress
   ensureCourseInit: (courseSlug: string) => void;
@@ -43,12 +37,16 @@ interface UserStoreState {
 
   // badges
   awardBadge: (badgeId: string) => void;
+
+  // data
+  resetLocalData: () => void;
 }
 
-const DEFAULT_USER: Omit<User, "email" | "username"> = {
+const DEFAULT_USER: User = {
   id: "u_local",
+  username: "玩家",
   avatarGradient: "linear-gradient(135deg, #7C5CFC, #FF6B9D)",
-  bio: "Just a learner on a quest to level up. ⚔️",
+  bio: "正在编程世界中冒险的学习者。⚔️",
   xpTotal: 0,
   level: 1,
   streakDays: 0,
@@ -67,34 +65,11 @@ function awardXp(user: User, amount: number): User {
 export const useUserStore = create<UserStoreState>()(
   persist(
     (set, get) => ({
-      user: null,
-      isAuthed: false,
+      user: DEFAULT_USER,
       progress: { statuses: {}, codeSnapshots: {} },
       earnedBadgeIds: [],
       builds: seedBuilds,
       posts: seedPosts,
-
-      signup: (email, username, _password) => {
-        const user: User = { ...DEFAULT_USER, id: genId("u"), email, username };
-        set({ user, isAuthed: true });
-        // auto-award first-steps-ready: ensure first exercise unlocked later
-        return user;
-      },
-
-      login: (email) => {
-        // mock: any email logs in
-        const existing = get().user;
-        if (existing && existing.email === email) {
-          set({ isAuthed: true });
-          return existing;
-        }
-        const username = email.split("@")[0] || "learner";
-        const user: User = { ...DEFAULT_USER, id: genId("u"), email, username };
-        set({ user, isAuthed: true });
-        return user;
-      },
-
-      logout: () => set({ isAuthed: false, user: null }),
 
       ensureCourseInit: (courseSlug) => {
         const course = courses.find((c) => c.slug === courseSlug);
@@ -133,7 +108,6 @@ export const useUserStore = create<UserStoreState>()(
 
       completeExercise: (exerciseId, xp) => {
         const state = get();
-        if (!state.user) return;
         const prevStatus = state.progress.statuses[exerciseId];
         // unlock next
         const newStatuses = { ...state.progress.statuses, [exerciseId]: "completed" as const };
@@ -168,18 +142,18 @@ export const useUserStore = create<UserStoreState>()(
           const last = new Date(state.user.lastActiveDate);
           const diffDays = Math.floor((Date.now() - last.getTime()) / 86400000);
           const newStreak = diffDays === 1 ? state.user.streakDays + 1 : 1;
-          set({ user: { ...get().user!, streakDays: newStreak } });
+          set({ user: { ...get().user, streakDays: newStreak } });
         }
       },
 
       createBuild: (title, files) => {
         const state = get();
         const id = genId("b");
-        const authorName = state.user?.username ?? "anon";
-        const authorAvatar = state.user?.avatarGradient ?? DEFAULT_USER.avatarGradient;
+        const authorName = state.user.username;
+        const authorAvatar = state.user.avatarGradient;
         const build: Build = {
           id,
-          userId: state.user?.id ?? "u_anon",
+          userId: state.user.id,
           authorName,
           authorAvatar,
           title,
@@ -191,10 +165,7 @@ export const useUserStore = create<UserStoreState>()(
           likeCount: 0,
           createdAt: new Date().toISOString(),
         };
-        set({ builds: [build, ...state.builds] });
-        if (state.user) {
-          set({ user: awardXp(state.user, 30) });
-        }
+        set({ builds: [build, ...state.builds], user: awardXp(state.user, 30) });
         return id;
       },
 
@@ -222,9 +193,9 @@ export const useUserStore = create<UserStoreState>()(
         const forked: Build = {
           ...original,
           id: newId,
-          userId: state.user?.id ?? "u_anon",
-          authorName: state.user?.username ?? "anon",
-          authorAvatar: state.user?.avatarGradient ?? DEFAULT_USER.avatarGradient,
+          userId: state.user.id,
+          authorName: state.user.username,
+          authorAvatar: state.user.avatarGradient,
           title: `${original.title} (Fork)`,
           isPublished: false,
           viewCount: 0,
@@ -242,19 +213,16 @@ export const useUserStore = create<UserStoreState>()(
         const newPost: CommunityPost = {
           ...post,
           id,
-          userId: state.user?.id ?? "u_anon",
-          authorName: state.user?.username ?? "anon",
-          authorAvatar: state.user?.avatarGradient ?? DEFAULT_USER.avatarGradient,
-          authorLevel: state.user?.level ?? 1,
+          userId: state.user.id,
+          authorName: state.user.username,
+          authorAvatar: state.user.avatarGradient,
+          authorLevel: state.user.level,
           likeCount: 0,
           commentCount: 0,
           comments: [],
           createdAt: new Date().toISOString(),
         };
-        set({ posts: [newPost, ...state.posts] });
-        if (state.user) {
-          set({ user: awardXp(state.user, 10) });
-        }
+        set({ posts: [newPost, ...state.posts], user: awardXp(state.user, 10) });
         return id;
       },
 
@@ -285,9 +253,9 @@ export const useUserStore = create<UserStoreState>()(
                 ...p.comments,
                 {
                   id: genId("c"),
-                  userId: state.user?.id ?? "u_anon",
-                  authorName: state.user?.username ?? "anon",
-                  authorAvatar: state.user?.avatarGradient ?? DEFAULT_USER.avatarGradient,
+                  userId: state.user.id,
+                  authorName: state.user.username,
+                  authorAvatar: state.user.avatarGradient,
                   content,
                   likeCount: 0,
                   createdAt: new Date().toISOString(),
@@ -295,15 +263,12 @@ export const useUserStore = create<UserStoreState>()(
               ],
             };
           }),
+          user: awardXp(state.user, 5),
         });
-        if (state.user) {
-          set({ user: awardXp(state.user, 5) });
-        }
       },
 
       updateUser: (patch) => {
         const state = get();
-        if (!state.user) return;
         set({ user: { ...state.user, ...patch } });
       },
 
@@ -312,13 +277,22 @@ export const useUserStore = create<UserStoreState>()(
         if (state.earnedBadgeIds.includes(badgeId)) return;
         set({ earnedBadgeIds: [...state.earnedBadgeIds, badgeId] });
       },
+
+      resetLocalData: () => {
+        set({
+          user: { ...DEFAULT_USER, createdAt: new Date().toISOString(), lastActiveDate: new Date().toISOString() },
+          progress: { statuses: {}, codeSnapshots: {} },
+          earnedBadgeIds: [],
+          builds: seedBuilds,
+          posts: seedPosts,
+        });
+      },
     }),
     {
-      name: "codedex-clone-store",
+      name: "codegame-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
         user: s.user,
-        isAuthed: s.isAuthed,
         progress: s.progress,
         earnedBadgeIds: s.earnedBadgeIds,
         builds: s.builds,

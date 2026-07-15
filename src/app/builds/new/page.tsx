@@ -17,7 +17,7 @@ const TEMPLATES: { name: string; emoji: string; files: BuildFile[] }[] = [
     name: "空白项目",
     emoji: "📄",
     files: [
-      { name: "index.html", language: "html", content: "<!DOCTYPE html>\n<html>\n<head>\n  <title>My Build</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <h1>Hello, Codédex!</h1>\n  <script src=\"script.js\"></script>\n</body>\n</html>" },
+      { name: "index.html", language: "html", content: "<!DOCTYPE html>\n<html>\n<head>\n  <title>My Build</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <h1>Hello, CodeGame!</h1>\n  <script src=\"script.js\"></script>\n</body>\n</html>" },
       { name: "style.css", language: "css", content: "body {\n  font-family: sans-serif;\n  background: #1a1a2e;\n  color: #e8e8f0;\n  text-align: center;\n  padding: 2rem;\n}\nh1 {\n  color: #7c5cfc;\n}" },
       { name: "script.js", language: "js", content: "console.log('Build loaded!');" },
     ],
@@ -26,7 +26,7 @@ const TEMPLATES: { name: string; emoji: string; files: BuildFile[] }[] = [
     name: "个人网站",
     emoji: "👤",
     files: [
-      { name: "index.html", language: "html", content: "<!DOCTYPE html>\n<html>\n<head>\n  <title>About Me</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <header>\n    <h1>Hi, I'm a Codédex Learner</h1>\n    <p>Future developer in training ⚔️</p>\n  </header>\n  <main>\n    <section>\n      <h2>My Skills</h2>\n      <ul>\n        <li>HTML</li>\n        <li>CSS</li>\n        <li>JavaScript (learning!)</li>\n      </ul>\n    </section>\n  </main>\n  <script src=\"script.js\"></script>\n</body>\n</html>" },
+      { name: "index.html", language: "html", content: "<!DOCTYPE html>\n<html>\n<head>\n  <title>About Me</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <header>\n    <h1>Hi, I'm a CodeGame Learner</h1>\n    <p>Future developer in training ⚔️</p>\n  </header>\n  <main>\n    <section>\n      <h2>My Skills</h2>\n      <ul>\n        <li>HTML</li>\n        <li>CSS</li>\n        <li>JavaScript (learning!)</li>\n      </ul>\n    </section>\n  </main>\n  <script src=\"script.js\"></script>\n</body>\n</html>" },
       { name: "style.css", language: "css", content: "* { margin: 0; box-sizing: border-box; }\nbody { font-family: sans-serif; background: linear-gradient(135deg, #1a1a2e, #252544); color: #e8e8f0; min-height: 100vh; padding: 2rem; }\nheader { text-align: center; margin-bottom: 2rem; }\nh1 { color: #7c5cfc; font-size: 2rem; }\np { color: #a0a0b8; }\nsection { max-width: 600px; margin: 0 auto; background: rgba(45,45,82,0.5); padding: 1.5rem; border-radius: 12px; }\nh2 { color: #ff6b9d; margin-bottom: 1rem; }\nli { color: #4ecdc4; margin: 0.5rem 0; }" },
       { name: "script.js", language: "js", content: "// Add a little interactivity\ndocument.querySelector('h1').addEventListener('click', () => {\n  alert('Thanks for visiting! 🌟');\n});" },
     ],
@@ -46,7 +46,7 @@ const LANG_ICON: Record<string, string> = { html: "📄", css: "🎨", js: "⚡"
 const MONACO_LANG: Record<string, string> = { html: "html", css: "css", js: "javascript" };
 
 export default function BuildsEditorPage() {
-  const { user, isAuthed, createBuild, updateBuild, publishBuild, builds } = useUserStore();
+  const { createBuild, updateBuild, publishBuild, builds } = useUserStore();
   const [files, setFiles] = useState<BuildFile[]>(TEMPLATES[0].files);
   const [activeIdx, setActiveIdx] = useState(0);
   const [title, setTitle] = useState("我的精彩作品");
@@ -154,11 +154,6 @@ export default function BuildsEditorPage() {
             </button>
           ))}
         </div>
-        {!isAuthed && (
-          <p className="text-center text-sm text-muted mt-6">
-            <Link href="/login" className="text-accent hover:underline">登录</Link>以保存和发布你的作品。
-          </p>
-        )}
         <div className="text-center mt-8">
           <Link href="/builds" className="text-sm text-muted hover:text-ink">← 浏览社区作品</Link>
         </div>
