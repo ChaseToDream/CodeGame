@@ -153,9 +153,27 @@ describe("runCode 路由", () => {
     expect(r.exitCode).toBe(0);
   });
 
+  it("go 走 runStatic", async () => {
+    const r = await runCode('package main\n', "go");
+    expect(r.exitCode).toBe(0);
+    expect(r.stdout).toBe('package main\n');
+  });
+
+  it("rust 走 runStatic", async () => {
+    const r = await runCode("fn main() {}", "rust");
+    expect(r.exitCode).toBe(0);
+    expect(r.stdout).toBe("fn main() {}");
+  });
+
+  it("typescript 走 runStatic", async () => {
+    const r = await runCode("const x: number = 1;", "typescript");
+    expect(r.exitCode).toBe(0);
+    expect(r.stdout).toBe("const x: number = 1;");
+  });
+
   it("未支持的语言返回错误", async () => {
-    // java 走 runStatic 分支（已支持），用真正不存在的语言测试错误分支
-    const r = await runCode("// nothing", "rust" as any);
+    // java/cpp/go/rust/typescript 走 runStatic 分支（已支持），用真正不存在的语言测试错误分支
+    const r = await runCode("// nothing", "kotlin" as any);
     expect(r.exitCode).toBe(1);
     expect(r.stderr).toContain("not supported");
   });

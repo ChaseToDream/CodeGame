@@ -350,6 +350,9 @@ export async function runCode(code: string, language: Language): Promise<RunResu
     case "sql":
     case "cpp":
     case "java":
+    case "go":
+    case "rust":
+    case "typescript":
       return runStatic(code);
     default:
       return { stdout: "", stderr: `Language ${language} not supported`, exitCode: 1, executionTimeMs: 0 };

@@ -11,21 +11,25 @@ import type { CourseTag } from "@/types";
 const ALL_TAGS: CourseTag[] = [
   "Beginner",
   "Intermediate",
+  "Advanced",
   "Python",
   "Web Development",
   "Data Science",
   "Tools",
   "Creative Coding",
+  "Systems Programming",
 ];
 
 const TAG_LABELS: Record<CourseTag, string> = {
   Beginner: "入门",
   Intermediate: "进阶",
+  Advanced: "高级",
   Python: "Python",
   "Web Development": "Web 开发",
   "Data Science": "数据科学",
   Tools: "工具",
   "Creative Coding": "创意编程",
+  "Systems Programming": "系统编程",
 };
 
 export default function CoursesPage() {
@@ -52,7 +56,7 @@ export default function CoursesPage() {
           探索 <span className="gradient-text">CodeGame 的世界</span>
         </h1>
         <p className="mt-3 text-muted max-w-2xl mx-auto">
-          选择一条路径，或浏览全部 25+ 门课程。每门课程都是互动式的，免费开始，专为初学者打造。
+          选择一条路径，或浏览全部 28+ 门课程。每门课程都是互动式的，免费开始，专为初学者打造。
         </p>
         <Link
           href="/courses"

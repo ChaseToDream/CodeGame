@@ -40,10 +40,12 @@ export function CourseCard({ course, className, compact }: CourseCardProps) {
               "shrink-0 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide",
               course.difficulty === "beginner"
                 ? "bg-success/20 text-success"
-                : "bg-warning/20 text-warning",
+                : course.difficulty === "advanced"
+                  ? "bg-accent2/20 text-accent2"
+                  : "bg-warning/20 text-warning",
             )}
           >
-            {course.difficulty === "beginner" ? "入门" : "进阶"}
+            {course.difficulty === "beginner" ? "入门" : course.difficulty === "advanced" ? "高级" : "进阶"}
           </span>
         </div>
         <p className="text-xs text-muted line-clamp-2 leading-relaxed">{course.description}</p>

@@ -43,4 +43,11 @@ export const learningJourneys: JourneyMeta[] = [
     emoji: "🎮",
     gradient: "linear-gradient(135deg, #F0A04B, #FF6B9D)",
   },
+  {
+    name: "Systems Programming",
+    description:
+      "用 Go 和 Rust 构建高性能系统。掌握并发、内存安全与现代系统编程范式。",
+    emoji: "⚙️",
+    gradient: "linear-gradient(135deg, #00ADD8, #CE422B)",
+  },
 ];

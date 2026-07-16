@@ -29,6 +29,9 @@ const MONACO_LANG_MAP: Record<Language, string> = {
   sql: "sql",
   cpp: "cpp",
   java: "java",
+  go: "go",
+  rust: "rust",
+  typescript: "typescript",
 };
 
 export function CodeEditor({

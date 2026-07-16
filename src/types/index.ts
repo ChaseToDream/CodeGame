@@ -1,13 +1,14 @@
 // 核心类型定义 —— 对应 PRD 第 7 章数据模型
 
-export type Difficulty = "beginner" | "intermediate";
+export type Difficulty = "beginner" | "intermediate" | "advanced";
 
 export type LearningJourney =
   | "Web Development"
   | "Data Science"
   | "Artificial Intelligence"
   | "Computer Science"
-  | "Game Development";
+  | "Game Development"
+  | "Systems Programming";
 
 export type CourseTag =
   | "Python"
@@ -16,11 +17,13 @@ export type CourseTag =
   | "Tools"
   | "Creative Coding"
   | "Beginner"
-  | "Intermediate";
+  | "Intermediate"
+  | "Advanced"
+  | "Systems Programming";
 
 export type ExerciseType = "exercise" | "bonus_article" | "challenge_pack" | "checkpoint" | "final_project";
 
-export type Language = "python" | "javascript" | "html" | "css" | "sql" | "cpp" | "java";
+export type Language = "python" | "javascript" | "html" | "css" | "sql" | "cpp" | "java" | "go" | "rust" | "typescript";
 
 export interface TestCase {
   name: string;
