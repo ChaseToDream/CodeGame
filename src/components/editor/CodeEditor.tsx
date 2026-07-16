@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
 import { cn } from "@/lib/utils";
 import type { Language } from "@/types";
@@ -46,7 +46,15 @@ export function CodeEditor({
   saveStatus,
 }: CodeEditorProps) {
   const editorRef = useRef<any>(null);
-  const confirmReset = useRef(false);
+  // 用 useState 让"再次点击确认重置"提示能响应式显示——useRef 不会触发重渲染
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  // 2.5s 后自动取消确认态，避免用户点了一次后永远需要双击
+  useEffect(() => {
+    if (!confirmReset) return;
+    const t = setTimeout(() => setConfirmReset(false), 2500);
+    return () => clearTimeout(t);
+  }, [confirmReset]);
 
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
@@ -71,14 +79,15 @@ export function CodeEditor({
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun);
   };
 
-  const handleReset = useCallback(() => {
-    if (!confirmReset.current) {
-      confirmReset.current = true;
-      setTimeout(() => (confirmReset.current = false), 2500);
+  const handleReset = () => {
+    if (!confirmReset) {
+      setConfirmReset(true);
       return;
     }
-    onChange(initialCode);
-  }, [initialCode, onChange]);
+    // 调用父组件传入的 onReset，让父组件统一处理：清空运行结果、触发自动保存等
+    onReset();
+    setConfirmReset(false);
+  };
 
   return (
     <div className="flex flex-col h-full bg-codebg">
@@ -112,7 +121,7 @@ export function CodeEditor({
         >
           ↺ 重置
         </button>
-        {confirmReset.current && (
+        {confirmReset && (
           <span className="text-[11px] text-warning animate-pulse">再次点击确认重置</span>
         )}
         <div className="ml-auto text-[11px] text-muted flex items-center gap-2">

@@ -8,8 +8,8 @@ interface StreakCounterProps {
 
 export function StreakCounter({ days, lastActiveDate, size = "md" }: StreakCounterProps) {
   const isToday = new Date(lastActiveDate).toDateString() === new Date().toDateString();
-  const flameColor =
-    days >= 30 ? "text-warning" : days >= 7 ? "text-accent2" : days > 0 ? "text-accent2" : "text-muted";
+  // 火焰颜色：30 天以上金色，1 天以上粉色，否则灰色（合并 >=7 与 >0 两个相同分支）
+  const flameColor = days >= 30 ? "text-warning" : days > 0 ? "text-accent2" : "text-muted";
   const sizes = {
     sm: "text-sm gap-1",
     md: "text-base gap-1.5",

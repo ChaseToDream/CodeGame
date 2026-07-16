@@ -46,8 +46,9 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
       attachedBuildId: attachedBuildId || undefined,
       isStaffPick: false,
     });
-    onClose();
+    // 先触发路由跳转，再延迟关闭模态框，避免模态框卸载导致跳转中断或闪烁
     router.push(`/community/${category}/${id}`);
+    setTimeout(onClose, 0);
   };
 
   return (

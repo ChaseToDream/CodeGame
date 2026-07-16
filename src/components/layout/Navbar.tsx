@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useUserStore } from "@/stores/user-store";
 import { cn } from "@/lib/utils";
 import { XPBadge } from "@/components/game/XPBadge";
+import { StreakCounter } from "@/components/game/StreakCounter";
 
 const NAV_LINKS = [
   { href: "/courses", label: "课程" },
@@ -74,6 +75,13 @@ export function Navbar() {
         {/* Right side */}
         <div className="hidden md:flex items-center gap-3">
           <XPBadge xp={user.xpTotal} level={user.level} size="sm" />
+          {user.streakDays > 0 && (
+            <StreakCounter
+              days={user.streakDays}
+              lastActiveDate={user.lastActiveDate}
+              size="sm"
+            />
+          )}
           <Link
             href="/dashboard"
             className="relative h-9 w-9 rounded-full overflow-hidden ring-2 ring-accent/50 hover:ring-accent transition"
@@ -149,6 +157,12 @@ export function Navbar() {
             <div className="pt-2 border-t border-rule mt-2">
               <Link href="/dashboard" className="block px-3 py-2.5 text-ink">
                 仪表盘
+              </Link>
+              <Link href="/worlds" className="block px-3 py-2.5 text-ink">
+                世界
+              </Link>
+              <Link href={`/u/${encodeURIComponent(user.username)}`} className="block px-3 py-2.5 text-ink">
+                我的资料
               </Link>
               <Link href="/settings" className="block px-3 py-2.5 text-ink">
                 设置

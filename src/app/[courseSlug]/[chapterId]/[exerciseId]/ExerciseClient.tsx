@@ -91,7 +91,7 @@ export default function ExerciseClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exerciseId, courseSlug]);
 
-  // 自动保存（防抖 3s）
+  // 自动保存（防抖 1.5s）
   const scheduleSave = useCallback(
     (newCode: string) => {
       setSaveStatus("saving");

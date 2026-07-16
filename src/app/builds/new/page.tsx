@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
 import type { BuildFile } from "@/types";
-import { cn } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 import { buildPreviewDoc } from "@/lib/preview-doc";
 
 const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
@@ -49,8 +49,8 @@ const LANG_ICON: Record<string, string> = { html: "📄", css: "🎨", js: "⚡"
 const MONACO_LANG: Record<string, string> = { html: "html", css: "css", js: "javascript" };
 
 export default function BuildsEditorPage() {
-  const { createBuild, updateBuild, publishBuild, builds } = useUserStore(
-    useShallow((s) => ({ createBuild: s.createBuild, updateBuild: s.updateBuild, publishBuild: s.publishBuild, builds: s.builds })),
+  const { createBuild, updateBuild, publishBuild, builds, user } = useUserStore(
+    useShallow((s) => ({ createBuild: s.createBuild, updateBuild: s.updateBuild, publishBuild: s.publishBuild, builds: s.builds, user: s.user })),
   );
   const [files, setFiles] = useState<BuildFile[]>(TEMPLATES[0].files);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -145,6 +145,18 @@ export default function BuildsEditorPage() {
     setCurrentBuildId(id);
   };
 
+  /** 恢复未发布草稿到编辑器（刷新或误退后可继续编辑，避免内容丢失） */
+  const loadDraft = (draftId: string) => {
+    const draft = builds.find((b) => b.id === draftId);
+    if (!draft) return;
+    setFiles(draft.files.map((f) => ({ ...f })));
+    setTitle(draft.title);
+    setActiveIdx(0);
+    setCurrentBuildId(draft.id);
+    setShowTemplates(false);
+    setSaveStatus("saved");
+  };
+
   const handlePublish = () => {
     // 清空待执行的防抖保存，避免发布后又触发一次 updateBuild
     if (saveTimer.current) {
@@ -167,6 +179,15 @@ export default function BuildsEditorPage() {
 
   const deviceWidth = device === "mobile" ? "375px" : device === "tablet" ? "768px" : "100%";
 
+  // 当前用户的未发布草稿（刷新页面后仍可恢复，避免防抖中或未显式保存的草稿丢失）
+  const myDrafts = useMemo(
+    () =>
+      builds
+        .filter((b) => b.userId === user.id && !b.isPublished)
+        .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)),
+    [builds, user.id],
+  );
+
   if (showTemplates) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12">
@@ -175,6 +196,45 @@ export default function BuildsEditorPage() {
           <h1 className="font-outfit text-3xl font-bold">开始新作品</h1>
           <p className="text-muted mt-2">选择一个模板或从零开始。</p>
         </div>
+
+        {/* 草稿恢复区：刷新或退出后仍可继续编辑未发布的作品 */}
+        {myDrafts.length > 0 && (
+          <div className="mb-8 rounded-xl border border-warning/40 bg-warning/5 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-outfit text-sm font-bold text-ink flex items-center gap-2">
+                <span>📝</span> 未发布的草稿（{myDrafts.length}）
+              </h2>
+              <span className="text-[10px] text-muted">刷新页面后仍可恢复</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {myDrafts.slice(0, 4).map((d) => (
+                <button
+                  key={d.id}
+                  onClick={() => loadDraft(d.id)}
+                  className="flex items-center gap-3 rounded-lg border border-rule bg-bg2 p-3 text-left hover:border-accent transition group"
+                >
+                  <div
+                    className="h-10 w-10 rounded shrink-0 flex items-center justify-center text-lg"
+                    style={{ background: d.thumbnailGradient }}
+                  >
+                    📄
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-sm text-ink group-hover:text-accent transition truncate">
+                      {d.title}
+                    </div>
+                    <div className="text-[10px] text-muted">
+                      {d.files.length} 个文件 · {timeAgo(d.createdAt)}
+                    </div>
+                  </div>
+                  <span className="text-xs text-accent2 shrink-0">继续 →</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <h2 className="font-outfit text-sm font-bold text-muted uppercase tracking-wide mb-3">选择模板</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {TEMPLATES.map((t) => (
             <button

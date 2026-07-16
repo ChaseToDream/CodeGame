@@ -23,6 +23,8 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // 用于在 onToken 闭包中判断是否已开始追加 assistant 消息
+  const streamStartedRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -34,20 +36,25 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
     setInput("");
     setMessages((m) => [...m, { role: "user", content: userMsg }]);
     setStreaming(true);
+    streamStartedRef.current = false;
     const reply = generateLumiReply(exercise, userCode, userMsg);
-    // 流式推送
-    setMessages((m) => [...m, { role: "assistant", content: "" }]);
+    // 流式推送：第一个 token 到达时才添加 assistant 气泡，避免空气泡与 typing 指示器并存
     await streamLumiReply(
       reply,
       (token) => {
-        setMessages((m) => {
-          const next = [...m];
-          next[next.length - 1] = {
-            ...next[next.length - 1],
-            content: next[next.length - 1].content + token,
-          };
-          return next;
-        });
+        if (!streamStartedRef.current) {
+          streamStartedRef.current = true;
+          setMessages((m) => [...m, { role: "assistant", content: token }]);
+        } else {
+          setMessages((m) => {
+            const next = [...m];
+            next[next.length - 1] = {
+              ...next[next.length - 1],
+              content: next[next.length - 1].content + token,
+            };
+            return next;
+          });
+        }
       },
       () => setStreaming(false),
     );
@@ -104,7 +111,7 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
                 </div>
               </div>
             ))}
-            {streaming && (
+            {streaming && messages[messages.length - 1]?.role !== "assistant" && (
               <div className="flex justify-start">
                 <div className="bg-bg3 px-3 py-2 rounded-lg">
                   <span className="inline-block w-1.5 h-3.5 bg-accent animate-pulse" />

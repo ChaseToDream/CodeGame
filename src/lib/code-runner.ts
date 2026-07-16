@@ -151,7 +151,43 @@ export function retryPyodide(): void {
   pyodideLoading = false;
 }
 
-export async function runPython(code: string): Promise<RunResult> {
+/**
+ * Python 超时保护包装器源码。
+ *
+ * Pyodide 在主线程同步执行 Python，无法用 setTimeout 中断。
+ * 这里通过 sys.settrace 注入追踪函数：每 1000 次字节码事件检查一次墙钟时间，
+ * 超时则抛出 KeyboardInterrupt，由外层 try/finally 清理 tracer。
+ *
+ * 局限性：对纯 C 扩展循环（如 numpy 大循环）无效——但 Pyodide 默认不带这些。
+ * 性能开销约 10-30%，对学习场景可接受。
+ *
+ * 用户代码通过 exec(_user_code, globals()) 在 __main__ 模块命名空间执行，
+ * 与直接 runPythonAsync(code) 行为一致——用户定义的变量、函数可在后续调用复用。
+ */
+const PYTHON_TIMEOUT_WRAPPER = `
+import sys
+import time
+
+def _codegame_run_with_timeout(_user_code, _timeout_ms):
+    _start = time.time()
+    _count = [0]
+    def _tracer(frame, event, arg):
+        _count[0] += 1
+        if _count[0] >= 1000:
+            _count[0] = 0
+            if (time.time() - _start) * 1000 > _timeout_ms:
+                raise KeyboardInterrupt("执行超时（可能存在死循环），已中止")
+        return _tracer
+    sys.settrace(_tracer)
+    try:
+        exec(_user_code, globals())
+    finally:
+        sys.settrace(None)
+
+_codegame_run_with_timeout
+`;
+
+export async function runPython(code: string, timeoutMs = 5000): Promise<RunResult> {
   const start = performance.now();
   try {
     const pyodide = await loadPyodide();
@@ -159,7 +195,15 @@ export async function runPython(code: string): Promise<RunResult> {
     let stderr = "";
     pyodide.setStdout({ batched: (s: string) => (stdout += s + "\n") });
     pyodide.setStderr({ batched: (s: string) => (stderr += s + "\n") });
-    await pyodide.runPythonAsync(code);
+
+    // 取得 wrapper 函数，再以用户代码与超时为参数调用——避免在 Python 源码中
+    // 拼接用户代码字符串，杜绝注入风险（JSON.stringify 输出对 Python 字符串字面量安全）
+    await pyodide.runPythonAsync(PYTHON_TIMEOUT_WRAPPER);
+    const runner = pyodide.globals.get("_codegame_run_with_timeout");
+    // Pyodide 的 callPyReady/callKwargs 把 JS 字符串原样传入 Python，无注入风险
+    await runner.callKwargs(code, timeoutMs);
+    runner.destroy?.();
+
     return {
       stdout,
       stderr,
@@ -167,9 +211,11 @@ export async function runPython(code: string): Promise<RunResult> {
       executionTimeMs: Math.round(performance.now() - start),
     };
   } catch (e: any) {
+    // Pyodide 抛出的 PythonError，其 message 包含完整 traceback——保留以便调试
+    const msg = e?.message || String(e);
     return {
       stdout: "",
-      stderr: String(e?.message || e),
+      stderr: msg,
       exitCode: 1,
       executionTimeMs: Math.round(performance.now() - start),
     };

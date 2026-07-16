@@ -17,8 +17,9 @@ export default function DashboardPage() {
     useShallow((s) => ({ user: s.user, progress: s.progress, builds: s.builds, posts: s.posts, ensureCourseInit: s.ensureCourseInit })),
   );
 
+  // 初始化所有课程的进度状态（解锁每门课的第一节），避免"继续学习"列表为空
   useEffect(() => {
-    ensureCourseInit("python");
+    courses.forEach((c) => ensureCourseInit(c.slug));
   }, [ensureCourseInit]);
 
   const xpInfo = levelFromXp(user.xpTotal);

@@ -192,7 +192,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="grid grid-cols-4 gap-2">
-              {["�", "�", "🎯", "�"].map((e, i) => (
+              {["🏆", "⭐", "🎯", "🔥"].map((e, i) => (
                 <div key={i} className="aspect-square rounded-lg border border-rule bg-bg3 flex items-center justify-center text-2xl">
                   {e}
                 </div>
@@ -288,9 +288,9 @@ export default function HomePage() {
         visual={
           <div className="space-y-3">
             {[
-              { name: "sarah_codes", flag: "�", text: "刚发布了我的第一个作品！", likes: 142, color: "linear-gradient(135deg, #FF6B9D, #7C5CFC)" },
-              { name: "marco.dev", flag: "�", text: "拿到了我的第一份开发工作！！", likes: 318, color: "linear-gradient(135deg, #4ECDC4, #2D2D52)" },
-              { name: "kenji_pixel", flag: "👋", text: "大家好！我 14 岁，来自大阪", likes: 89, color: "linear-gradient(135deg, #7C5CFC, #4ECDC4)" },
+              { name: "sarah_codes", flag: "🇺🇸", text: "刚发布了我的第一个作品！", likes: 142, color: "linear-gradient(135deg, #FF6B9D, #7C5CFC)" },
+              { name: "marco.dev", flag: "🇵🇹", text: "拿到了我的第一份开发工作！！", likes: 318, color: "linear-gradient(135deg, #4ECDC4, #2D2D52)" },
+              { name: "kenji_pixel", flag: "🇯🇵", text: "大家好！我 14 岁，来自大阪", likes: 89, color: "linear-gradient(135deg, #7C5CFC, #4ECDC4)" },
             ].map((p, i) => (
               <div key={i} className="rounded-lg border border-rule bg-bg2 p-3 flex gap-3">
                 <div className="h-9 w-9 rounded-full shrink-0" style={{ background: p.color }} />
