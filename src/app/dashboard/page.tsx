@@ -71,10 +71,25 @@ export default function DashboardPage() {
       <div className="rounded-2xl border border-rule bg-gradient-to-br from-bg2 to-bg3 p-6 sm:p-8 mb-8 relative overflow-hidden">
         <div className="absolute top-4 right-4 text-5xl opacity-20">⚔️</div>
         <div className="flex flex-col sm:flex-row items-start gap-5">
-          <div
-            className="h-20 w-20 rounded-full ring-4 ring-accent/50 shrink-0"
-            style={{ background: user.avatarGradient }}
-          />
+          <div className="relative shrink-0">
+            <div
+              className="h-20 w-20 rounded-full ring-4 ring-accent/50"
+              style={{ background: user.avatarGradient }}
+            />
+            {user.character && (
+              <div
+                className="absolute -bottom-2 -right-2 h-11 w-11 rounded-xl flex items-center justify-center text-2xl border-2 border-bg shadow-card"
+                style={{
+                  background: `linear-gradient(135deg, ${user.character.skin}, ${user.character.skin}aa)`,
+                }}
+                title="你的像素角色"
+              >
+                <span className="absolute -top-2 text-base">{user.character.accessory}</span>
+                <span>{user.character.hair}</span>
+                <span className="absolute -bottom-1 text-base">{user.character.outfit}</span>
+              </div>
+            )}
+          </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="font-outfit text-2xl font-bold text-ink">{user.username}</h1>

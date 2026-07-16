@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
@@ -62,6 +63,7 @@ export default function BuildsEditorPage() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [view, setView] = useState<"editor" | "preview">("editor");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const router = useRouter();
 
   const activeFile = files[activeIdx];
 
@@ -85,6 +87,36 @@ export default function BuildsEditorPage() {
       setSaveStatus("saved");
     }, 1500);
   };
+
+  /** 立即落盘防抖中未保存的更改（用于退出/发布前冲刷，避免草稿丢失） */
+  const flushPendingSave = () => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+      if (currentBuildId) {
+        updateBuild(currentBuildId, { files: filesRef.current, title: titleRef.current });
+      }
+      setSaveStatus("saved");
+    }
+  };
+
+  /** 退出编辑器：先冲刷未保存草稿，再跳转，避免防抖中的更改丢失 */
+  const handleExit = () => {
+    flushPendingSave();
+    router.push("/builds");
+  };
+
+  // 刷新/关闭页面前提示用户有未保存更改（防抖中的保存在 unload 时无法落盘）
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (saveTimer.current) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
 
   const addFile = () => {
     const name = prompt("文件名（例如 about.html、theme.css、app.js）：");
@@ -114,6 +146,11 @@ export default function BuildsEditorPage() {
   };
 
   const handlePublish = () => {
+    // 清空待执行的防抖保存，避免发布后又触发一次 updateBuild
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
     if (!currentBuildId) {
       const id = createBuild(title, files);
       setCurrentBuildId(id);
@@ -178,12 +215,12 @@ export default function BuildsEditorPage() {
         >
           🚀 发布
         </button>
-        <Link
-          href="/builds"
+        <button
+          onClick={handleExit}
           className="px-3 py-1.5 rounded text-xs border border-rule text-muted hover:text-ink transition"
         >
           退出
-        </Link>
+        </button>
       </div>
 
       {/* Mobile view switch */}

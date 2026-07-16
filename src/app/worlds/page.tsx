@@ -127,7 +127,11 @@ export default function WorldsPage() {
 
           <button
             onClick={() => {
-              updateUser({ username: name, character: { skin, hair, outfit, accessory } });
+              const trimmedName = name.trim();
+              updateUser({
+                username: trimmedName || user.username,
+                character: { skin, hair, outfit, accessory },
+              });
               setSaved(true);
               setTimeout(() => setSaved(false), 2000);
             }}

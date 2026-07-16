@@ -10,6 +10,9 @@ import { useShallow } from "zustand/react/shallow";
 import { runCode, checkTests, preloadPyodide, getPyodideStatus, retryPyodide, type RunResult, type CheckResult, type PyodideStatus } from "@/lib/code-runner";
 import { cn } from "@/lib/utils";
 import { SafeMarkdown } from "@/components/content/SafeMarkdown";
+import { badges as allBadges } from "@/data/badges";
+import type { Badge } from "@/types";
+import { BadgeUnlockToast } from "@/components/game/BadgeUnlockToast";
 
 // 懒加载 CodeEditor（含 Monaco），避免首屏加载 ~2MB 编辑器资源
 const CodeEditor = dynamic(() => import("@/components/editor/CodeEditor").then((m) => m.CodeEditor), {
@@ -54,6 +57,7 @@ export default function ExerciseClient() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [lumiOpen, setLumiOpen] = useState(false);
   const [showXp, setShowXp] = useState(false);
+  const [pendingBadges, setPendingBadges] = useState<Badge[]>([]);
   const [mobileTab, setMobileTab] = useState<"lesson" | "code">("lesson");
   const [pyodideStatus, setPyodideStatus] = useState<PyodideStatus>("idle");
 
@@ -122,11 +126,17 @@ export default function ExerciseClient() {
     setCheckResult(check);
     setChecking(false);
     if (check.passed) {
-      // 首次完成才奖励 XP
+      // 首次完成才奖励 XP，并收集本次新解锁的徽章用于庆祝反馈
       if (!alreadyCompleted.current) {
         alreadyCompleted.current = true;
-        completeExercise(exerciseId, found!.exercise.xpReward);
+        const newBadgeIds = completeExercise(exerciseId, found!.exercise.xpReward);
         setShowXp(true);
+        if (newBadgeIds.length > 0) {
+          const newBadges = newBadgeIds
+            .map((id) => allBadges.find((b) => b.id === id))
+            .filter((b): b is Badge => !!b);
+          if (newBadges.length > 0) setPendingBadges(newBadges);
+        }
       }
     }
   };
@@ -348,6 +358,12 @@ export default function ExerciseClient() {
         xp={exercise.xpReward}
         trigger={showXp}
         onComplete={() => setShowXp(false)}
+      />
+
+      {/* Badge unlock toast */}
+      <BadgeUnlockToast
+        badges={pendingBadges}
+        onDismiss={() => setPendingBadges((prev) => prev.slice(1))}
       />
     </div>
   );

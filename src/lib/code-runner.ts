@@ -310,16 +310,33 @@ export async function runCode(code: string, language: Language): Promise<RunResu
   }
 }
 
-/** 规范化：去除首尾空白与多余空白差异 */
+/**
+ * 规范化：保留换行结构，仅统一换行符、去除行尾空白与首尾空白。
+ * 用于动态语言（python/javascript）的输出严格匹配——保留换行可正确判断多行输出，
+ * 避免旧实现把换行折叠为空格导致的误判。
+ */
 function normalize(s: string): string {
+  return s
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+$/gm, "")
+    .trim();
+}
+
+/**
+ * 宽松规范化：把所有空白（含换行）折叠为单个空格。
+ * 用于静态语言（html/css/sql）的片段包含匹配——用户代码可能含注释、
+ * 完整文档结构，只需检查是否包含期望片段（忽略空白差异）。
+ */
+function normalizeLoose(s: string): string {
   return s.replace(/\s+/g, " ").trim();
 }
 
 /**
  * 验证测试用例
- * - 动态语言（python/javascript）：检查 stdout 是否包含每个测试用例的 expected
- *   （规范化后），支持多测试用例各自独立判断
- * - 静态语言：检查代码本身是否包含 expected 模式
+ * - 动态语言（python/javascript）：
+ *   · 单测试用例：规范化后严格相等（保留换行，正确判断多行输出）
+ *   · 多测试用例：expected 的每一行都必须出现在实际输出的行集合中
+ * - 静态语言（html/css/sql/cpp/java）：检查代码本身是否包含 expected 片段（宽松规范化）
  */
 export function checkTests(
   code: string,
@@ -329,19 +346,34 @@ export function checkTests(
 ): CheckResult {
   const isDynamic = language === "python" || language === "javascript";
   const source = isDynamic ? runOutput : code;
-  const normalizedSource = normalize(source);
 
   const results = testCases.map((tc) => {
-    const expected = normalize(tc.expected);
-    // 空 expected 视为永远不通过（避免 includes("") 恒真）
-    if (!expected) {
+    // 空 expected 视为永远不通过（避免 includes("") / === "" 恒真）
+    if (!tc.expected.trim()) {
       return { name: tc.name, passed: false, expected: tc.expected, actual: source };
     }
-    // 单测试用例场景：严格相等；多测试用例场景：包含匹配
-    const passed =
-      testCases.length === 1
-        ? normalizedSource === expected
-        : normalizedSource.includes(expected);
+    let passed: boolean;
+    if (isDynamic) {
+      if (testCases.length === 1) {
+        // 单测试用例：规范化后严格相等
+        passed = normalize(source) === normalize(tc.expected);
+      } else {
+        // 多测试用例：expected 的每一行都必须出现在实际输出的行集合中
+        const srcLines = new Set(
+          normalize(source)
+            .split("\n")
+            .map((l) => l.trim()),
+        );
+        const expLines = normalize(tc.expected)
+          .split("\n")
+          .map((l) => l.trim())
+          .filter((l) => l.length > 0);
+        passed = expLines.length > 0 && expLines.every((l) => srcLines.has(l));
+      }
+    } else {
+      // 静态语言：用户代码包含 expected 片段（宽松规范化，容忍注释与多余空白）
+      passed = normalizeLoose(source).includes(normalizeLoose(tc.expected));
+    }
     return { name: tc.name, passed, expected: tc.expected, actual: source };
   });
   return { passed: results.every((r) => r.passed), results };

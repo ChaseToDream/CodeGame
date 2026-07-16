@@ -7,6 +7,7 @@ import { courses } from "@/data/courses";
 import { builds as seedBuilds } from "@/data/builds";
 import { communityPosts as seedPosts } from "@/data/posts";
 import { genId, levelFromXp } from "@/lib/utils";
+import { computeBadgeStates } from "@/lib/badges";
 
 interface UserStoreState {
   user: User;
@@ -19,7 +20,8 @@ interface UserStoreState {
   ensureCourseInit: (courseSlug: string) => void;
   setExerciseStatus: (exerciseId: string, status: ProgressState["statuses"][string]) => void;
   saveCodeSnapshot: (exerciseId: string, code: string) => void;
-  completeExercise: (exerciseId: string, xp: number) => void;
+  /** 完成练习，返回本次新解锁的徽章 id 列表（用于 UI 庆祝反馈） */
+  completeExercise: (exerciseId: string, xp: number) => string[];
 
   // builds
   createBuild: (title: string, files: Build["files"]) => string;
@@ -165,14 +167,35 @@ export const useUserStore = create<UserStoreState>()(
         const updatedUser = onlyAwardIfFirst ? awardXp(state.user, xp) : state.user;
         // 单次 set 合并 XP、streak、lastActiveDate，避免多次 set 互相覆盖
         const newStreak = computeStreak(state.user.streakDays, state.user.lastActiveDate, now);
-        set({
-          user: {
-            ...updatedUser,
-            lastActiveDate: now.toISOString(),
-            streakDays: newStreak,
-          },
-          progress: { ...state.progress, statuses: newStatuses },
+        const nextUser = {
+          ...updatedUser,
+          lastActiveDate: now.toISOString(),
+          streakDays: newStreak,
+        };
+        const nextProgress = { ...state.progress, statuses: newStatuses };
+
+        // 计算本次完成新解锁的徽章（与已记录的 earnedBadgeIds 取差集）
+        const prevEarned = new Set(state.earnedBadgeIds);
+        const nextBadges = computeBadgeStates({
+          user: nextUser,
+          progress: nextProgress,
+          builds: state.builds,
+          posts: state.posts,
         });
+        const newlyEarned = nextBadges
+          .filter((b) => b.earned && !prevEarned.has(b.id))
+          .map((b) => b.id);
+        const mergedEarned =
+          newlyEarned.length > 0
+            ? Array.from(new Set([...state.earnedBadgeIds, ...newlyEarned]))
+            : state.earnedBadgeIds;
+
+        set({
+          user: nextUser,
+          progress: nextProgress,
+          earnedBadgeIds: mergedEarned,
+        });
+        return newlyEarned;
       },
 
       createBuild: (title, files) => {
@@ -194,7 +217,8 @@ export const useUserStore = create<UserStoreState>()(
           likeCount: 0,
           createdAt: new Date().toISOString(),
         };
-        set({ builds: [build, ...state.builds], user: awardXp(state.user, 30) });
+        // 创建草稿不发放 XP，避免反复创建模板刷 XP；XP 改在首次发布时发放
+        set({ builds: [build, ...state.builds] });
         return id;
       },
 
@@ -207,10 +231,14 @@ export const useUserStore = create<UserStoreState>()(
 
       publishBuild: (id, description) => {
         const state = get();
+        const target = state.builds.find((b) => b.id === id);
+        // 仅首次发布（isPublished 由 false 变 true）时发放 XP，避免重复发布刷 XP
+        const firstPublish = target ? !target.isPublished : false;
         set({
           builds: state.builds.map((b) =>
             b.id === id ? { ...b, isPublished: true, description: description || b.description } : b,
           ),
+          user: firstPublish ? awardXp(state.user, 30) : state.user,
         });
       },
 
