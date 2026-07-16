@@ -18,6 +18,8 @@ const config: Config = {
         accent3: "#4ecdc4",
         success: "#6bcf7f",
         warning: "#f0a04b",
+        // 错误色：用于 Pyodide 加载失败等错误状态提示
+        error: "#ef4444",
         codebg: "#16162a",
       },
       fontFamily: {

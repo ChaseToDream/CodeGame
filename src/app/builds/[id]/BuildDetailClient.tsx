@@ -26,10 +26,12 @@ export default function BuildDetailClient() {
   const [view, setView] = useState<"preview" | "code">("preview");
 
   // 所有 Hooks 必须在任何 early return 之前调用，避免 Hooks 顺序不一致
-  const build = useMemo(
-    () => [...builds, ...seedBuilds].find((b) => b.id === params.id),
-    [builds, params.id],
-  );
+  // 合并去重：用户 builds 优先（包含最新草稿），再补 seedBuilds 中未出现的
+  const build = useMemo(() => {
+    const seen = new Set(builds.map((b) => b.id));
+    const merged = [...builds, ...seedBuilds.filter((b) => !seen.has(b.id))];
+    return merged.find((b) => b.id === params.id);
+  }, [builds, params.id]);
 
   const previewDoc = useMemo(() => {
     if (!build) return "";

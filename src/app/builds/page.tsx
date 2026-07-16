@@ -12,8 +12,10 @@ export default function BuildsGalleryPage() {
   const [sort, setSort] = useState<"top" | "newest">("top");
   const [showOnlyMine, setShowOnlyMine] = useState(false);
 
+  // 用 Set 替代 find 进行去重，性能从 O(n*m) 降为 O(n+m)
   const allBuilds = useMemo(() => {
-    let list = [...builds, ...seedBuilds.filter((b) => !builds.find((x) => x.id === b.id))];
+    const seen = new Set(builds.map((b) => b.id));
+    let list = [...builds, ...seedBuilds.filter((b) => !seen.has(b.id))];
     if (showOnlyMine) {
       // 仅显示当前用户的作品（含未发布草稿）
       list = list.filter((b) => b.userId === user.id);

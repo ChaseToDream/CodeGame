@@ -258,7 +258,7 @@ export default function HomePage() {
                 className="group rounded-lg overflow-hidden border border-rule bg-bg2 hover:border-accent transition"
               >
                 <div className="h-20 flex items-center justify-center text-3xl" style={{ background: b.thumbnailGradient }}>
-                  {b.title.includes("Snake") ? "🐍" : b.title.includes("Timer") ? "⏰" : "🌱"}
+                  {b.title.includes("Snake") ? "🐍" : b.title.includes("Timer") ? "⏰" : b.title.includes("Pixel Art") ? "🎨" : "🌱"}
                 </div>
                 <div className="p-3">
                   <div className="font-bold text-sm text-ink group-hover:text-accent line-clamp-1">{b.title}</div>

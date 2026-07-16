@@ -18,6 +18,8 @@ interface UserStoreState {
 
   // progress
   ensureCourseInit: (courseSlug: string) => void;
+  /** 批量初始化所有课程的进度状态，单次 set 完成，避免多次触发订阅与持久化 */
+  ensureAllCoursesInit: () => void;
   setExerciseStatus: (exerciseId: string, status: ProgressState["statuses"][string]) => void;
   saveCodeSnapshot: (exerciseId: string, code: string) => void;
   /** 完成练习，返回本次新解锁的徽章 id 列表（用于 UI 庆祝反馈） */
@@ -131,6 +133,27 @@ export const useUserStore = create<UserStoreState>()(
             if (newStatuses[ex.id] === undefined) {
               newStatuses[ex.id] = ex.id === firstExerciseId ? "unlocked" : "locked";
               changed = true;
+            }
+          }
+        }
+        if (changed) {
+          set({ progress: { ...progress, statuses: newStatuses } });
+        }
+      },
+
+      ensureAllCoursesInit: () => {
+        const { progress } = get();
+        const newStatuses = { ...progress.statuses };
+        let changed = false;
+        for (const course of courses) {
+          let firstExerciseId: string | null = null;
+          for (const ch of course.chapters) {
+            for (const ex of ch.exercises) {
+              if (firstExerciseId === null) firstExerciseId = ex.id;
+              if (newStatuses[ex.id] === undefined) {
+                newStatuses[ex.id] = ex.id === firstExerciseId ? "unlocked" : "locked";
+                changed = true;
+              }
             }
           }
         }

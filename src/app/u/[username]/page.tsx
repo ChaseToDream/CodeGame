@@ -58,7 +58,7 @@ export default function UserProfilePage() {
       })
       .filter((x) => x.started)
       .slice(0, 6);
-  }, [user, progress]);
+  }, [progress]);
 
   if (!isOwner) {
     return (

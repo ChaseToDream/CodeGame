@@ -30,15 +30,20 @@ export default function PostDetailClient() {
   );
   const [comment, setComment] = useState("");
 
-  const post = useMemo(
-    () => [...posts, ...seedPosts].find((p) => p.id === params.id),
-    [posts, params.id],
-  );
+  // 合并去重：用户 posts 优先，再补 seedPosts 中未出现的
+  const post = useMemo(() => {
+    const seen = new Set(posts.map((p) => p.id));
+    const merged = [...posts, ...seedPosts.filter((p) => !seen.has(p.id))];
+    return merged.find((p) => p.id === params.id);
+  }, [posts, params.id]);
 
   // 响应式查找附加作品（之前用 useUserStore.getState() 非响应式，builds 更新后不刷新）
+  // 合并去重：用户 builds 优先，再补 seedBuilds 中未出现的
   const attachedBuild = useMemo(() => {
     if (!post?.attachedBuildId) return null;
-    return [...seedBuilds, ...builds].find((b) => b.id === post.attachedBuildId) ?? null;
+    const seen = new Set(builds.map((b) => b.id));
+    const merged = [...builds, ...seedBuilds.filter((b) => !seen.has(b.id))];
+    return merged.find((b) => b.id === post.attachedBuildId) ?? null;
   }, [post, builds]);
 
   if (!post) {

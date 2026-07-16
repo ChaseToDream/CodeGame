@@ -30,8 +30,16 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
   const [attachedBuildId, setAttachedBuildId] = useState<string>("");
   const [err, setErr] = useState("");
 
-  // 仅显示当前用户自己的已发布作品
-  const myBuilds = [...builds, ...seedBuilds].filter((b) => b.isPublished && b.userId === user.id);
+  // 仅显示当前用户自己的已发布作品（合并去重，避免种子数据被重复展示）
+  const myBuilds = (() => {
+    const seen = new Set<string>();
+    return [...builds, ...seedBuilds]
+      .filter((b) => {
+        if (seen.has(b.id)) return false;
+        seen.add(b.id);
+        return b.isPublished && b.userId === user.id;
+      });
+  })();
 
   const submit = () => {
     setErr("");

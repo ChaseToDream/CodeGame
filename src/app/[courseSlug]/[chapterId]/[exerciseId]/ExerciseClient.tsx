@@ -62,11 +62,15 @@ export default function ExerciseClient() {
   const [pyodideStatus, setPyodideStatus] = useState<PyodideStatus>("idle");
 
   // Python 练习：轮询 Pyodide 加载状态，用于显示加载/错误提示
+  // 一旦进入 ready 或 error 终态即停止轮询，避免无谓的 re-render 与 CPU 消耗
   useEffect(() => {
     if (found?.exercise.language !== "python") return;
     setPyodideStatus(getPyodideStatus());
     const timer = setInterval(() => {
-      setPyodideStatus(getPyodideStatus());
+      const next = getPyodideStatus();
+      setPyodideStatus(next);
+      // ready / error 是终态，停止轮询
+      if (next === "ready" || next === "error") clearInterval(timer);
     }, 500);
     return () => clearInterval(timer);
   }, [found?.exercise.language, exerciseId]);
@@ -111,25 +115,27 @@ export default function ExerciseClient() {
   };
 
   const handleRun = async () => {
+    if (!found) return;
     setRunning(true);
     setCheckResult(null);
-    const result = await runCode(code, found!.exercise.language);
+    const result = await runCode(code, found.exercise.language);
     setRunResult(result);
     setRunning(false);
   };
 
   const handleCheck = async () => {
+    if (!found) return;
     setChecking(true);
-    const result = await runCode(code, found!.exercise.language);
+    const result = await runCode(code, found.exercise.language);
     setRunResult(result);
-    const check = checkTests(code, found!.exercise.language, found!.exercise.testCases, result.stdout);
+    const check = checkTests(code, found.exercise.language, found.exercise.testCases, result.stdout);
     setCheckResult(check);
     setChecking(false);
     if (check.passed) {
       // 首次完成才奖励 XP，并收集本次新解锁的徽章用于庆祝反馈
       if (!alreadyCompleted.current) {
         alreadyCompleted.current = true;
-        const newBadgeIds = completeExercise(exerciseId, found!.exercise.xpReward);
+        const newBadgeIds = completeExercise(exerciseId, found.exercise.xpReward);
         setShowXp(true);
         if (newBadgeIds.length > 0) {
           const newBadges = newBadgeIds
@@ -142,10 +148,11 @@ export default function ExerciseClient() {
   };
 
   const handleReset = () => {
-    setCode(found!.exercise.starterCode);
+    if (!found) return;
+    setCode(found.exercise.starterCode);
     setRunResult(null);
     setCheckResult(null);
-    scheduleSave(found!.exercise.starterCode);
+    scheduleSave(found.exercise.starterCode);
   };
 
   if (!found) {

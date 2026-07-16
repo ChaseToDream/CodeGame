@@ -13,14 +13,15 @@ import { levelFromXp, formatNumber } from "@/lib/utils";
 import { computeBadgeStates } from "@/lib/badges";
 
 export default function DashboardPage() {
-  const { user, progress, builds, posts, ensureCourseInit } = useUserStore(
-    useShallow((s) => ({ user: s.user, progress: s.progress, builds: s.builds, posts: s.posts, ensureCourseInit: s.ensureCourseInit })),
+  const { user, progress, builds, posts, ensureAllCoursesInit } = useUserStore(
+    useShallow((s) => ({ user: s.user, progress: s.progress, builds: s.builds, posts: s.posts, ensureAllCoursesInit: s.ensureAllCoursesInit })),
   );
 
   // 初始化所有课程的进度状态（解锁每门课的第一节），避免"继续学习"列表为空
+  // 使用 ensureAllCoursesInit 单次 set 完成所有课程，避免多次触发 re-render 与 localStorage 持久化
   useEffect(() => {
-    courses.forEach((c) => ensureCourseInit(c.slug));
-  }, [ensureCourseInit]);
+    ensureAllCoursesInit();
+  }, [ensureAllCoursesInit]);
 
   const xpInfo = levelFromXp(user.xpTotal);
 
