@@ -102,7 +102,7 @@ export function Navbar() {
                   <Link href="/worlds" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
                     世界
                   </Link>
-                  <Link href="/u" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
+                  <Link href={`/u/${encodeURIComponent(user.username)}`} className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">
                     我的资料
                   </Link>
                   <Link href="/settings" className="block px-4 py-2.5 text-sm text-ink hover:bg-bg3">

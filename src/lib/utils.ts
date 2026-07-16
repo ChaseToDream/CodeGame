@@ -49,7 +49,14 @@ export function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}年前`;
 }
 
-/** 生成简短 ID */
+/**
+ * 生成简短 ID。
+ * 优先使用 crypto.randomUUID（现代浏览器原生支持，128 位熵），
+ * 退化时使用 Math.random + Date.now 组合，比单纯 Math.random 冲突率更低。
+ */
 export function genId(prefix = "id"): string {
-  return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `${prefix}_${crypto.randomUUID().slice(0, 8)}`;
+  }
+  return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 }

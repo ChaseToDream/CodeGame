@@ -14,15 +14,26 @@ export interface CheckResult {
   results: { name: string; passed: boolean; expected: string; actual: string }[];
 }
 
+export type PyodideStatus = "idle" | "loading" | "ready" | "error";
+
 /**
  * 浏览器内代码执行器
  * - Python: 通过 CDN 加载 Pyodide (WASM CPython) 执行
  * - JavaScript: Web Worker 沙箱隔离执行，无法访问 DOM/window/localStorage
  * - HTML/CSS/SQL: 静态校验（规范化字符串匹配）
+ *
+ * 安全策略：
+ * - JS Worker 中显式删除 fetch / XMLHttpRequest / WebSocket / indexedDB / caches，
+ *   防止用户练习代码发起任意网络请求。
+ * - Python 端删除 pyodide.http 模块并屏蔽 socket / urllib，防止数据外泄。
  */
+
+// Pyodide CDN URL，可被替换为自托管镜像（中国大陆可改为 bootcdn 等）
+const PYODIDE_CDN_BASE = "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/";
 
 let pyodidePromise: Promise<any> | null = null;
 let pyodideLoading: boolean = false;
+let pyodideLoadError: string | null = null;
 const pyodideLoadCallbacks: Array<(ok: boolean) => void> = [];
 
 async function loadPyodide(): Promise<any> {
@@ -30,26 +41,85 @@ async function loadPyodide(): Promise<any> {
   if ((window as any).loadPyodide === undefined) {
     await new Promise<void>((resolve, reject) => {
       const s = document.createElement("script");
-      s.src = "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js";
+      s.src = `${PYODIDE_CDN_BASE}pyodide.js`;
       s.onload = () => resolve();
-      s.onerror = () => reject(new Error("Failed to load Pyodide CDN"));
+      s.onerror = () => reject(new Error("Pyodide CDN 加载失败，请检查网络连接或稍后重试"));
       document.head.appendChild(s);
     });
   }
   if (!pyodidePromise) {
     pyodideLoading = true;
-    pyodidePromise = (window as any).loadPyodide({
-      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/",
-    });
+    pyodideLoadError = null;
+    pyodidePromise = (window as any).loadPyodide({ indexURL: PYODIDE_CDN_BASE });
     try {
-      await pyodidePromise;
+      const pyodide = await pyodidePromise;
+      // 安全加固：删除网络相关 API，防止用户 Python 代码发起任意网络请求
+      await hardenPyodide(pyodide);
+    } catch (e: any) {
+      pyodideLoadError = String(e?.message || e);
+      pyodidePromise = null; // 允许下次重试
+      throw e;
     } finally {
       pyodideLoading = false;
-      pyodideLoadCallbacks.forEach((cb) => cb(true));
+      pyodideLoadCallbacks.forEach((cb) => cb(!pyodideLoadError));
       pyodideLoadCallbacks.length = 0;
     }
   }
   return pyodidePromise;
+}
+
+/**
+ * 加固 Pyodide 运行时：移除网络与文件系统访问能力。
+ * - 删除 pyodide.http（pyfetch / open_url）
+ * - 屏蔽 socket / urllib.request / urllib.urlopen
+ * - 限制 micropip 安装能力
+ */
+async function hardenPyodide(pyodide: any): Promise<void> {
+  try {
+    // 删除 HTTP API
+    if (pyodide.http) {
+      delete pyodide.http.pyfetch;
+      delete pyodide.http.open_url;
+      delete pyodide.http.open_bytes;
+    }
+    // 在 Python 侧屏蔽网络模块
+    await pyodide.runPythonAsync(`
+import sys
+# 屏蔽 socket 与 urllib 的网络访问
+class _NetworkBlocked(Exception):
+    pass
+
+def _block_network(name):
+    class _Blocked:
+        def __init__(self, *a, **kw):
+            raise _NetworkBlocked(f"{name} 已被禁用：练习环境不允许网络访问")
+    return _Blocked
+
+import types
+# urllib.request
+try:
+    import urllib.request
+    urllib.request.urlopen = _block_network("urllib.request.urlopen")
+    urllib.request.urlretrieve = _block_network("urllib.request.urlretrieve")
+except Exception:
+    pass
+# socket
+try:
+    import socket
+    socket.socket = _block_network("socket.socket")
+except Exception:
+    pass
+# 删除 micropip 的 install（避免下载第三方包）
+try:
+    import micropip
+    micropip.install = _block_network("micropip.install")
+except Exception:
+    pass
+del _block_network
+`);
+  } catch {
+    // 加固失败不阻塞执行，仅记录
+  }
 }
 
 /** 预加载 Pyodide（不阻塞，用于进入 Python 课程时提前加载） */
@@ -62,10 +132,23 @@ export function preloadPyodide(): void {
 }
 
 /** 查询 Pyodide 加载状态 */
-export function getPyodideStatus(): "idle" | "loading" | "ready" {
+export function getPyodideStatus(): PyodideStatus {
+  if (pyodideLoadError) return "error";
   if (pyodidePromise && !pyodideLoading) return "ready";
   if (pyodideLoading) return "loading";
   return "idle";
+}
+
+/** 获取 Pyodide 加载错误信息（用于 UI 展示） */
+export function getPyodideError(): string | null {
+  return pyodideLoadError;
+}
+
+/** 重置 Pyodide 错误状态，允许重新尝试加载 */
+export function retryPyodide(): void {
+  pyodideLoadError = null;
+  pyodidePromise = null;
+  pyodideLoading = false;
 }
 
 export async function runPython(code: string): Promise<RunResult> {
@@ -96,6 +179,8 @@ export async function runPython(code: string): Promise<RunResult> {
 /* ============ JavaScript 沙箱执行（Web Worker） ============ */
 
 // Worker 源码：在独立线程执行用户代码，隔离 DOM/window/localStorage
+// 安全加固：显式删除 fetch / XMLHttpRequest / WebSocket / indexedDB / caches，
+// 防止用户练习代码发起任意网络请求或持久化数据。
 const WORKER_SOURCE = `
 function stringify(v) {
   if (typeof v === 'string') return v;
@@ -103,6 +188,16 @@ function stringify(v) {
   if (v === null) return 'null';
   try { return JSON.stringify(v); } catch { return String(v); }
 }
+// 删除网络与持久化 API，阻断用户代码发起外部请求
+try { delete self.fetch; } catch {}
+try { delete self.XMLHttpRequest; } catch {}
+try { delete self.WebSocket; } catch {}
+try { delete self.EventSource; } catch {}
+try { delete self.indexedDB; } catch {}
+try { delete self.caches; } catch {}
+try { delete self.navigator; } catch {}
+// 屏蔽 importScripts（防止加载外部脚本）
+self.importScripts = () => { throw new Error('importScripts 已被禁用：练习环境不允许加载外部脚本'); };
 self.onmessage = async (e) => {
   const { code, id } = e.data;
   const logs = [];

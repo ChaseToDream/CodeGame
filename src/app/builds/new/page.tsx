@@ -7,6 +7,7 @@ import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
 import type { BuildFile } from "@/types";
 import { cn } from "@/lib/utils";
+import { buildPreviewDoc } from "@/lib/preview-doc";
 
 const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
   ssr: false,
@@ -70,23 +71,8 @@ export default function BuildsEditorPage() {
   useEffect(() => { filesRef.current = files; }, [files]);
   useEffect(() => { titleRef.current = title; }, [title]);
 
-  // combine files into preview doc
-  const previewDoc = useMemo(() => {
-    const html = files.find((f) => f.language === "html")?.content ?? "";
-    const css = files.find((f) => f.language === "css")?.content ?? "";
-    const js = files.find((f) => f.language === "js")?.content ?? "";
-    // Replace link/script tags with inline content
-    let doc = html
-      .replace(/<link[^>]*href=["']style\.css["'][^>]*>/gi, `<style>${css}</style>`)
-      .replace(/<script[^>]*src=["']script\.js["'][^>]*><\/script>/gi, `<script>${js}<\/script>`);
-    if (!/<style>/i.test(doc) && css) {
-      doc = doc.replace(/<\/head>/i, `<style>${css}</style></head>`);
-    }
-    if (!/<script>/i.test(doc) && js) {
-      doc = doc.replace(/<\/body>/i, `<script>${js}<\/script></body>`);
-    }
-    return doc;
-  }, [files]);
+  // combine files into preview doc（含 CSP 注入，防止用户代码发起外部网络请求）
+  const previewDoc = useMemo(() => buildPreviewDoc(files), [files]);
 
   const updateFile = (idx: number, content: string) => {
     setFiles((prev) => prev.map((f, i) => (i === idx ? { ...f, content } : f)));
@@ -104,8 +90,10 @@ export default function BuildsEditorPage() {
     const name = prompt("文件名（例如 about.html、theme.css、app.js）：");
     if (!name) return;
     const lang = name.endsWith(".css") ? "css" : name.endsWith(".js") ? "js" : "html";
+    // 先记录即将新增的索引，避免读取闭包中过时的 files.length
+    const nextIdx = files.length;
     setFiles((prev) => [...prev, { name, language: lang as BuildFile["language"], content: "" }]);
-    setActiveIdx(files.length);
+    setActiveIdx(nextIdx);
   };
 
   const deleteFile = (idx: number) => {

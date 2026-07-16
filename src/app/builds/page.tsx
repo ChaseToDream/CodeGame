@@ -67,7 +67,7 @@ export default function BuildsGalleryPage() {
             onChange={(e) => setShowOnlyMine(e.target.checked)}
             className="accent-accent"
           />
-          显示全部（含草稿）
+          仅显示我的作品（含草稿）
         </label>
       </div>
 

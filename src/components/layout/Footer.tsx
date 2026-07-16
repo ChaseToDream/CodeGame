@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const FOOTER_LINKS: { title: string; links: { label: string; href: string }[] }[] = [
+const FOOTER_LINKS: { title: string; links: { label: string; href: string; external?: boolean }[] }[] = [
   {
     title: "产品",
     links: [
@@ -21,17 +21,17 @@ const FOOTER_LINKS: { title: string; links: { label: string; href: string }[] }[
   {
     title: "公司",
     links: [
-      { label: "关于我们", href: "/about" },
+      { label: "关于我们", href: "/blog" },
       { label: "学习者故事", href: "/blog" },
-      { label: "招聘", href: "/about" },
+      { label: "招聘", href: "/blog" },
     ],
   },
   {
     title: "联系我们",
     links: [
-      { label: "Discord", href: "/community" },
-      { label: "Twitter", href: "/community" },
-      { label: "GitHub", href: "/builds" },
+      { label: "Discord", href: "https://discord.gg/codegame", external: true },
+      { label: "Twitter", href: "https://twitter.com/codegame", external: true },
+      { label: "GitHub", href: "https://github.com/codegame", external: true },
     ],
   },
 ];
@@ -55,12 +55,23 @@ export function Footer() {
               <ul className="space-y-2">
                 {section.links.map((l) => (
                   <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      className="text-sm text-muted hover:text-ink transition"
-                    >
-                      {l.label}
-                    </Link>
+                    {l.external ? (
+                      <a
+                        href={l.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-muted hover:text-ink transition"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={l.href}
+                        className="text-sm text-muted hover:text-ink transition"
+                      >
+                        {l.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

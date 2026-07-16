@@ -22,6 +22,7 @@ const nextConfig = {
               "connect-src 'self' https://cdn.jsdelivr.net",
               "worker-src 'self' blob:",
               "frame-src 'self' blob:",
+              "frame-ancestors 'none'",
               "object-src 'none'",
               "base-uri 'self'",
             ].join("; "),
@@ -36,6 +37,16 @@ const nextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           // 权限策略
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
+      {
+        // 静态资源长缓存：Next.js 自带 hash，可安全 immutable 缓存
+        source: "/_next/static/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
         ],
       },
     ];

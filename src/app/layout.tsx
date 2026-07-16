@@ -4,7 +4,8 @@ import "./globals.css";
 import { Shell } from "@/components/layout/Shell";
 import { StoreHydration } from "@/components/layout/StoreHydration";
 
-// 合并 Outfit Regular + Bold 为单个声明，减少字体请求数
+// 合并 Outfit Regular + Bold 为单个声明，减少字体请求数。
+// preload: true（默认）会让 Next.js 注入 <link rel="preload">，加快 LCP。
 const outfit = localFont({
   src: [
     { path: "../../public/fonts/Outfit-Regular.ttf", weight: "400" },
@@ -12,16 +13,21 @@ const outfit = localFont({
   ],
   variable: "--font-outfit",
   display: "swap",
+  preload: true,
 });
+// 正文字体同样预加载
 const work = localFont({
   src: "../../public/fonts/WorkSans-Regular.ttf",
   variable: "--font-work",
   display: "swap",
+  preload: true,
 });
+// 代码字体仅在编辑器/代码块使用，预加载收益小，关闭以节省带宽
 const mono = localFont({
   src: "../../public/fonts/JetBrainsMono-Regular.ttf",
   variable: "--font-mono",
   display: "swap",
+  preload: false,
 });
 // 装饰字体，不预加载以减少首屏资源
 const pixel = localFont({
@@ -55,8 +61,9 @@ export default function RootLayout({
       className={`${outfit.variable} ${work.variable} ${mono.variable} ${pixel.variable}`}
     >
       <body className="relative">
-        <StoreHydration />
-        <Shell>{children}</Shell>
+        <StoreHydration>
+          <Shell>{children}</Shell>
+        </StoreHydration>
       </body>
     </html>
   );

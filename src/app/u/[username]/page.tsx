@@ -6,11 +6,11 @@ import { useParams } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
 import { courses } from "@/data/courses";
-import { badges as allBadges } from "@/data/badges";
 import { XPBadge } from "@/components/game/XPBadge";
 import { LevelProgressBar } from "@/components/game/LevelProgressBar";
 import { BadgeGrid } from "@/components/game/BadgeGrid";
 import { levelFromXp, formatNumber, timeAgo } from "@/lib/utils";
+import { computeBadgeStates } from "@/lib/badges";
 
 export default function UserProfilePage() {
   const params = useParams<{ username: string }>();
@@ -39,21 +39,11 @@ export default function UserProfilePage() {
     [progress],
   );
 
-  // 徽章状态
-  const badgeState = useMemo(() => {
-    return allBadges.map((b) => {
-      let earned = false;
-      if (b.id === "bdg_first_steps") {
-        earned = Object.values(progress.statuses).some((s) => s === "completed");
-      } else if (b.id === "bdg_streak_7") earned = user.streakDays >= 7;
-      else if (b.id === "bdg_streak_30") earned = user.streakDays >= 30;
-      else if (b.id === "bdg_streak_100") earned = user.streakDays >= 100;
-      else if (b.id === "bdg_first_build") earned = userBuilds.some((b2) => b2.isPublished);
-      else if (b.id === "bdg_first_post") earned = userPosts.length > 0;
-      else if (b.id === "bdg_level_10") earned = user.level >= 10;
-      return { ...b, earned };
-    });
-  }, [user, progress, userBuilds, userPosts]);
+  // 徽章状态：使用共享 helper，覆盖全部 12 个徽章
+  const badgeState = useMemo(
+    () => computeBadgeStates({ user, progress, builds, posts }),
+    [user, progress, builds, posts],
+  );
 
   // 学习中的课程
   const startedCourses = useMemo(() => {

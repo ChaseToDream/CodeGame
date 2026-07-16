@@ -149,7 +149,7 @@ export function CodeEditor({
       <div className="h-[180px] bg-codebg border-t border-rule flex flex-col">
         <div className="px-3 py-1.5 bg-bg2 text-[11px] text-muted uppercase tracking-wide flex items-center justify-between border-b border-rule">
           <span>控制台</span>
-          <span className="text-[10px]">Ctrl+Enter 运行</span>
+          <span className="text-[10px] hidden sm:inline">Ctrl+Enter 运行</span>
         </div>
         <div className="flex-1 overflow-auto p-3 font-mono text-xs leading-relaxed">
           {!runResult && !checkResult && (
