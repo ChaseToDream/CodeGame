@@ -33,9 +33,10 @@ export function levelFromXp(xp: number): {
   return { level, levelStart: acc, levelEnd: acc + xpForLevel(level) };
 }
 
-/** 相对时间，例如 "3小时前" */
+/** 相对时间，例如 "3小时前"。未来时间（时钟偏移）统一显示为"刚刚" */
 export function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 0) return "刚刚";
   const sec = Math.floor(diff / 1000);
   if (sec < 60) return `${sec}秒前`;
   const min = Math.floor(sec / 60);

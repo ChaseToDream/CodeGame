@@ -52,6 +52,14 @@ export function CodeEditor({
   // 用 useState 让"再次点击确认重置"提示能响应式显示——useRef 不会触发重渲染
   const [confirmReset, setConfirmReset] = useState(false);
 
+  // 持有最新的 onRun 回调。addCommand 在挂载时注册一次，捕获的是初始 onRun 闭包，
+  // 它会绑定父组件初次渲染时的 code 状态——后续编辑的代码永远无法通过快捷键运行。
+  // 这里通过 ref 间接调用，确保快捷键始终触发最新的 onRun。
+  const onRunRef = useRef(onRun);
+  useEffect(() => {
+    onRunRef.current = onRun;
+  });
+
   // 2.5s 后自动取消确认态，避免用户点了一次后永远需要双击
   useEffect(() => {
     if (!confirmReset) return;
@@ -78,8 +86,8 @@ export function CodeEditor({
       },
     });
     monaco.editor.setTheme("codegame-dark");
-    // Ctrl+Enter 运行
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun);
+    // Ctrl+Enter 运行：通过 ref 调用最新 onRun，避免闭包过期运行旧代码
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => onRunRef.current());
   };
 
   const handleReset = () => {

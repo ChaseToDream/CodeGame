@@ -31,11 +31,13 @@ export default function DashboardPage() {
       .map((c) => {
         const exs = c.chapters.flatMap((ch) => ch.exercises);
         const done = exs.filter((e) => progress.statuses[e.id] === "completed").length;
+        // 仅当用户真正参与过（完成或进行中）才算"已开始"。
+        // 不能把 unlocked 计入：ensureAllCoursesInit 会解锁每门课首节，
+        // 若把 unlocked 视为已开始，新用户会看到所有课程都出现在"继续学习"中。
         const started = exs.some(
           (e) =>
             progress.statuses[e.id] === "completed" ||
-            progress.statuses[e.id] === "in_progress" ||
-            progress.statuses[e.id] === "unlocked",
+            progress.statuses[e.id] === "in_progress",
         );
         // 第一个未完成的练习作为 continue 点
         const next = exs.find(

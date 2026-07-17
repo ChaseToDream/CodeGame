@@ -121,10 +121,17 @@ export default function BuildsEditorPage() {
   const addFile = () => {
     const name = prompt("文件名（例如 about.html、theme.css、app.js）：");
     if (!name) return;
-    const lang = name.endsWith(".css") ? "css" : name.endsWith(".js") ? "js" : "html";
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    // 重名校验：预览只取首个 html/css/js 文件，重名会导致编辑与预览不一致
+    if (files.some((f) => f.name.toLowerCase() === trimmed.toLowerCase())) {
+      alert(`已存在同名文件「${trimmed}」，请换一个名字。`);
+      return;
+    }
+    const lang = trimmed.endsWith(".css") ? "css" : trimmed.endsWith(".js") ? "js" : "html";
     // 先记录即将新增的索引，避免读取闭包中过时的 files.length
     const nextIdx = files.length;
-    setFiles((prev) => [...prev, { name, language: lang as BuildFile["language"], content: "" }]);
+    setFiles((prev) => [...prev, { name: trimmed, language: lang as BuildFile["language"], content: "" }]);
     setActiveIdx(nextIdx);
   };
 

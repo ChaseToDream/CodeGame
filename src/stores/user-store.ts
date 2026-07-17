@@ -30,6 +30,8 @@ interface UserStoreState {
   updateBuild: (id: string, patch: Partial<Build>) => void;
   publishBuild: (id: string, description: string) => void;
   forkBuild: (id: string) => string | null;
+  /** 浏览量 +1。仅对存在于本地 store 的作品生效（种子作品为静态数据，不持久化） */
+  incrementBuildView: (id: string) => void;
 
   // community
   createPost: (post: Omit<CommunityPost, "id" | "createdAt" | "likeCount" | "commentCount" | "comments" | "userId" | "authorName" | "authorAvatar" | "authorLevel">) => string;
@@ -285,6 +287,18 @@ export const useUserStore = create<UserStoreState>()(
         };
         set({ builds: [forked, ...state.builds] });
         return newId;
+      },
+
+      incrementBuildView: (id) => {
+        const state = get();
+        // 仅当作品存在于本地 store 时才自增浏览量；
+        // 种子作品（仅 seedBuilds）为静态数据，不持久化自增，避免污染展示数据
+        if (!state.builds.some((b) => b.id === id)) return;
+        set({
+          builds: state.builds.map((b) =>
+            b.id === id ? { ...b, viewCount: b.viewCount + 1 } : b,
+          ),
+        });
       },
 
       createPost: (post) => {

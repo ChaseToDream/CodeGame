@@ -21,7 +21,7 @@ export function generateLumiReply(
   const lang = exercise.language;
 
   // 检测关键词并给出对应提示
-  if (/(stuck|help|don't know|dont know|hint|stuck|卡|不会)/i.test(msg)) {
+  if (/(stuck|help|don't know|dont know|hint|卡|不会)/i.test(msg)) {
     return `别担心——我们一起拆解它！🌟
 
 看一下这个练习，你需要**${summarizeGoal(exercise)}**。

@@ -115,7 +115,7 @@ export default function ExerciseClient() {
   };
 
   const handleRun = async () => {
-    if (!found) return;
+    if (!found || running || checking) return;
     setRunning(true);
     setCheckResult(null);
     const result = await runCode(code, found.exercise.language);
@@ -124,7 +124,7 @@ export default function ExerciseClient() {
   };
 
   const handleCheck = async () => {
-    if (!found) return;
+    if (!found || running || checking) return;
     setChecking(true);
     const result = await runCode(code, found.exercise.language);
     setRunResult(result);

@@ -127,6 +127,12 @@ describe("timeAgo", () => {
     // 刚创建可能 0 秒前
     expect(["0秒前", "1秒前"]).toContain(timeAgo(iso));
   });
+
+  it("未来时间（时钟偏移）统一显示为刚刚，避免负数", () => {
+    // 模拟本地时钟落后于服务器：传入的时间在未来 1 小时
+    const iso = new Date(Date.now() + 3600 * 1000).toISOString();
+    expect(timeAgo(iso)).toBe("刚刚");
+  });
 });
 
 describe("genId", () => {

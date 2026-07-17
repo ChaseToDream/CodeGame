@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -21,7 +21,7 @@ const LANG_ICON: Record<string, string> = { html: "📄", css: "🎨", js: "⚡"
 export default function BuildDetailClient() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { builds, forkBuild } = useUserStore(useShallow((s) => ({ builds: s.builds, forkBuild: s.forkBuild })));
+  const { builds, forkBuild, incrementBuildView } = useUserStore(useShallow((s) => ({ builds: s.builds, forkBuild: s.forkBuild, incrementBuildView: s.incrementBuildView })));
   const [activeFile, setActiveFile] = useState(0);
   const [view, setView] = useState<"preview" | "code">("preview");
 
@@ -32,6 +32,12 @@ export default function BuildDetailClient() {
     const merged = [...builds, ...seedBuilds.filter((b) => !seen.has(b.id))];
     return merged.find((b) => b.id === params.id);
   }, [builds, params.id]);
+
+  // 进入作品详情时浏览量 +1（仅对本地 store 中的作品生效，种子作品为静态数据不变）
+  // 依赖 params.id：同组件不同 id 切换时重新计数；StrictMode 双调用下 store 做幂等无副作用累积，符合"每次访问 +1"语义
+  useEffect(() => {
+    if (params.id) incrementBuildView(params.id);
+  }, [params.id, incrementBuildView]);
 
   const previewDoc = useMemo(() => {
     if (!build) return "";

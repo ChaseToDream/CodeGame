@@ -172,6 +172,27 @@ describe("forkBuild", () => {
   });
 });
 
+describe("incrementBuildView", () => {
+  it("对 store 中存在的作品浏览量 +1", () => {
+    const store = useUserStore.getState();
+    const id = store.createBuild("viewable", []);
+    const before = useUserStore.getState().builds.find((b) => b.id === id)!.viewCount;
+
+    store.incrementBuildView(id);
+    store.incrementBuildView(id);
+    const after = useUserStore.getState().builds.find((b) => b.id === id)!.viewCount;
+
+    expect(after).toBe(before + 2);
+  });
+
+  it("对 store 中不存在的 id（种子作品）为空操作，不抛错", () => {
+    const before = useUserStore.getState().builds;
+    useUserStore.getState().incrementBuildView("nonexistent-build-id");
+    // builds 引用不变，说明未触发 set
+    expect(useUserStore.getState().builds).toBe(before);
+  });
+});
+
 describe("createPost / togglePostLike / addComment", () => {
   it("createPost 发放 10 XP", () => {
     const store = useUserStore.getState();
