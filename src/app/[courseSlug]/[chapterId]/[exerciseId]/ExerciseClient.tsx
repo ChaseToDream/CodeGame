@@ -313,7 +313,7 @@ export default function ExerciseClient() {
         <div
           className={cn(
             "md:w-1/2 flex flex-col bg-codebg",
-            mobileTab === "code" ? "block" : "hidden md:flex",
+            mobileTab === "code" ? "flex" : "hidden md:flex",
           )}
         >
           {/* Python 加载/错误状态提示 */}

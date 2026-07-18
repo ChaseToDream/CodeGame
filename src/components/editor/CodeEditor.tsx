@@ -67,9 +67,8 @@ export function CodeEditor({
     return () => clearTimeout(t);
   }, [confirmReset]);
 
-  const handleMount: OnMount = (editor, monaco) => {
-    editorRef.current = editor;
-    // 自定义暗色主题
+  // 在编辑器挂载前定义暗色主题，避免初始化瞬间闪现默认亮色背景
+  const handleBeforeMount = (monaco: any) => {
     monaco.editor.defineTheme("codegame-dark", {
       base: "vs-dark",
       inherit: true,
@@ -85,6 +84,10 @@ export function CodeEditor({
         "editorIndentGuide.background": "#2a2a44",
       },
     });
+  };
+
+  const handleMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
     monaco.editor.setTheme("codegame-dark");
     // Ctrl+Enter 运行：通过 ref 调用最新 onRun，避免闭包过期运行旧代码
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => onRunRef.current());
@@ -143,14 +146,21 @@ export function CodeEditor({
       </div>
 
       {/* Editor */}
-      <div className="flex-1 min-h-[260px]">
+      <div className="flex-1 min-h-[260px] bg-codebg">
         <Editor
           height="100%"
           language={MONACO_LANG_MAP[language]}
           value={value}
           onChange={(v) => onChange(v ?? "")}
+          beforeMount={handleBeforeMount}
           onMount={handleMount}
           theme="codegame-dark"
+          loading={
+            <div className="h-full w-full flex items-center justify-center bg-codebg text-muted text-xs">
+              <span className="inline-block w-4 h-4 border-2 border-muted/30 border-t-accent rounded-full animate-spin mr-2" />
+              编辑器加载中...
+            </div>
+          }
           options={{
             fontSize: 14,
             fontFamily: "var(--font-mono), monospace",

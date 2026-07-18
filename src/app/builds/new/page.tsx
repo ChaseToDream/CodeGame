@@ -12,7 +12,7 @@ import { buildPreviewDoc } from "@/lib/preview-doc";
 
 const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center h-full text-muted text-sm">编辑器加载中...</div>,
+  loading: () => <div className="flex items-center justify-center h-full bg-codebg text-muted text-sm">编辑器加载中...</div>,
 });
 
 const TEMPLATES: { name: string; emoji: string; files: BuildFile[] }[] = [

@@ -12,7 +12,7 @@ import { buildPreviewDoc } from "@/lib/preview-doc";
 
 const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center h-full text-muted text-sm">加载中...</div>,
+  loading: () => <div className="flex items-center justify-center h-full bg-codebg text-muted text-sm">加载中...</div>,
 });
 
 const MONACO_LANG: Record<string, string> = { html: "html", css: "css", js: "javascript" };
@@ -152,7 +152,7 @@ export default function BuildDetailClient() {
               </button>
             ))}
           </div>
-          <div className="h-[460px]">
+          <div className="h-[460px] bg-codebg">
             {file ? (
               <Monaco
                 height="100%"

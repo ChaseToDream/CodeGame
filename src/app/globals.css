@@ -172,7 +172,16 @@ body::before {
   color: var(--accent);
 }
 
-/* Monaco editor 暗色滚动条 */
+/* Monaco Editor 暗色兜底：主题加载前/加载态避免白框 */
+.monaco-editor,
+.monaco-editor .overflow-guard,
+.monaco-editor .monaco-editor-background {
+  background-color: var(--codebg);
+}
+
+/* Monaco 编辑器暗色滚动条 */
+.monaco-editor .scrollbar.vertical .slider,
+.monaco-editor .scrollbar.horizontal .slider,
 .monaco-editor .scrollbar .slider {
   background: var(--bg3) !important;
 }
@@ -184,6 +193,29 @@ body::before {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* 隐藏 Trae IDE / 浏览器扩展注入的 IME 辅助 textarea，
+   该元素不属于应用代码，但会占用布局空间导致右侧面板顶部出现空白。
+   使用属性选择器匹配多种类名变体，并设置不占据布局空间。 */
+textarea[class*="ime-text-area"],
+textarea[class*="trae-browser-inspect"],
+textarea.ime-text-area,
+textarea.trae-browser-inspect-draggable {
+  display: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
 }
 
 /* 像素角标 */
