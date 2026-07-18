@@ -1,9 +1,47 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Difficulty } from "@/types";
 
 /** 合并 Tailwind 类名，处理冲突 */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * 课程难度本地化映射：与 CourseCard 显示风格保持一致。
+ * 集中维护避免各页面分别硬编码导致漂移。
+ */
+export const DIFFICULTY_LABEL: Record<Difficulty, string> = {
+  beginner: "入门",
+  intermediate: "进阶",
+  advanced: "高级",
+};
+
+/** 用户角色本地化映射 */
+export const ROLE_LABEL: Record<"member" | "staff", string> = {
+  member: "成员",
+  staff: "官方",
+};
+
+/** 社区帖子分类本地化映射 */
+export const POST_CATEGORY_LABEL: Record<string, string> = {
+  general: "综合",
+  career: "职业",
+  project_showcase: "作品展示",
+  introductions: "自我介绍",
+};
+
+/**
+ * 根据作品标题推断展示图标。
+ * 集中维护避免各页面分别 includes 判断导致漂移。
+ * 默认返回 🌱。
+ */
+export function getBuildIcon(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes("snake") || t.includes("贪吃蛇")) return "🐍";
+  if (t.includes("timer") || t.includes("计时")) return "⏰";
+  if (t.includes("pixel") || t.includes("像素")) return "🎨";
+  return "🌱";
 }
 
 /** 数字加千分位 */

@@ -21,9 +21,10 @@ const FOOTER_LINKS: { title: string; links: { label: string; href: string; exter
   {
     title: "公司",
     links: [
-      { label: "关于我们", href: "/blog" },
-      { label: "学习者故事", href: "/blog" },
-      { label: "招聘", href: "/blog" },
+      // 三个链接差异化，避免都指向 /blog 造成重复
+      { label: "关于我们", href: "/blog/meet-lumi-your-ai-coding-companion" },
+      { label: "学习者故事", href: "/blog/from-barista-to-developer-marcos-story" },
+      { label: "招聘", href: "/blog/30-nites-of-code-2026" },
     ],
   },
   {

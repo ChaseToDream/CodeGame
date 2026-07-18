@@ -78,6 +78,16 @@ export default function ExerciseClient() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const alreadyCompleted = useRef(false);
 
+  // 扁平化所有练习，找 prev/next。
+  // 用 useMemo 包装避免每次渲染都重新创建数组与重算，
+  // 依赖 found（其本身已 memo，随 exerciseId/courseSlug 变化才重算）
+  const flatExercises = useMemo(() => {
+    if (!found) return [];
+    return found.course.chapters.flatMap((c) =>
+      c.exercises.map((e) => ({ ex: e, ch: c })),
+    );
+  }, [found]);
+
   // 初始化课程进度并加载代码
   useEffect(() => {
     if (!found) return;
@@ -167,10 +177,7 @@ export default function ExerciseClient() {
 
   const { course, chapter, exercise } = found;
 
-  // 扁平化所有练习，找 prev/next
-  const flatExercises = course.chapters.flatMap((c) =>
-    c.exercises.map((e) => ({ ex: e, ch: c })),
-  );
+  // flatExercises 已在上方 useMemo 化，这里仅做派生计算
   const currentIdx = flatExercises.findIndex((x) => x.ex.id === exercise.id);
   const prev = currentIdx > 0 ? flatExercises[currentIdx - 1] : null;
   const next = currentIdx < flatExercises.length - 1 ? flatExercises[currentIdx + 1] : null;
@@ -178,7 +185,9 @@ export default function ExerciseClient() {
   const completedCount = flatExercises.filter(
     (x) => progress.statuses[x.ex.id] === "completed",
   ).length;
-  const pct = Math.round((completedCount / flatExercises.length) * 100);
+  const pct = flatExercises.length === 0
+    ? 0
+    : Math.round((completedCount / flatExercises.length) * 100);
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">

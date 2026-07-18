@@ -14,6 +14,11 @@ export function generateStaticParams() {
   );
 }
 
+// 仅允许 generateStaticParams 列出的路径被渲染；
+// 不存在的 exerciseId（如 /python/ch-1/ex-1）直接触发 not-found.tsx，
+// 避免 ExerciseClient 内部显示"未找到练习"造成体验不一致
+export const dynamicParams = false;
+
 export default function Page() {
   return <ExerciseClient />;
 }

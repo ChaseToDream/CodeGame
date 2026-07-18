@@ -9,7 +9,7 @@ import { courses } from "@/data/courses";
 import { XPBadge } from "@/components/game/XPBadge";
 import { LevelProgressBar } from "@/components/game/LevelProgressBar";
 import { BadgeGrid } from "@/components/game/BadgeGrid";
-import { levelFromXp, formatNumber, timeAgo } from "@/lib/utils";
+import { levelFromXp, formatNumber, timeAgo, ROLE_LABEL } from "@/lib/utils";
 import { computeBadgeStates } from "@/lib/badges";
 
 export default function UserProfilePage() {
@@ -96,7 +96,7 @@ export default function UserProfilePage() {
               </h1>
               <span className="text-2xl">{user.countryFlag}</span>
               <span className="px-2 py-0.5 rounded-md bg-bg3 border border-rule text-[10px] uppercase tracking-wider text-accent3">
-                {user.role}
+                {ROLE_LABEL[user.role] ?? user.role}
               </span>
             </div>
             <p className="text-muted mt-1.5">{user.bio}</p>

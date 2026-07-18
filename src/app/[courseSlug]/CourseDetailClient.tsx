@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getCourseBySlug } from "@/data/courses";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
-import { cn } from "@/lib/utils";
+import { cn, DIFFICULTY_LABEL } from "@/lib/utils";
 import { XPBadge } from "@/components/game/XPBadge";
 import { LevelProgressBar } from "@/components/game/LevelProgressBar";
 import { levelFromXp } from "@/lib/utils";
@@ -91,7 +91,7 @@ export default function CourseDetailClient() {
                       : "bg-warning text-bg",
                   )}
                 >
-                  {course.difficulty}
+                  {DIFFICULTY_LABEL[course.difficulty] ?? course.difficulty}
                 </span>
                 {course.isNew && (
                   <span className="px-2 py-0.5 rounded bg-accent2 text-bg text-[10px] font-bold font-pixel">

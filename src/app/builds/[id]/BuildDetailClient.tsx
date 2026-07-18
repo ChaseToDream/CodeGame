@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
 import { builds as seedBuilds } from "@/data/builds";
-import { timeAgo, formatNumber, cn } from "@/lib/utils";
+import { timeAgo, formatNumber, cn, getBuildIcon } from "@/lib/utils";
 import { buildPreviewDoc } from "@/lib/preview-doc";
 
 const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
@@ -54,6 +54,7 @@ export default function BuildDetailClient() {
     );
   }
 
+  // 防御性：files 为空或 activeFile 越界时 file 可能为 undefined
   const file = build.files[activeFile];
 
   const handleFork = () => {
@@ -75,7 +76,7 @@ export default function BuildDetailClient() {
           className="h-16 w-16 rounded-xl flex items-center justify-center text-3xl shrink-0"
           style={{ background: build.thumbnailGradient }}
         >
-          {build.title.includes("Snake") ? "🐍" : build.title.includes("Timer") ? "⏰" : build.title.includes("Pixel Art") ? "🎨" : "🌱"}
+          {getBuildIcon(build.title)}
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="font-outfit text-2xl sm:text-3xl font-bold">{build.title}</h1>
@@ -152,20 +153,26 @@ export default function BuildDetailClient() {
             ))}
           </div>
           <div className="h-[460px]">
-            <Monaco
-              height="100%"
-              language={MONACO_LANG[file.language]}
-              value={file.content}
-              theme="vs-dark"
-              options={{
-                fontSize: 13,
-                fontFamily: "var(--font-mono), monospace",
-                minimap: { enabled: false },
-                readOnly: true,
-                wordWrap: "on",
-                automaticLayout: true,
-              }}
-            />
+            {file ? (
+              <Monaco
+                height="100%"
+                language={MONACO_LANG[file.language]}
+                value={file.content}
+                theme="vs-dark"
+                options={{
+                  fontSize: 13,
+                  fontFamily: "var(--font-mono), monospace",
+                  minimap: { enabled: false },
+                  readOnly: true,
+                  wordWrap: "on",
+                  automaticLayout: true,
+                }}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted text-sm">
+                该作品暂无可查看的文件
+              </div>
+            )}
           </div>
         </div>
       )}

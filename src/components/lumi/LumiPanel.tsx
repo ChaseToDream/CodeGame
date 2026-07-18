@@ -26,6 +26,19 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
   // 用于在 onToken 闭包中判断是否已开始追加 assistant 消息
   const streamStartedRef = useRef(false);
 
+  // 切换练习时重置对话历史，避免上一个练习的上下文残留造成误导
+  useEffect(() => {
+    setMessages([
+      {
+        role: "assistant",
+        content: `你好！我是 **Lumi** 🤖，你的编程伙伴。在这个练习上卡住了吗？向我要个提示吧——我不会直接告诉你答案，但会引导你找到它！💪`,
+      },
+    ]);
+    setStreaming(false);
+    streamStartedRef.current = false;
+    setInput("");
+  }, [exercise.id]);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);

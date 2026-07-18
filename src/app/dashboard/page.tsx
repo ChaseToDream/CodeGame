@@ -9,7 +9,7 @@ import { XPBadge } from "@/components/game/XPBadge";
 import { LevelProgressBar } from "@/components/game/LevelProgressBar";
 import { StreakCounter } from "@/components/game/StreakCounter";
 import { BadgeGrid } from "@/components/game/BadgeGrid";
-import { levelFromXp, formatNumber } from "@/lib/utils";
+import { levelFromXp, formatNumber, POST_CATEGORY_LABEL } from "@/lib/utils";
 import { computeBadgeStates } from "@/lib/badges";
 
 export default function DashboardPage() {
@@ -231,7 +231,7 @@ export default function DashboardPage() {
                     >
                       <div className="text-sm font-medium text-ink line-clamp-1">{p.title}</div>
                       <div className="text-[11px] text-muted mt-1">
-                        ❤️ {p.likeCount} · 💬 {p.commentCount} · {p.category}
+                        ❤️ {p.likeCount} · 💬 {p.commentCount} · {POST_CATEGORY_LABEL[p.category] ?? p.category}
                       </div>
                     </Link>
                   </li>

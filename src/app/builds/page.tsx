@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/stores/user-store";
 import { builds as seedBuilds } from "@/data/builds";
-import { formatNumber, timeAgo } from "@/lib/utils";
+import { formatNumber, timeAgo, getBuildIcon } from "@/lib/utils";
 
 export default function BuildsGalleryPage() {
   const builds = useUserStore((s) => s.builds);
@@ -92,7 +92,7 @@ export default function BuildsGalleryPage() {
                 style={{ background: b.thumbnailGradient }}
               >
                 <span className="group-hover:scale-110 transition-transform">
-                  {b.title.includes("Snake") ? "🐍" : b.title.includes("Timer") ? "⏰" : b.title.includes("Pixel Art") ? "🎨" : "🌱"}
+                  {getBuildIcon(b.title)}
                 </span>
                 {b.forkedFrom && (
                   <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-bg/70 text-[10px] text-ink font-bold">

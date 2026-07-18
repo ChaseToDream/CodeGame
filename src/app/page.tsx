@@ -3,7 +3,7 @@ import { courses } from "@/data/courses";
 import { learningJourneys } from "@/data/journeys";
 import { builds } from "@/data/builds";
 import { CourseCard } from "@/components/course/CourseCard";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, getBuildIcon } from "@/lib/utils";
 
 const STATS = [
   { num: "1.75M+", label: "学习者", emoji: "👥" },
@@ -225,7 +225,7 @@ export default function HomePage() {
             <pre className="bg-codebg p-4 text-xs font-mono text-ink overflow-x-auto">
 {`# 你的第一个程序
 `}<span className="text-accent2">for</span><span className="text-ink"> i </span><span className="text-accent2">in</span><span className="text-ink"> </span><span className="text-accent3">range</span><span className="text-ink">(</span><span className="text-warning">5</span><span className="text-ink">):</span>{`
-    `}<span className="text-accent3">print</span><span className="text-ink">(</span><span className="text-success">"升级！"</span><span className="text-ink">)</span>{`
+    `}<span className="text-accent3">print</span><span className="text-ink">(</span><span className="text-success">{'"升级！"'}</span><span className="text-ink">)</span>{`
 `}
             </pre>
             <div className="bg-bg2 px-4 py-2 text-xs font-mono text-success border-t border-rule">
@@ -258,7 +258,7 @@ export default function HomePage() {
                 className="group rounded-lg overflow-hidden border border-rule bg-bg2 hover:border-accent transition"
               >
                 <div className="h-20 flex items-center justify-center text-3xl" style={{ background: b.thumbnailGradient }}>
-                  {b.title.includes("Snake") ? "🐍" : b.title.includes("Timer") ? "⏰" : b.title.includes("Pixel Art") ? "🎨" : "🌱"}
+                  {getBuildIcon(b.title)}
                 </div>
                 <div className="p-3">
                   <div className="font-bold text-sm text-ink group-hover:text-accent line-clamp-1">{b.title}</div>

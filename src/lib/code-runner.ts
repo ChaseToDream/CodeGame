@@ -193,6 +193,10 @@ export async function runPython(code: string, timeoutMs = 5000): Promise<RunResu
     const pyodide = await loadPyodide();
     let stdout = "";
     let stderr = "";
+    // Pyodide v0.26.2 实测：setStdout 的 batched 回调按 print 调用分批，
+    // 但 s 中不包含换行符（与官方文档描述不符，实测诊断确认）。
+    // 因此每次回调需显式补 "\n"，否则多行 print 会被拼成一行。
+    // 诊断证据：batched 回调 3 次分别返回 "line 0" / "line 1" / "line 2"（均无 \n）
     pyodide.setStdout({ batched: (s: string) => (stdout += s + "\n") });
     pyodide.setStderr({ batched: (s: string) => (stderr += s + "\n") });
 
@@ -200,8 +204,11 @@ export async function runPython(code: string, timeoutMs = 5000): Promise<RunResu
     // 拼接用户代码字符串，杜绝注入风险（JSON.stringify 输出对 Python 字符串字面量安全）
     await pyodide.runPythonAsync(PYTHON_TIMEOUT_WRAPPER);
     const runner = pyodide.globals.get("_codegame_run_with_timeout");
-    // Pyodide 的 callPyReady/callKwargs 把 JS 字符串原样传入 Python，无注入风险
-    await runner.callKwargs(code, timeoutMs);
+    // PyCallable.callKwargs 期望最后一个参数为关键字参数对象。
+    // Python 函数签名：def _codegame_run_with_timeout(_user_code, _timeout_ms)
+    // 用 callKwargs 传关键字参数最明确，避免 call(thisArg, ...) 的 thisArg 混淆。
+    // 此前误用 callKwargs(code, timeoutMs)（位置参数）导致 "kwargs argument is not an object"
+    await runner.callKwargs({ _user_code: code, _timeout_ms: timeoutMs });
     runner.destroy?.();
 
     return {

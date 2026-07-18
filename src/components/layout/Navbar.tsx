@@ -153,6 +153,17 @@ export function Navbar() {
       {mobileOpen && (
         <div className="md:hidden bg-bg2/95 backdrop-blur-md border-t border-rule">
           <div className="px-4 py-3 space-y-1">
+            {/* 移动端展示游戏化数据，与桌面端右上角保持一致 */}
+            <div className="flex items-center gap-3 py-2 mb-1 border-b border-rule">
+              <XPBadge xp={xpTotal} level={level} size="sm" />
+              {streakDays > 0 && (
+                <StreakCounter
+                  days={streakDays}
+                  lastActiveDate={lastActiveDate}
+                  size="sm"
+                />
+              )}
+            </div>
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.href}

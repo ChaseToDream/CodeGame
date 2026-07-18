@@ -58,8 +58,9 @@ export default function CoursesPage() {
         <p className="mt-3 text-muted max-w-2xl mx-auto">
           选择一条路径，或浏览全部 28+ 门课程。每门课程都是互动式的，免费开始，专为初学者打造。
         </p>
+        {/* 入门推荐：避免自链接 /courses，引导用户进入具体的入门课程 */}
         <Link
-          href="/courses"
+          href="/python"
           className="inline-block mt-6 px-6 py-3 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
         >
           开启你的编程冒险 →
