@@ -7,6 +7,7 @@ import { courses } from "@/data/courses";
 import { builds as seedBuilds } from "@/data/builds";
 import { communityPosts as seedPosts } from "@/data/posts";
 import { genId, levelFromXp } from "@/lib/utils";
+import { useNotificationStore } from "@/stores/notification-store";
 import { computeBadgeStates } from "@/lib/badges";
 
 interface UserStoreState {
@@ -301,6 +302,38 @@ export const useUserStore = create<UserStoreState>()(
           earnedBadgeIds: mergedEarned,
           activityLog: nextActivityLog,
         });
+
+        // 触发通知：新徽章
+        if (newlyEarned.length > 0) {
+          const notifStore = useNotificationStore.getState();
+          // 动态导入 badges 数据以获取徽章名称
+          import("@/data/badges").then(({ badges }) => {
+            for (const badgeId of newlyEarned) {
+              const badge = badges.find((b) => b.id === badgeId);
+              if (badge) {
+                notifStore.addNotification({
+                  type: "badge",
+                  title: `获得新徽章：${badge.emoji} ${badge.name}`,
+                  message: badge.description,
+                  link: "/dashboard#all-badges",
+                });
+              }
+            }
+          });
+        }
+
+        // 触发通知：连续学习里程碑
+        const streakMilestones = [7, 10, 14, 21, 30, 50, 100];
+        if (streakMilestones.includes(newStreak) && newStreak !== state.user.streakDays) {
+          const notifStore = useNotificationStore.getState();
+          notifStore.addNotification({
+            type: "streak",
+            title: `🔥 连续学习 ${newStreak} 天！`,
+            message: `你已连续 ${newStreak} 天保持学习，太棒了！继续保持这个势头。`,
+            link: "/dashboard",
+          });
+        }
+
         return newlyEarned;
       },
 

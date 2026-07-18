@@ -11,6 +11,7 @@ import { StreakCounter } from "@/components/game/StreakCounter";
 import { BadgeGrid } from "@/components/game/BadgeGrid";
 import { ActivityHeatmap } from "@/components/game/ActivityHeatmap";
 import { BookmarksSection } from "@/components/game/BookmarksSection";
+import { NightsOfCodeTracker } from "@/components/game/NightsOfCodeTracker";
 import { levelFromXp, formatNumber, POST_CATEGORY_LABEL } from "@/lib/utils";
 import { computeBadgeStates } from "@/lib/badges";
 
@@ -128,6 +129,8 @@ export default function DashboardPage() {
         {/* Continue learning */}
         <div className="lg:col-span-2 space-y-6">
           <ActivityHeatmap activityLog={activityLog} />
+
+          <NightsOfCodeTracker />
 
           {/* 快速入口：每日挑战 + 排行榜 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

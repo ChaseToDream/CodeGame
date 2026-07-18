@@ -8,6 +8,8 @@ import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
 import { XPBadge } from "@/components/game/XPBadge";
 import { StreakCounter } from "@/components/game/StreakCounter";
+import { NotificationCenter } from "@/components/common/NotificationCenter";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
 
 const NAV_LINKS = [
   { href: "/courses", label: "课程" },
@@ -128,6 +130,7 @@ export function Navbar({ onOpenSearch, onOpenShortcuts }: NavbarProps) {
               ⌘K
             </kbd>
           </button>
+          <ThemeToggle />
           {/* 快捷键帮助按钮：与 `?` 键等价。仅在桌面端显示，避免移动端按钮拥挤 */}
           <button
             type="button"
@@ -141,7 +144,8 @@ export function Navbar({ onOpenSearch, onOpenShortcuts }: NavbarProps) {
         </div>
 
         {/* Right side */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
+          <NotificationCenter />
           <XPBadge xp={xpTotal} level={level} size="sm" />
           {streakDays > 0 && (
             <StreakCounter

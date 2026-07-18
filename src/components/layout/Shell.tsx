@@ -17,7 +17,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         onOpenSearch={() => setSearchOpen(true)}
         onOpenShortcuts={() => setShortcutsOpen(true)}
       />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
       <Footer />
       <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
       <ShortcutsHelp open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
