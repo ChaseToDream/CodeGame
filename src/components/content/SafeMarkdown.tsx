@@ -12,12 +12,13 @@ import remarkGfm from "remark-gfm";
  *
  * 使用：把所有 <ReactMarkdown> 直接调用替换为 <SafeMarkdown>
  */
-const SAFE_PROTOCOLS = /^(https?:|mailto:|tel:)$/i;
+const SAFE_PROTOCOLS = /^(https?:|mailto:|tel:)/i;
 
 function isSafeUrl(url: string | undefined): boolean {
   if (!url) return false;
   // 相对路径允许
   if (url.startsWith("/") || url.startsWith("#")) return true;
+  // 校验协议前缀（注意：不能加 $ 锚点，否则 "https://example.com" 无法通过）
   return SAFE_PROTOCOLS.test(url);
 }
 

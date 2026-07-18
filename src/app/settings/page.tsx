@@ -211,17 +211,23 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Toggle({ label, defaultOn, storageKey }: { label: string; defaultOn: boolean; storageKey?: string }) {
-  const [on, setOn] = useState(() => {
-    if (storageKey && typeof window !== "undefined") {
+  // 初始值使用 defaultOn，保证 SSR 与客户端首次渲染一致，避免 hydration mismatch。
+  // 客户端挂载后再从 localStorage 读取真实偏好并同步状态。
+  const [on, setOn] = useState(defaultOn);
+
+  useEffect(() => {
+    if (storageKey) {
       const saved = localStorage.getItem(storageKey);
-      if (saved !== null) return saved === "true";
+      if (saved !== null) setOn(saved === "true");
     }
-    return defaultOn;
-  });
+    // 仅在挂载时同步一次，defaultOn / storageKey 在组件生命周期内不变
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const toggle = () => {
     const next = !on;
     setOn(next);
-    if (storageKey && typeof window !== "undefined") {
+    if (storageKey) {
       localStorage.setItem(storageKey, String(next));
     }
   };

@@ -35,17 +35,26 @@ let pyodidePromise: Promise<any> | null = null;
 let pyodideLoading: boolean = false;
 let pyodideLoadError: string | null = null;
 const pyodideLoadCallbacks: Array<(ok: boolean) => void> = [];
+// 脚本加载 Promise 缓存：避免并发调用注入多个 script 标签
+let scriptPromise: Promise<void> | null = null;
 
 async function loadPyodide(): Promise<any> {
   if (typeof window === "undefined") throw new Error("Pyodide requires browser");
   if ((window as any).loadPyodide === undefined) {
-    await new Promise<void>((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = `${PYODIDE_CDN_BASE}pyodide.js`;
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error("Pyodide CDN 加载失败，请检查网络连接或稍后重试"));
-      document.head.appendChild(s);
-    });
+    // 使用缓存的 Promise 避免竞态条件：并发调用只会注入一次 script 标签
+    if (!scriptPromise) {
+      scriptPromise = new Promise<void>((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = `${PYODIDE_CDN_BASE}pyodide.js`;
+        s.onload = () => resolve();
+        s.onerror = () => {
+          scriptPromise = null; // 允许下次重试
+          reject(new Error("Pyodide CDN 加载失败，请检查网络连接或稍后重试"));
+        };
+        document.head.appendChild(s);
+      });
+    }
+    await scriptPromise;
   }
   if (!pyodidePromise) {
     pyodideLoading = true;
@@ -189,27 +198,26 @@ _codegame_run_with_timeout
 
 export async function runPython(code: string, timeoutMs = 5000): Promise<RunResult> {
   const start = performance.now();
+  let runner: any = null;
   try {
     const pyodide = await loadPyodide();
     let stdout = "";
     let stderr = "";
-    // Pyodide v0.26.2 实测：setStdout 的 batched 回调按 print 调用分批，
-    // 但 s 中不包含换行符（与官方文档描述不符，实测诊断确认）。
-    // 因此每次回调需显式补 "\n"，否则多行 print 会被拼成一行。
-    // 诊断证据：batched 回调 3 次分别返回 "line 0" / "line 1" / "line 2"（均无 \n）
-    pyodide.setStdout({ batched: (s: string) => (stdout += s + "\n") });
-    pyodide.setStderr({ batched: (s: string) => (stderr += s + "\n") });
+    // 使用 raw 模式按字符重建输出，正确处理 print() / print(end="") / sys.stdout.write()
+    // 三种场景。batched 模式会按 print 调用分批但不带换行符，无条件补 "\n" 会破坏
+    // print(end="") 与 sys.stdout.write() 的预期输出（多出换行）。raw 模式无此副作用。
+    pyodide.setStdout({ raw: (charCode: number) => (stdout += String.fromCharCode(charCode)) });
+    pyodide.setStderr({ raw: (charCode: number) => (stderr += String.fromCharCode(charCode)) });
 
     // 取得 wrapper 函数，再以用户代码与超时为参数调用——避免在 Python 源码中
     // 拼接用户代码字符串，杜绝注入风险（JSON.stringify 输出对 Python 字符串字面量安全）
     await pyodide.runPythonAsync(PYTHON_TIMEOUT_WRAPPER);
-    const runner = pyodide.globals.get("_codegame_run_with_timeout");
+    runner = pyodide.globals.get("_codegame_run_with_timeout");
     // PyCallable.callKwargs 期望最后一个参数为关键字参数对象。
     // Python 函数签名：def _codegame_run_with_timeout(_user_code, _timeout_ms)
     // 用 callKwargs 传关键字参数最明确，避免 call(thisArg, ...) 的 thisArg 混淆。
     // 此前误用 callKwargs(code, timeoutMs)（位置参数）导致 "kwargs argument is not an object"
     await runner.callKwargs({ _user_code: code, _timeout_ms: timeoutMs });
-    runner.destroy?.();
 
     return {
       stdout,
@@ -226,6 +234,9 @@ export async function runPython(code: string, timeoutMs = 5000): Promise<RunResu
       exitCode: 1,
       executionTimeMs: Math.round(performance.now() - start),
     };
+  } finally {
+    // 必须在 finally 中销毁 PyCallable，避免 callKwargs 抛异常时内存泄漏
+    runner?.destroy?.();
   }
 }
 
@@ -277,12 +288,15 @@ self.onmessage = async (e) => {
 `;
 
 let worker: Worker | null = null;
+let workerUrl: string | null = null;
 let messageId = 0;
 
 function getWorker(): Worker {
   if (worker) return worker;
   const blob = new Blob([WORKER_SOURCE], { type: "application/javascript" });
-  worker = new Worker(URL.createObjectURL(blob));
+  // 保存 URL 以便后续 revoke，避免每次重建 Worker 造成 Blob URL 内存泄漏
+  workerUrl = URL.createObjectURL(blob);
+  worker = new Worker(workerUrl);
   return worker;
 }
 
@@ -290,6 +304,10 @@ function terminateWorker(): void {
   if (worker) {
     worker.terminate();
     worker = null;
+  }
+  if (workerUrl) {
+    URL.revokeObjectURL(workerUrl);
+    workerUrl = null;
   }
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { Badge } from "@/types";
 
 interface BadgeUnlockToastProps {
@@ -17,11 +17,18 @@ interface BadgeUnlockToastProps {
 export function BadgeUnlockToast({ badges, onDismiss }: BadgeUnlockToastProps) {
   const current = badges[0];
 
+  // 用 ref 持有最新的 onDismiss，避免父组件传入内联函数导致 setTimeout 计时器
+  // 在每次父组件重渲染时被清零重启，toast 永远无法自动消失
+  const onDismissRef = useRef(onDismiss);
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+  }, [onDismiss]);
+
   useEffect(() => {
     if (!current) return;
-    const t = setTimeout(onDismiss, 3500);
+    const t = setTimeout(() => onDismissRef.current(), 3500);
     return () => clearTimeout(t);
-  }, [current, onDismiss]);
+  }, [current]);
 
   if (!current) return null;
 

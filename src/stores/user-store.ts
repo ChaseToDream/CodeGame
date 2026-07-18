@@ -298,9 +298,12 @@ export const useUserStore = create<UserStoreState>()(
 
       incrementBuildView: (id) => {
         const state = get();
-        // 仅当作品存在于本地 store 时才自增浏览量；
-        // 种子作品（仅 seedBuilds）为静态数据，不持久化自增，避免污染展示数据
-        if (!state.builds.some((b) => b.id === id)) return;
+        // 仅当作品存在于本地 store 且属于当前用户（用户创建/fork 的作品）时才自增浏览量；
+        // 种子作品（其他用户的静态数据）不持久化自增，避免污染展示数据。
+        // 通过 userId 区分：用户创建/fork 的作品 userId === state.user.id，
+        // 种子作品 userId 是其他作者（如 u_sarah）。
+        const target = state.builds.find((b) => b.id === id);
+        if (!target || target.userId !== state.user.id) return;
         set({
           builds: state.builds.map((b) =>
             b.id === id ? { ...b, viewCount: b.viewCount + 1 } : b,

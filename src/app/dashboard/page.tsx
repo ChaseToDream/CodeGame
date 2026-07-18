@@ -259,7 +259,7 @@ export default function DashboardPage() {
             <div className="space-y-3 text-sm">
               <Stat label="总 XP" value={user.xpTotal.toLocaleString()} icon="✨" />
               <Stat label="当前等级" value={`Lvl ${user.level}`} icon="🎮" />
-              <Stat label="连续学习天数" value={`${user.streakDays} days`} icon="🔥" />
+              <Stat label="连续学习天数" value={`${user.streakDays} 天`} icon="🔥" />
               <Stat label="已完成练习数" value={String(Object.values(progress.statuses).filter((s) => s === "completed").length)} icon="🎯" />
               <Stat label="作品" value={String(userBuilds.length)} icon="🏗️" />
               <Stat label="帖子" value={String(userPosts.length)} icon="💬" />

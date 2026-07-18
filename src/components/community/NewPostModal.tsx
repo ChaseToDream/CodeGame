@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
@@ -30,14 +30,21 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
   const [attachedBuildId, setAttachedBuildId] = useState<string>("");
   const [err, setErr] = useState("");
 
+  // 用 ref 持有最新的 onClose，避免父组件传入内联函数导致 Escape 监听器
+  // 在每次父组件重渲染时被反复移除/添加
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   // Escape 键关闭模态框，符合标准对话框交互
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, []);
 
   // 仅显示当前用户自己的已发布作品（合并去重，避免种子数据被重复展示）
   // useMemo 避免每次按键都重算去重结果

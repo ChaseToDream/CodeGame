@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 
 interface XPCelebrationProps {
@@ -10,6 +10,13 @@ interface XPCelebrationProps {
 }
 
 export function XPCelebration({ xp, trigger, onComplete }: XPCelebrationProps) {
+  // 用 ref 持有最新的 onComplete，避免父组件传入内联函数导致 effect 频繁重启
+  // （重启会再次触发 confetti 动画，破坏庆祝效果）
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
   useEffect(() => {
     if (!trigger) return;
     const colors = ["#7c5cfc", "#ff6b9d", "#4ecdc4", "#6bcf7f", "#f0a04b"];
@@ -31,9 +38,9 @@ export function XPCelebration({ xp, trigger, onComplete }: XPCelebrationProps) {
       });
       if (Date.now() < end) requestAnimationFrame(frame);
     })();
-    const t = setTimeout(() => onComplete?.(), 2000);
+    const t = setTimeout(() => onCompleteRef.current?.(), 2000);
     return () => clearTimeout(t);
-  }, [trigger, xp, onComplete]);
+  }, [trigger]);
 
   if (!trigger) return null;
   return (

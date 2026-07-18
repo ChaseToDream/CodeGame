@@ -44,9 +44,10 @@ export function getBuildIcon(title: string): string {
   return "🌱";
 }
 
-/** 数字加千分位 */
+/** 数字简写：K 用 1 位小数，M 用 2 位小数（M 数值更大需更多精度）。
+ *  整数位去尾 0：1M / 1K 而非 1.00M / 1.0K */
 export function formatNumber(n: number): string {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(2).replace(/\.00$/, "") + "M";
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(2).replace(/\.?0+$/, "") + "M";
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
   return n.toString();
 }
@@ -71,9 +72,12 @@ export function levelFromXp(xp: number): {
   return { level, levelStart: acc, levelEnd: acc + xpForLevel(level) };
 }
 
-/** 相对时间，例如 "3小时前"。未来时间（时钟偏移）统一显示为"刚刚" */
+/** 相对时间，例如 "3小时前"。未来时间（时钟偏移）统一显示为"刚刚"。
+ *  无效日期（NaN）返回 "未知时间"，避免显示 "NaN秒前" */
 export function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const ts = new Date(iso).getTime();
+  if (Number.isNaN(ts)) return "未知时间";
+  const diff = Date.now() - ts;
   if (diff < 0) return "刚刚";
   const sec = Math.floor(diff / 1000);
   if (sec < 60) return `${sec}秒前`;
