@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
@@ -29,6 +29,15 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
   const [content, setContent] = useState("");
   const [attachedBuildId, setAttachedBuildId] = useState<string>("");
   const [err, setErr] = useState("");
+
+  // Escape 键关闭模态框，符合标准对话框交互
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   // 仅显示当前用户自己的已发布作品（合并去重，避免种子数据被重复展示）
   const myBuilds = (() => {
@@ -60,7 +69,13 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+      onClick={(e) => {
+        // 仅当点击的是背景本身（而非内部内容）时才关闭，避免误触
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="bg-bg2 border border-rule rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-outfit text-lg font-bold">发新帖</h3>

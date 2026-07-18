@@ -193,7 +193,7 @@ export default function CommunityPage() {
       <button
         onClick={() => {
           if (!canPost) {
-            alert(`🔒 你需要 100 XP 才能发帖。你目前有 ${user?.xpTotal ?? 0} XP。请先完成几个练习！`);
+            alert(`🔒 你需要 100 XP 才能发帖。你目前有 ${user.xpTotal} XP。请先完成几个练习！`);
             return;
           }
           setShowNewPost(true);

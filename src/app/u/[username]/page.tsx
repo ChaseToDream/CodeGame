@@ -14,7 +14,9 @@ import { computeBadgeStates } from "@/lib/badges";
 
 export default function UserProfilePage() {
   const params = useParams<{ username: string }>();
-  const username = decodeURIComponent(params?.username ?? "");
+  // Next.js useParams 已自动 URL-decode，无需再次 decodeURIComponent
+  // 否则当 username 含 % 时会抛出 URIError: URI malformed
+  const username = params?.username ?? "";
 
   const { user, progress, builds, posts } = useUserStore(
     useShallow((s) => ({ user: s.user, progress: s.progress, builds: s.builds, posts: s.posts })),

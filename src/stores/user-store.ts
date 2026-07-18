@@ -78,12 +78,17 @@ function dayKey(d: Date): string {
  * - 今天已记录过 → 保持不变
  * - 昨天有记录 → +1
  * - 否则 → 重置为 1
+ *
+ * 使用日期字符串比较而非毫秒减法，避免 DST（夏令时）切换时
+ * 86400000ms 不是真正"昨天"的问题。
  */
 function computeStreak(prevStreak: number, lastActiveIso: string, now: Date): number {
   const today = dayKey(now);
   const lastDay = dayKey(new Date(lastActiveIso));
   if (lastDay === today) return prevStreak; // 今天已记录
-  const yesterday = dayKey(new Date(now.getTime() - 86400000));
+  // 通过日期构造计算昨天，正确处理 DST 与跨月/跨年
+  const yesterdayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const yesterday = dayKey(yesterdayDate);
   return lastDay === yesterday ? prevStreak + 1 : 1;
 }
 

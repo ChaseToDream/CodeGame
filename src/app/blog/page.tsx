@@ -85,25 +85,32 @@ export default function BlogPage() {
       )}
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {rest.map((p) => (
-          <Link
-            key={p.id}
-            href={`/blog/${p.slug}`}
-            className="group rounded-xl overflow-hidden border border-rule bg-bg2 hover:border-accent hover:-translate-y-1 transition-all"
-          >
-            <div className="h-32" style={{ background: p.coverGradient }} />
-            <div className="p-4">
-              <span className="text-[10px] uppercase tracking-wider text-accent2 font-bold">{CATEGORY_LABEL[p.category] ?? p.category}</span>
-              <h3 className="font-outfit font-bold mt-1 group-hover:text-accent transition line-clamp-2">{p.title}</h3>
-              <p className="text-xs text-muted mt-2 line-clamp-2">{p.excerpt}</p>
-              <div className="mt-3 text-[11px] text-muted">
-                {timeAgo(p.publishedAt)} · {p.readingMinutes} 分钟阅读
+      {rest.length === 0 && !featured ? (
+        <div className="text-center py-20 text-muted">
+          <div className="text-5xl mb-3">🔍</div>
+          这个分类下还没有文章。
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {rest.map((p) => (
+            <Link
+              key={p.id}
+              href={`/blog/${p.slug}`}
+              className="group rounded-xl overflow-hidden border border-rule bg-bg2 hover:border-accent hover:-translate-y-1 transition-all"
+            >
+              <div className="h-32" style={{ background: p.coverGradient }} />
+              <div className="p-4">
+                <span className="text-[10px] uppercase tracking-wider text-accent2 font-bold">{CATEGORY_LABEL[p.category] ?? p.category}</span>
+                <h3 className="font-outfit font-bold mt-1 group-hover:text-accent transition line-clamp-2">{p.title}</h3>
+                <p className="text-xs text-muted mt-2 line-clamp-2">{p.excerpt}</p>
+                <div className="mt-3 text-[11px] text-muted">
+                  {timeAgo(p.publishedAt)} · {p.readingMinutes} 分钟阅读
+                </div>
               </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

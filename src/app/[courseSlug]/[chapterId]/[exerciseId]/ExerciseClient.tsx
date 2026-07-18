@@ -306,8 +306,8 @@ export default function ExerciseClient() {
           </div>
         </div>
 
-        {/* Divider (desktop) */}
-        <div className="hidden md:block w-px bg-rule cursor-col-resize hover:bg-accent transition" />
+        {/* Divider (desktop) - 视觉分隔，宽度固定不可拖拽 */}
+        <div className="hidden md:block w-px bg-rule" />
 
         {/* Editor */}
         <div

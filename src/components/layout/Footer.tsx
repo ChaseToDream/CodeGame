@@ -24,7 +24,7 @@ const FOOTER_LINKS: { title: string; links: { label: string; href: string; exter
       // 三个链接差异化，避免都指向 /blog 造成重复
       { label: "关于我们", href: "/blog/meet-lumi-your-ai-coding-companion" },
       { label: "学习者故事", href: "/blog/from-barista-to-developer-marcos-story" },
-      { label: "招聘", href: "/blog/30-nites-of-code-2026" },
+      { label: "博客", href: "/blog" },
     ],
   },
   {
@@ -83,11 +83,10 @@ export function Footer() {
           <p className="text-xs text-muted">
             © {new Date().getFullYear()} CodeGame. 保留所有权利。
           </p>
-          <div className="flex items-center gap-4 text-muted">
-            <span className="text-lg" title="Discord">💬</span>
-            <span className="text-lg" title="Twitter">🐦</span>
-            <span className="text-lg" title="GitHub">🐙</span>
-            <span className="text-lg" title="YouTube">📺</span>
+          <div className="flex items-center gap-3 text-muted">
+            <a href="https://discord.gg/codegame" target="_blank" rel="noopener noreferrer" className="text-lg hover:scale-110 hover:text-accent transition" title="Discord" aria-label="Discord">💬</a>
+            <a href="https://twitter.com/codegame" target="_blank" rel="noopener noreferrer" className="text-lg hover:scale-110 hover:text-accent transition" title="Twitter" aria-label="Twitter">🐦</a>
+            <a href="https://github.com/codegame" target="_blank" rel="noopener noreferrer" className="text-lg hover:scale-110 hover:text-accent transition" title="GitHub" aria-label="GitHub">🐙</a>
           </div>
         </div>
       </div>

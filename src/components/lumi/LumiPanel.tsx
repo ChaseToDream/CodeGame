@@ -52,25 +52,30 @@ export function LumiPanel({ open, onClose, exercise, userCode }: LumiPanelProps)
     streamStartedRef.current = false;
     const reply = generateLumiReply(exercise, userCode, userMsg);
     // 流式推送：第一个 token 到达时才添加 assistant 气泡，避免空气泡与 typing 指示器并存
-    await streamLumiReply(
-      reply,
-      (token) => {
-        if (!streamStartedRef.current) {
-          streamStartedRef.current = true;
-          setMessages((m) => [...m, { role: "assistant", content: token }]);
-        } else {
-          setMessages((m) => {
-            const next = [...m];
-            next[next.length - 1] = {
-              ...next[next.length - 1],
-              content: next[next.length - 1].content + token,
-            };
-            return next;
-          });
-        }
-      },
-      () => setStreaming(false),
-    );
+    // 使用 try/finally 确保异常情况下 streaming 也能复位，避免 UI 卡在"发送中"状态
+    try {
+      await streamLumiReply(
+        reply,
+        (token) => {
+          if (!streamStartedRef.current) {
+            streamStartedRef.current = true;
+            setMessages((m) => [...m, { role: "assistant", content: token }]);
+          } else {
+            setMessages((m) => {
+              const next = [...m];
+              next[next.length - 1] = {
+                ...next[next.length - 1],
+                content: next[next.length - 1].content + token,
+              };
+              return next;
+            });
+          }
+        },
+        () => setStreaming(false),
+      );
+    } finally {
+      setStreaming(false);
+    }
   };
 
   return (

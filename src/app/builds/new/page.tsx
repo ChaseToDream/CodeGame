@@ -118,6 +118,16 @@ export default function BuildsEditorPage() {
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
 
+  // 发布模态框：Escape 键关闭，符合标准对话框交互
+  useEffect(() => {
+    if (!showPublish) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowPublish(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showPublish]);
+
   const addFile = () => {
     const name = prompt("文件名（例如 about.html、theme.css、app.js）：");
     if (!name) return;
@@ -395,11 +405,16 @@ export default function BuildsEditorPage() {
 
       {/* Publish modal */}
       {showPublish && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowPublish(false);
+          }}
+        >
           <div className="bg-bg2 border border-rule rounded-xl p-6 max-w-md w-full">
             <h3 className="font-outfit text-lg font-bold mb-3">发布作品</h3>
             <p className="text-sm text-muted mb-4">
-              发布后你的作品将显示在社区展示中。你可以随时编辑。
+              发布后你的作品将显示在社区展示中。
             </p>
             <label className="block text-xs font-bold text-muted uppercase tracking-wide mb-1.5">
               描述
