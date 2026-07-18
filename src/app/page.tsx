@@ -100,6 +100,37 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ============ DAILY CHALLENGE BANNER ============ */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+        <div className="rounded-2xl border border-accent/30 bg-gradient-to-r from-accent/10 via-accent2/5 to-transparent p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="text-4xl shrink-0">🎯</div>
+            <div>
+              <div className="font-outfit text-lg font-bold text-ink">
+                每日挑战 · 每天 1 题
+              </div>
+              <p className="text-sm text-muted mt-0.5">
+                保持学习节奏，连续打卡累积 XP，与全球学习者一起进步。
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/daily"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white text-sm font-semibold hover:shadow-glow transition"
+            >
+              今日挑战 →
+            </Link>
+            <Link
+              href="/leaderboard"
+              className="px-4 py-2 rounded-lg border border-rule text-ink text-sm font-semibold hover:bg-bg2 transition"
+            >
+              🏆 排行榜
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ============ COURSES ============ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center max-w-2xl mx-auto mb-10">

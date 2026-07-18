@@ -5,6 +5,8 @@ const FOOTER_LINKS: { title: string; links: { label: string; href: string; exter
     title: "产品",
     links: [
       { label: "课程", href: "/courses" },
+      { label: "每日挑战", href: "/daily" },
+      { label: "排行榜", href: "/leaderboard" },
       { label: "作品", href: "/builds" },
       { label: "社区", href: "/community" },
       { label: "博客", href: "/blog" },

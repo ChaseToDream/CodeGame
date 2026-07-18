@@ -129,6 +129,41 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-6">
           <ActivityHeatmap activityLog={activityLog} />
 
+          {/* 快速入口：每日挑战 + 排行榜 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Link
+              href="/daily"
+              className="group rounded-xl border border-accent/30 bg-gradient-to-br from-accent/10 to-transparent p-5 hover:border-accent transition"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-xs text-muted uppercase tracking-wide mb-1">每日挑战</div>
+                  <div className="font-outfit text-lg font-bold text-ink group-hover:text-accent transition">
+                    今日一题
+                  </div>
+                  <p className="text-xs text-muted mt-1">保持节奏，累积 XP</p>
+                </div>
+                <span className="text-3xl">🎯</span>
+              </div>
+            </Link>
+            <Link
+              href="/leaderboard"
+              className="group rounded-xl border border-accent2/30 bg-gradient-to-br from-accent2/10 to-transparent p-5 hover:border-accent2 transition"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-xs text-muted uppercase tracking-wide mb-1">排行榜</div>
+                  <div className="font-outfit text-lg font-bold text-ink group-hover:text-accent2 transition">
+                    全球排名
+                  </div>
+                  <p className="text-xs text-muted mt-1">查看你的位置</p>
+                </div>
+                <span className="text-3xl">🏆</span>
+              </div>
+            </Link>
+          </div>
+
+
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-outfit text-lg font-bold">继续学习</h2>

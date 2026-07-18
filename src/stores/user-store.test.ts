@@ -575,3 +575,144 @@ describe("resetLocalData 与 bookmarks", () => {
     expect(useUserStore.getState().isBookmarked("course", "will_be_cleared")).toBe(false);
   });
 });
+
+describe("upsertCourseRating", () => {
+  it("首次评价添加记录并发放 5 XP", () => {
+    const store = useUserStore.getState();
+    const xpBefore = store.user.xpTotal;
+    const countBefore = store.courseRatings.length;
+
+    store.upsertCourseRating("c_test_course", 5, "非常棒的课程！");
+
+    const after = useUserStore.getState();
+    expect(after.courseRatings.length).toBe(countBefore + 1);
+    expect(after.user.xpTotal).toBe(xpBefore + 5);
+
+    const rating = after.getCourseRating("c_test_course");
+    expect(rating).not.toBeNull();
+    expect(rating?.rating).toBe(5);
+    expect(rating?.comment).toBe("非常棒的课程！");
+    expect(rating?.createdAt).toBeTruthy();
+  });
+
+  it("更新已有评价不重复发放 XP", () => {
+    const store = useUserStore.getState();
+    store.upsertCourseRating("c_test_course", 4, "initial");
+    const xpAfterFirst = useUserStore.getState().user.xpTotal;
+
+    store.upsertCourseRating("c_test_course", 5, "updated comment");
+
+    const after = useUserStore.getState();
+    expect(after.user.xpTotal).toBe(xpAfterFirst); // 不再 +5
+    expect(after.courseRatings.length).toBe(1); // 仍是 1 条（覆盖）
+    expect(after.getCourseRating("c_test_course")?.rating).toBe(5);
+    expect(after.getCourseRating("c_test_course")?.comment).toBe("updated comment");
+  });
+
+  it("rating 限制在 1-5 范围（越界值被钳制）", () => {
+    const store = useUserStore.getState();
+    store.upsertCourseRating("c_test_low", 0, "too low");
+    store.upsertCourseRating("c_test_high", 99, "too high");
+
+    const low = useUserStore.getState().getCourseRating("c_test_low");
+    const high = useUserStore.getState().getCourseRating("c_test_high");
+    expect(low?.rating).toBe(1); // 0 被钳制为 1
+    expect(high?.rating).toBe(5); // 99 被钳制为 5
+  });
+
+  it("rating 浮点数被四舍五入", () => {
+    const store = useUserStore.getState();
+    store.upsertCourseRating("c_test_round", 3.6, "round me");
+    const rating = useUserStore.getState().getCourseRating("c_test_round");
+    expect(rating?.rating).toBe(4);
+  });
+
+  it("comment 被截断到 500 字符", () => {
+    const store = useUserStore.getState();
+    const longComment = "a".repeat(600);
+    store.upsertCourseRating("c_test_trunc", 3, longComment);
+    const rating = useUserStore.getState().getCourseRating("c_test_trunc");
+    expect(rating?.comment.length).toBe(500);
+  });
+
+  it("comment 被去除首尾空白", () => {
+    const store = useUserStore.getState();
+    store.upsertCourseRating("c_test_trim", 4, "  hello world  ");
+    const rating = useUserStore.getState().getCourseRating("c_test_trim");
+    expect(rating?.comment).toBe("hello world");
+  });
+
+  it("空 comment 也能保存（评论为可选）", () => {
+    const store = useUserStore.getState();
+    store.upsertCourseRating("c_test_empty", 3, "");
+    const rating = useUserStore.getState().getCourseRating("c_test_empty");
+    expect(rating).not.toBeNull();
+    expect(rating?.comment).toBe("");
+  });
+
+  it("getCourseRating 未评价返回 null", () => {
+    const store = useUserStore.getState();
+    expect(store.getCourseRating("never_rated")).toBeNull();
+  });
+
+  it("不同课程的评价互不影响", () => {
+    const store = useUserStore.getState();
+    store.upsertCourseRating("c_course_a", 5, "great");
+    store.upsertCourseRating("c_course_b", 2, "meh");
+
+    const state = useUserStore.getState();
+    expect(state.getCourseRating("c_course_a")?.rating).toBe(5);
+    expect(state.getCourseRating("c_course_b")?.rating).toBe(2);
+    expect(state.courseRatings.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe("resetLocalData 与 courseRatings", () => {
+  it("重置后 courseRatings 清空", () => {
+    const store = useUserStore.getState();
+    store.upsertCourseRating("c_will_reset", 5, "to be cleared");
+    expect(useUserStore.getState().courseRatings.length).toBeGreaterThan(0);
+
+    store.resetLocalData();
+    expect(useUserStore.getState().courseRatings).toEqual([]);
+    expect(useUserStore.getState().getCourseRating("c_will_reset")).toBeNull();
+  });
+});
+
+describe("importData 与 courseRatings", () => {
+  it("合法载荷恢复 courseRatings", () => {
+    const store = useUserStore.getState();
+    const result = store.importData({
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      courseRatings: [
+        { courseId: "c_imp_1", rating: 5, comment: "imported", createdAt: "2024-01-01T00:00:00.000Z" },
+        { courseId: "c_imp_2", rating: 3, comment: "", createdAt: "2024-02-02T00:00:00.000Z" },
+      ],
+    });
+    expect(result).toBe(true);
+    const after = useUserStore.getState();
+    expect(after.getCourseRating("c_imp_1")?.rating).toBe(5);
+    expect(after.getCourseRating("c_imp_2")?.rating).toBe(3);
+  });
+
+  it("非法评价条目被过滤", () => {
+    const store = useUserStore.getState();
+    const result = store.importData({
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      courseRatings: [
+        { courseId: "valid", rating: 4, comment: "ok", createdAt: "2024-01-01T00:00:00.000Z" },
+        // 非法：缺 rating
+        { courseId: "no_rating", comment: "x", createdAt: "2024-01-01T00:00:00.000Z" } as never,
+        // 非法：缺 createdAt
+        { courseId: "no_created", rating: 3, comment: "x" } as never,
+      ],
+    });
+    expect(result).toBe(true);
+    const after = useUserStore.getState();
+    expect(after.getCourseRating("valid")?.rating).toBe(4);
+    expect(after.getCourseRating("no_rating")).toBeNull();
+    expect(after.getCourseRating("no_created")).toBeNull();
+  });
+});

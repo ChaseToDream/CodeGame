@@ -10,12 +10,14 @@ import { cn, DIFFICULTY_LABEL, formatNumber, getBuildIcon, timeAgo } from "@/lib
 import { XPBadge } from "@/components/game/XPBadge";
 import { LevelProgressBar } from "@/components/game/LevelProgressBar";
 import { BookmarkButton } from "@/components/game/BookmarkButton";
+import { ShareButton } from "@/components/common/ShareButton";
+import { CourseRatingPanel } from "@/components/course/CourseRatingPanel";
 import { levelFromXp } from "@/lib/utils";
 import { getCheatSheet } from "@/lib/cheatsheets";
 import { blogPosts } from "@/data/blog";
 import { builds as seedBuilds } from "@/data/builds";
 
-type Tab = "chapters" | "progress" | "resources";
+type Tab = "chapters" | "progress" | "resources" | "reviews";
 
 export default function CourseDetailClient() {
   const params = useParams<{ courseSlug: string }>();
@@ -128,6 +130,14 @@ export default function CourseDetailClient() {
           <div className="flex items-center gap-2">
             {/* 收藏按钮：详情页头部，独立按钮场景，不阻止冒泡 */}
             <BookmarkButton type="course" id={course.id} withLabel size="md" stopPropagation={false} />
+            {/* 分享按钮：复制当前课程链接 */}
+            <ShareButton
+              title={`${course.title} · CodeGame`}
+              text={`我正在 CodeGame 学习《${course.title}》，一起来吧！`}
+              size="md"
+              withLabel
+              stopPropagation={false}
+            />
             {nextEx ? (
               <button
                 onClick={() => {
@@ -154,17 +164,18 @@ export default function CourseDetailClient() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-rule mb-6">
+      <div className="flex gap-1 border-b border-rule mb-6 overflow-x-auto">
         {([
           ["chapters", "章节"],
           ["progress", "进度"],
           ["resources", "资源"],
+          ["reviews", "评价"],
         ] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
             className={cn(
-              "px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition",
+              "px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition whitespace-nowrap",
               tab === key
                 ? "border-accent text-accent"
                 : "border-transparent text-muted hover:text-ink",
@@ -306,6 +317,10 @@ export default function CourseDetailClient() {
           builds={builds}
           nextExHref={nextEx ? `/${course.slug}/${nextEx.chapterId}/${nextEx.id}` : null}
         />
+      )}
+
+      {tab === "reviews" && (
+        <CourseRatingPanel courseId={course.id} />
       )}
     </div>
   );

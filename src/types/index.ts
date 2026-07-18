@@ -199,3 +199,38 @@ export interface BookmarkItem {
   type: BookmarkType;
   addedAt: string;
 }
+
+/**
+ * 课程评价：用户对课程的 5 星评分 + 可选评论。
+ * - courseId：被评价的课程 id（稳定标识）
+ * - rating：1-5 星
+ * - comment：可选评论文本
+ * - createdAt：评价时间
+ *
+ * 每个用户对每门课程仅保留一条评价（再次评价将覆盖旧值）。
+ */
+export interface CourseRating {
+  courseId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+/**
+ * 排行榜条目：包含虚拟对手用户与当前用户的统一结构。
+ * - xpTotal：用于排序的 XP 总数
+ * - level：由 XP 派生的等级
+ * - streakDays：连续学习天数
+ * - isCurrentUser：标记当前登录用户（用于 UI 高亮）
+ * - countryFlag：国旗 emoji
+ */
+export interface LeaderboardEntry {
+  id: string;
+  username: string;
+  avatarGradient: string;
+  xpTotal: number;
+  level: number;
+  streakDays: number;
+  countryFlag: string;
+  isCurrentUser?: boolean;
+}

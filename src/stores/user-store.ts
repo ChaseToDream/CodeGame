@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { User, Build, CommunityPost, ProgressState, BookmarkItem, BookmarkType } from "@/types";
+import type { User, Build, CommunityPost, ProgressState, BookmarkItem, BookmarkType, CourseRating } from "@/types";
 import { courses } from "@/data/courses";
 import { builds as seedBuilds } from "@/data/builds";
 import { communityPosts as seedPosts } from "@/data/posts";
@@ -26,6 +26,11 @@ interface UserStoreState {
    * 使用数组而非 Set 以便 persist 序列化；查询时用 some/finding 即可（数据量小）。
    */
   bookmarks: BookmarkItem[];
+  /**
+   * 课程评价列表：用户对课程的评分与评论。
+   * 每门课程仅保留一条记录（upsert），用 find 查询（数据量小）。
+   */
+  courseRatings: CourseRating[];
 
   // progress
   ensureCourseInit: (courseSlug: string) => void;
@@ -60,6 +65,17 @@ interface UserStoreState {
   /** 查询某资源是否已收藏。提供 selector 友好的纯查询方法 */
   isBookmarked: (type: BookmarkType, id: string) => boolean;
 
+  // course ratings
+  /**
+   * 提交或更新课程评价（upsert）。
+   * - 同一 courseId 再次提交将覆盖旧评价（rating/comment/createdAt 全部更新）
+   * - 首次评价发放 5 XP 奖励（鼓励评价），后续更新不重复发放
+   * - rating 限制在 1-5 范围，comment 长度限制 500 字符
+   */
+  upsertCourseRating: (courseId: string, rating: number, comment: string) => void;
+  /** 查询当前用户对某课程的评，未评价返回 null */
+  getCourseRating: (courseId: string) => CourseRating | null;
+
   // profile
   updateUser: (patch: Partial<User>) => void;
 
@@ -90,6 +106,7 @@ export interface ExportedData {
   posts?: CommunityPost[];
   activityLog?: Record<string, number>;
   bookmarks?: BookmarkItem[];
+  courseRatings?: CourseRating[];
 }
 
 const DEFAULT_USER: User = {
@@ -172,6 +189,7 @@ export const useUserStore = create<UserStoreState>()(
       posts: seedPosts,
       activityLog: {},
       bookmarks: [],
+      courseRatings: [],
 
       ensureCourseInit: (courseSlug) => {
         const course = courses.find((c) => c.slug === courseSlug);
@@ -500,6 +518,33 @@ export const useUserStore = create<UserStoreState>()(
         return get().bookmarks.some((b) => b.type === type && b.id === id);
       },
 
+      upsertCourseRating: (courseId, rating, comment) => {
+        const state = get();
+        // 输入规范化：rating 限制 1-5，comment 截断 500 字符并 trim
+        const normalizedRating = Math.max(1, Math.min(5, Math.round(rating)));
+        const normalizedComment = (comment ?? "").trim().slice(0, 500);
+        const existing = state.courseRatings.find((r) => r.courseId === courseId);
+        const isFirstRating = !existing;
+        const now = new Date().toISOString();
+        const newRating: CourseRating = {
+          courseId,
+          rating: normalizedRating,
+          comment: normalizedComment,
+          createdAt: now,
+        };
+        set({
+          courseRatings: existing
+            ? state.courseRatings.map((r) => (r.courseId === courseId ? newRating : r))
+            : [...state.courseRatings, newRating],
+          // 仅首次评价发放 XP，避免反复更新刷 XP
+          user: isFirstRating ? awardXp(state.user, 5) : state.user,
+        });
+      },
+
+      getCourseRating: (courseId) => {
+        return get().courseRatings.find((r) => r.courseId === courseId) ?? null;
+      },
+
       updateUser: (patch) => {
         const state = get();
         set({ user: { ...state.user, ...patch } });
@@ -520,6 +565,7 @@ export const useUserStore = create<UserStoreState>()(
           posts: seedPosts,
           activityLog: {},
           bookmarks: [],
+          courseRatings: [],
         });
       },
 
@@ -559,6 +605,12 @@ export const useUserStore = create<UserStoreState>()(
               (b) => b && typeof b.id === "string" && typeof b.type === "string" && typeof b.addedAt === "string",
             );
           }
+          if (Array.isArray(payload.courseRatings)) {
+            // 过滤掉结构不合法的评价条目
+            next.courseRatings = payload.courseRatings.filter(
+              (r) => r && typeof r.courseId === "string" && typeof r.rating === "number" && typeof r.createdAt === "string",
+            );
+          }
           set(next);
           return true;
         } catch {
@@ -578,6 +630,7 @@ export const useUserStore = create<UserStoreState>()(
         posts: s.posts,
         activityLog: s.activityLog,
         bookmarks: s.bookmarks,
+        courseRatings: s.courseRatings,
       }),
     },
   ),

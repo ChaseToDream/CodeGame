@@ -30,6 +30,8 @@ export default function SettingsPage() {
     builds,
     posts,
     activityLog,
+    bookmarks,
+    courseRatings,
   } = useUserStore(
     useShallow((s) => ({
       user: s.user,
@@ -41,6 +43,8 @@ export default function SettingsPage() {
       builds: s.builds,
       posts: s.posts,
       activityLog: s.activityLog,
+      bookmarks: s.bookmarks,
+      courseRatings: s.courseRatings,
     })),
   );
 
@@ -87,6 +91,8 @@ export default function SettingsPage() {
       builds,
       posts,
       activityLog,
+      bookmarks,
+      courseRatings,
     };
     try {
       const blob = new Blob([JSON.stringify(payload, null, 2)], {

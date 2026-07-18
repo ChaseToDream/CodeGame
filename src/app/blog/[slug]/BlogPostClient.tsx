@@ -7,6 +7,7 @@ import { getBlogPostBySlug, blogPosts } from "@/data/blog";
 import { timeAgo } from "@/lib/utils";
 import { SafeMarkdown } from "@/components/content/SafeMarkdown";
 import { BookmarkButton } from "@/components/game/BookmarkButton";
+import { ShareButton } from "@/components/common/ShareButton";
 
 const CATEGORY_LABEL: Record<string, string> = {
   All: "全部",
@@ -53,8 +54,15 @@ export default function BlogPostClient() {
           <div className="text-xs">{timeAgo(post.publishedAt)} · {post.readingMinutes} 分钟阅读</div>
         </div>
         {/* 收藏按钮：右侧浮动，便于稍后回读 */}
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           <BookmarkButton type="blog" id={post.slug} withLabel size="md" stopPropagation={false} />
+          <ShareButton
+            title={`${post.title} · CodeGame`}
+            text={post.excerpt}
+            size="md"
+            withLabel
+            stopPropagation={false}
+          />
         </div>
       </div>
 

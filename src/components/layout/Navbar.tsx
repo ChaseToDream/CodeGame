@@ -11,6 +11,8 @@ import { StreakCounter } from "@/components/game/StreakCounter";
 
 const NAV_LINKS = [
   { href: "/courses", label: "课程" },
+  { href: "/daily", label: "每日挑战" },
+  { href: "/leaderboard", label: "排行榜" },
   { href: "/builds", label: "作品" },
   { href: "/community", label: "社区" },
   { href: "/blog", label: "博客" },
