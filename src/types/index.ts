@@ -178,3 +178,24 @@ export interface ProgressState {
   // key: exerciseId, value: saved code
   codeSnapshots: Record<string, string>;
 }
+
+/**
+ * 书签类型：与 GlobalSearch 的 SearchEntryType 对齐，
+ * 便于在 Dashboard 复用搜索索引逻辑（按类型分组展示）。
+ */
+export type BookmarkType = "course" | "build" | "post" | "blog";
+
+/**
+ * 书签条目：记录用户收藏的内容。
+ * - id：目标资源的稳定标识（course.id / build.id / post.id / blog.slug）
+ * - type：目标资源类型
+ * - addedAt：收藏时间，用于按收藏时间倒序展示
+ *
+ * 不缓存标题/图标等元数据：源头数据可能更新（如博客修订），
+ * 渲染时从原始数据源实时拉取，避免缓存陈旧。
+ */
+export interface BookmarkItem {
+  id: string;
+  type: BookmarkType;
+  addedAt: string;
+}

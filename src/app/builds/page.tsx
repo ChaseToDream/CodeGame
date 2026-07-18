@@ -3,15 +3,25 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
 import { builds as seedBuilds } from "@/data/builds";
 import { formatNumber, timeAgo, getBuildIcon } from "@/lib/utils";
+import { BookmarkButton } from "@/components/game/BookmarkButton";
 
 export default function BuildsGalleryPage() {
   const builds = useUserStore((s) => s.builds);
   const user = useUserStore((s) => s.user);
   const toggleBuildLike = useUserStore((s) => s.toggleBuildLike);
+  const bookmarks = useUserStore(useShallow((s) => s.bookmarks));
   const [sort, setSort] = useState<"top" | "newest">("top");
   const [showOnlyMine, setShowOnlyMine] = useState(false);
+  const [onlyBookmarked, setOnlyBookmarked] = useState(false);
+
+  // 派生 build 类型书签的 id Set：useShallow 保证 bookmarks 引用稳定
+  const bookmarkedBuildIds = useMemo(
+    () => new Set(bookmarks.filter((b) => b.type === "build").map((b) => b.id)),
+    [bookmarks],
+  );
 
   // 用 Set 替代 find 进行去重，性能从 O(n*m) 降为 O(n+m)
   const allBuilds = useMemo(() => {
@@ -24,10 +34,13 @@ export default function BuildsGalleryPage() {
       // 仅显示已发布的作品
       list = list.filter((b) => b.isPublished);
     }
+    if (onlyBookmarked) {
+      list = list.filter((b) => bookmarkedBuildIds.has(b.id));
+    }
     if (sort === "top") list.sort((a, b) => b.likeCount - a.likeCount);
     else list.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
     return list;
-  }, [builds, user.id, sort, showOnlyMine]);
+  }, [builds, user.id, sort, showOnlyMine, onlyBookmarked, bookmarkedBuildIds]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -63,15 +76,26 @@ export default function BuildsGalleryPage() {
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 text-xs text-muted cursor-pointer">
-          <input
-            type="checkbox"
-            checked={showOnlyMine}
-            onChange={(e) => setShowOnlyMine(e.target.checked)}
-            className="accent-accent"
-          />
-          仅显示我的作品（含草稿）
-        </label>
+        <div className="flex items-center gap-4 flex-wrap">
+          <label className="flex items-center gap-2 text-xs text-muted cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showOnlyMine}
+              onChange={(e) => setShowOnlyMine(e.target.checked)}
+              className="accent-accent"
+            />
+            仅显示我的作品（含草稿）
+          </label>
+          <label className="flex items-center gap-2 text-xs text-muted cursor-pointer">
+            <input
+              type="checkbox"
+              checked={onlyBookmarked}
+              onChange={(e) => setOnlyBookmarked(e.target.checked)}
+              className="accent-accent2"
+            />
+            <span aria-hidden="true">★</span> 仅看收藏
+          </label>
+        </div>
       </div>
 
       {/* Grid */}
@@ -100,6 +124,10 @@ export default function BuildsGalleryPage() {
                     🍴 已复刻
                   </span>
                 )}
+                {/* 书签按钮：浮在缩略图右下角，solid variant 在彩色背景上可读 */}
+                <div className="absolute bottom-2 right-2 z-10">
+                  <BookmarkButton type="build" id={b.id} variant="solid" size="sm" />
+                </div>
               </div>
               <div className="p-4">
                 <div className="font-bold text-ink group-hover:text-accent transition line-clamp-1">{b.title}</div>

@@ -9,6 +9,7 @@ import { useShallow } from "zustand/react/shallow";
 import { builds as seedBuilds } from "@/data/builds";
 import { timeAgo, formatNumber, cn, getBuildIcon } from "@/lib/utils";
 import { buildPreviewDoc } from "@/lib/preview-doc";
+import { BookmarkButton } from "@/components/game/BookmarkButton";
 
 const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
   ssr: false,
@@ -114,6 +115,8 @@ export default function BuildDetailClient() {
             <span>❤️</span>
             <span>{build.likeCount}</span>
           </button>
+          {/* 收藏按钮：与点赞/复刻并列，详情页独立按钮场景 */}
+          <BookmarkButton type="build" id={build.id} withLabel size="md" stopPropagation={false} />
           <button
             onClick={handleFork}
             className="px-4 py-2 rounded-lg border border-rule text-sm text-ink hover:border-accent transition flex items-center gap-1.5"

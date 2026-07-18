@@ -6,7 +6,9 @@ import { courses } from "@/data/courses";
 import { learningJourneys } from "@/data/journeys";
 import { CourseCard } from "@/components/course/CourseCard";
 import { cn } from "@/lib/utils";
-import type { CourseTag } from "@/types";
+import { useUserStore } from "@/stores/user-store";
+import { useShallow } from "zustand/react/shallow";
+import type { Course, CourseTag } from "@/types";
 
 const ALL_TAGS: CourseTag[] = [
   "Beginner",
@@ -32,18 +34,84 @@ const TAG_LABELS: Record<CourseTag, string> = {
   "Systems Programming": "系统编程",
 };
 
+type ProgressFilter = "all" | "not_started" | "in_progress" | "completed";
+
+const PROGRESS_FILTERS: { id: ProgressFilter; label: string }[] = [
+  { id: "all", label: "全部" },
+  { id: "not_started", label: "未开始" },
+  { id: "in_progress", label: "进行中" },
+  { id: "completed", label: "已完成" },
+];
+
+/**
+ * 计算单门课程的完成百分比（0-100）。无练习时返回 0。
+ */
+function getCourseProgressPct(
+  course: Course,
+  statuses: Record<string, "locked" | "unlocked" | "in_progress" | "completed" | undefined>,
+): number {
+  const allExercises = course.chapters.flatMap((c) => c.exercises);
+  if (allExercises.length === 0) return 0;
+  const completed = allExercises.filter((e) => statuses[e.id] === "completed").length;
+  return Math.round((completed / allExercises.length) * 100);
+}
+
+/**
+ * 计算单门课程的完成状态。
+ * - completed: 所有练习均已完成
+ * - in_progress: 至少一个练习已完成（但未全部完成）
+ * - not_started: 没有任何练习完成
+ *
+ * 不依赖 ensureCourseInit 的副作用：直接从 statuses 推导，
+ * 保证未触发过 ensureCourseInit 的课程也能正确分类为 not_started。
+ */
+function getCourseProgressStatus(
+  course: Course,
+  statuses: Record<string, "locked" | "unlocked" | "in_progress" | "completed" | undefined>,
+): Exclude<ProgressFilter, "all"> {
+  const pct = getCourseProgressPct(course, statuses);
+  if (pct === 0) return "not_started";
+  if (pct === 100) return "completed";
+  return "in_progress";
+}
+
 export default function CoursesPage() {
   const [activeTags, setActiveTags] = useState<CourseTag[]>([]);
   const [expandedJourney, setExpandedJourney] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [progressFilter, setProgressFilter] = useState<ProgressFilter>("all");
+  const [onlyBookmarked, setOnlyBookmarked] = useState(false);
+  // 仅订阅 statuses，避免 progress.codeSnapshots 变化导致重渲染
+  const statuses = useUserStore(useShallow((s) => s.progress.statuses));
+  // 订阅 bookmarks 数组以响应收藏状态变化（派生 Set 用于 O(1) 查询）
+  const bookmarks = useUserStore(useShallow((s) => s.bookmarks));
+  const bookmarkedCourseIds = useMemo(
+    () => new Set(bookmarks.filter((b) => b.type === "course").map((b) => b.id)),
+    [bookmarks],
+  );
 
   const toggleTag = (t: CourseTag) => {
     setActiveTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
   };
 
   const filteredCourses = useMemo(() => {
-    if (activeTags.length === 0) return courses;
-    return courses.filter((c) => c.tags.some((t) => activeTags.includes(t)));
-  }, [activeTags]);
+    const q = query.trim().toLowerCase();
+    return courses.filter((c) => {
+      // tag 过滤
+      if (activeTags.length > 0 && !c.tags.some((t) => activeTags.includes(t))) return false;
+      // 关键词过滤：匹配标题与描述
+      if (q && !c.title.toLowerCase().includes(q) && !c.description.toLowerCase().includes(q)) {
+        return false;
+      }
+      // 进度过滤
+      if (progressFilter !== "all" && getCourseProgressStatus(c, statuses) !== progressFilter) {
+        return false;
+      }
+      // 收藏过滤
+      if (onlyBookmarked && !bookmarkedCourseIds.has(c.id)) return false;
+      return true;
+    });
+  }, [activeTags, query, progressFilter, statuses, onlyBookmarked, bookmarkedCourseIds]);
 
   const journeyCourses = (name: string) => courses.filter((c) => c.learningJourney.includes(name as never));
 
@@ -129,7 +197,59 @@ export default function CoursesPage() {
           <span>📚</span> 全部课程
         </h2>
 
-        {/* Tag filter */}
+        {/* 搜索框 */}
+        <div className="relative mb-4">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm pointer-events-none">
+            🔍
+          </span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="搜索课程标题或描述…"
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-bg2 border border-rule text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none transition"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-ink text-sm px-2 py-1"
+              aria-label="清除搜索"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* 进度状态筛选 */}
+        <div className="flex flex-wrap gap-2 mb-4 items-center">
+          <span className="text-xs text-muted self-center mr-1">进度：</span>
+          {PROGRESS_FILTERS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setProgressFilter(p.id)}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-medium border transition",
+                progressFilter === p.id
+                  ? "border-accent3 bg-accent3/15 text-accent3"
+                  : "border-rule bg-bg2 text-muted hover:text-ink hover:border-accent3/50",
+              )}
+            >
+              {p.label}
+            </button>
+          ))}
+          {/* 收藏筛选 toggle：与进度筛选并列，色调用 accent2（与书签按钮主色一致） */}
+          <label className="ml-2 flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={onlyBookmarked}
+              onChange={(e) => setOnlyBookmarked(e.target.checked)}
+              className="accent-accent2"
+            />
+            <span aria-hidden="true">★</span> 仅看收藏
+          </label>
+        </div>
+
+        {/* 标签筛选 */}
         <div className="flex flex-wrap gap-2 mb-6">
           <span className="text-xs text-muted self-center mr-1">筛选：</span>
           {ALL_TAGS.map((t) => (
@@ -146,9 +266,14 @@ export default function CoursesPage() {
               {TAG_LABELS[t]}
             </button>
           ))}
-          {activeTags.length > 0 && (
+          {(activeTags.length > 0 || query || progressFilter !== "all" || onlyBookmarked) && (
             <button
-              onClick={() => setActiveTags([])}
+              onClick={() => {
+                setActiveTags([]);
+                setQuery("");
+                setProgressFilter("all");
+                setOnlyBookmarked(false);
+              }}
               className="px-3 py-1.5 rounded-full text-xs text-accent2 hover:underline"
             >
               清除全部
@@ -158,7 +283,7 @@ export default function CoursesPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredCourses.map((c) => (
-            <CourseCard key={c.id} course={c} />
+            <CourseCard key={c.id} course={c} progressPct={getCourseProgressPct(c, statuses)} />
           ))}
         </div>
         {filteredCourses.length === 0 && (

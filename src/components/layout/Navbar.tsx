@@ -19,9 +19,11 @@ const NAV_LINKS = [
 interface NavbarProps {
   /** 顶部搜索按钮点击回调，由 Shell 提供以打开 GlobalSearch */
   onOpenSearch?: () => void;
+  /** 快捷键帮助按钮点击回调，由 Shell 提供以打开 ShortcutsHelp */
+  onOpenShortcuts?: () => void;
 }
 
-export function Navbar({ onOpenSearch }: NavbarProps) {
+export function Navbar({ onOpenSearch, onOpenShortcuts }: NavbarProps) {
   const pathname = usePathname();
   // 字段级订阅：当 user 的其他字段（如 bio）变化时不触发 Navbar 重渲染
   const { xpTotal, level, streakDays, lastActiveDate, avatarGradient, username } = useUserStore(
@@ -123,6 +125,16 @@ export function Navbar({ onOpenSearch }: NavbarProps) {
             <kbd className="hidden lg:inline px-1 py-0.5 rounded border border-rule bg-bg3 text-[10px] text-muted/80">
               ⌘K
             </kbd>
+          </button>
+          {/* 快捷键帮助按钮：与 `?` 键等价。仅在桌面端显示，避免移动端按钮拥挤 */}
+          <button
+            type="button"
+            onClick={() => onOpenShortcuts?.()}
+            className="hidden lg:flex items-center justify-center h-8 w-8 rounded-md text-xs text-muted hover:text-ink hover:bg-bg2 border border-rule transition"
+            aria-label="键盘快捷键"
+            title="键盘快捷键 (?)"
+          >
+            ?
           </button>
         </div>
 
@@ -233,6 +245,18 @@ export function Navbar({ onOpenSearch }: NavbarProps) {
                 <path d="M7 2a5 5 0 104 8.06l3.27 3.27a.6.6 0 00.85-.85L11.85 9.5A5 5 0 007 2zm0 1.2a3.8 3.8 0 110 7.6 3.8 3.8 0 010-7.6z" />
               </svg>
               搜索课程、作品、帖子…
+            </button>
+            {/* 移动端快捷键入口：移动端无 `?` 物理键，提供显式入口 */}
+            <button
+              type="button"
+              onClick={() => {
+                onOpenShortcuts?.();
+                setMobileOpen(false);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-base font-medium text-ink hover:bg-bg3 transition"
+            >
+              <span className="text-base" aria-hidden="true">⌨️</span>
+              键盘快捷键
             </button>
             <div className="pt-2 border-t border-rule mt-2">
               <Link href="/dashboard" className="block px-3 py-2.5 text-ink">

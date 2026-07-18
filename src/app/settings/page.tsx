@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useUserStore } from "@/stores/user-store";
+import { useUserStore, type ExportedData } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
 
@@ -20,8 +20,28 @@ const AVATAR_PRESETS: { name: string; gradient: string }[] = [
 const FLAGS = ["🏳️", "🇺🇸", "🇨🇳", "🇮🇳", "🇧🇷", "🇬🇧", "🇩🇪", "🇫🇷", "🇯🇵", "🇰🇷", "🇨🇦", "🇦🇺", "🇲🇽", "🇪🇸", "🇮🇹", "🇷🇺"];
 
 export default function SettingsPage() {
-  const { user, updateUser, resetLocalData } = useUserStore(
-    useShallow((s) => ({ user: s.user, updateUser: s.updateUser, resetLocalData: s.resetLocalData })),
+  const {
+    user,
+    updateUser,
+    resetLocalData,
+    importData,
+    progress,
+    earnedBadgeIds,
+    builds,
+    posts,
+    activityLog,
+  } = useUserStore(
+    useShallow((s) => ({
+      user: s.user,
+      updateUser: s.updateUser,
+      resetLocalData: s.resetLocalData,
+      importData: s.importData,
+      progress: s.progress,
+      earnedBadgeIds: s.earnedBadgeIds,
+      builds: s.builds,
+      posts: s.posts,
+      activityLog: s.activityLog,
+    })),
   );
 
   // 本地草稿：在 Save 时才提交到 store
@@ -31,6 +51,9 @@ export default function SettingsPage() {
   const [countryFlag, setCountryFlag] = useState(user.countryFlag);
   const [activeTab, setActiveTab] = useState<"profile" | "notifications">("profile");
   const [savedToast, setSavedToast] = useState(false);
+  // 数据导入结果反馈：null 表示无反馈，"ok" / "fail" 表示上次操作结果
+  const [importToast, setImportToast] = useState<null | "ok" | "fail">(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setUsername(user.username);
@@ -48,6 +71,78 @@ export default function SettingsPage() {
     });
     setSavedToast(true);
     setTimeout(() => setSavedToast(false), 2200);
+  };
+
+  /**
+   * 导出本地数据：序列化核心状态为 ExportedData JSON 文件并触发浏览器下载。
+   * 文件名固定包含日期，方便用户区分多个备份。
+   */
+  const onExportData = () => {
+    const payload: ExportedData = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      user,
+      progress,
+      earnedBadgeIds,
+      builds,
+      posts,
+      activityLog,
+    };
+    try {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.download = `codegame-backup-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setImportToast("ok");
+      setTimeout(() => setImportToast(null), 2200);
+    } catch {
+      setImportToast("fail");
+      setTimeout(() => setImportToast(null), 2600);
+    }
+  };
+
+  /**
+   * 触发隐藏的 file input，让用户选择 JSON 备份文件。
+   * 不直接使用 Modal/prompt 以保持轻量与原生体验。
+   */
+  const onImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  /**
+   * 读取用户选择的 JSON 文件并调用 store.importData。
+   * 文件读取/解析/导入任一环节失败都给统一错误反馈，避免不必要的技术细节暴露。
+   */
+  const onImportFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // 重置 input 的 value 以便同一文件可重复选择
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result)) as ExportedData;
+        const ok = importData(parsed);
+        setImportToast(ok ? "ok" : "fail");
+        setTimeout(() => setImportToast(null), 2600);
+      } catch {
+        setImportToast("fail");
+        setTimeout(() => setImportToast(null), 2600);
+      }
+    };
+    reader.onerror = () => {
+      setImportToast("fail");
+      setTimeout(() => setImportToast(null), 2600);
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -152,17 +247,49 @@ export default function SettingsPage() {
 
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <h2 className="font-outfit text-lg font-bold mb-2">数据管理</h2>
-            <p className="text-sm text-muted mb-4">重置所有本地进度、作品和帖子。此操作不可撤销。</p>
-            <button
-              onClick={() => {
-                if (confirm("重置所有本地进度、作品和帖子？此操作不可撤销。")) {
-                  resetLocalData();
-                }
-              }}
-              className="px-4 py-2 rounded-lg border border-rule text-muted text-sm hover:border-accent2 hover:text-accent2 transition"
-            >
-              重置本地数据
-            </button>
+            <p className="text-sm text-muted mb-4">
+              备份你的进度、作品与社区数据到本地文件，或从备份恢复。所有数据都存储在浏览器本地。
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={onExportData}
+                className="px-4 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent text-sm font-semibold hover:bg-accent/25 transition"
+              >
+                ⬇ 导出数据
+              </button>
+              <button
+                onClick={onImportClick}
+                className="px-4 py-2 rounded-lg bg-accent3/15 border border-accent3/40 text-accent3 text-sm font-semibold hover:bg-accent3/25 transition"
+              >
+                ⬆ 导入数据
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm("重置所有本地进度、作品和帖子？此操作不可撤销。")) {
+                    resetLocalData();
+                  }
+                }}
+                className="px-4 py-2 rounded-lg border border-rule text-muted text-sm hover:border-accent2 hover:text-accent2 transition"
+              >
+                重置本地数据
+              </button>
+              {/* 隐藏的文件输入：由导入按钮触发 click，避免使用受控 input 影响布局 */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/json,.json"
+                className="hidden"
+                onChange={onImportFileChange}
+              />
+            </div>
+            {importToast === "ok" && (
+              <p className="mt-3 text-xs text-success">✓ 操作成功</p>
+            )}
+            {importToast === "fail" && (
+              <p className="mt-3 text-xs text-accent2">
+                ✗ 操作失败，请检查文件是否为有效的 CodeGame 备份
+              </p>
+            )}
           </section>
 
           <div className="flex items-center justify-end gap-3">

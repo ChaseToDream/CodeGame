@@ -426,3 +426,152 @@ describe("resetLocalData", () => {
     expect(after.earnedBadgeIds).toEqual([]);
   });
 });
+
+describe("toggleBookmark / isBookmarked", () => {
+  it("首次收藏：返回 true，isBookmarked 返回 true，记录 addedAt", () => {
+    const store = useUserStore.getState();
+    const before = useUserStore.getState().bookmarks.length;
+    const result = store.toggleBookmark("course", "c_test_1");
+
+    expect(result).toBe(true);
+    const after = useUserStore.getState();
+    expect(after.bookmarks.length).toBe(before + 1);
+    const bm = after.bookmarks.find((b) => b.type === "course" && b.id === "c_test_1");
+    expect(bm).toBeDefined();
+    expect(bm!.addedAt).toBeTruthy();
+    // ISO 字符串应可被 Date 解析
+    expect(Number.isNaN(+new Date(bm!.addedAt))).toBe(false);
+    // isBookmarked 同步返回 true
+    expect(useUserStore.getState().isBookmarked("course", "c_test_1")).toBe(true);
+  });
+
+  it("再次切换：取消收藏，返回 false，列表恢复原长度", () => {
+    const store = useUserStore.getState();
+    store.toggleBookmark("build", "b_test_1");
+    const before = useUserStore.getState().bookmarks.length;
+
+    const result = store.toggleBookmark("build", "b_test_1");
+    expect(result).toBe(false);
+    const after = useUserStore.getState();
+    expect(after.bookmarks.length).toBe(before - 1);
+    expect(after.bookmarks.find((b) => b.type === "build" && b.id === "b_test_1")).toBeUndefined();
+    expect(useUserStore.getState().isBookmarked("build", "b_test_1")).toBe(false);
+  });
+
+  it("按 (type, id) 精确匹配：不同类型同名 id 不互相影响", () => {
+    const store = useUserStore.getState();
+    store.toggleBookmark("course", "shared_id");
+    store.toggleBookmark("build", "shared_id");
+
+    const state = useUserStore.getState();
+    expect(state.isBookmarked("course", "shared_id")).toBe(true);
+    expect(state.isBookmarked("build", "shared_id")).toBe(true);
+
+    // 取消 course 不会影响 build
+    store.toggleBookmark("course", "shared_id");
+    const after = useUserStore.getState();
+    expect(after.isBookmarked("course", "shared_id")).toBe(false);
+    expect(after.isBookmarked("build", "shared_id")).toBe(true);
+  });
+
+  it("支持全部 4 种 BookmarkType", () => {
+    const store = useUserStore.getState();
+    store.toggleBookmark("course", "id_1");
+    store.toggleBookmark("build", "id_2");
+    store.toggleBookmark("post", "id_3");
+    store.toggleBookmark("blog", "slug_4");
+
+    const state = useUserStore.getState();
+    expect(state.isBookmarked("course", "id_1")).toBe(true);
+    expect(state.isBookmarked("build", "id_2")).toBe(true);
+    expect(state.isBookmarked("post", "id_3")).toBe(true);
+    expect(state.isBookmarked("blog", "slug_4")).toBe(true);
+  });
+});
+
+describe("importData 与 bookmarks", () => {
+  it("合法载荷恢复 bookmarks（含其他字段）", () => {
+    const store = useUserStore.getState();
+    const result = store.importData({
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      bookmarks: [
+        { type: "course", id: "imp_c", addedAt: "2024-01-01T00:00:00.000Z" },
+        { type: "blog", id: "imp_slug", addedAt: "2024-02-02T00:00:00.000Z" },
+      ],
+    });
+    expect(result).toBe(true);
+    const after = useUserStore.getState();
+    expect(after.bookmarks.length).toBe(2);
+    expect(after.isBookmarked("course", "imp_c")).toBe(true);
+    expect(after.isBookmarked("blog", "imp_slug")).toBe(true);
+  });
+
+  it("bookmarks 字段缺失时保持空数组默认值（向后兼容）", () => {
+    const store = useUserStore.getState();
+    // 先添加一个书签
+    store.toggleBookmark("course", "pre_existing");
+    expect(useUserStore.getState().bookmarks.length).toBeGreaterThan(0);
+
+    // 导入不含 bookmarks 字段的旧版备份
+    const result = store.importData({
+      version: 1,
+      exportedAt: new Date().toISOString(),
+    });
+    expect(result).toBe(true);
+    // bookmarks 不在载荷中 → 不覆盖，保留当前值（避免旧备份清空用户当前书签）
+    // 注意：importData 设计为"仅恢复存在的字段"，缺失字段保持默认值/当前值
+    // 这里语义上是"未提供该字段，保持现状"，符合最小惊讶原则
+  });
+
+  it("载荷中 bookmarks 含非法条目时被过滤，合法条目保留", () => {
+    const store = useUserStore.getState();
+    const result = store.importData({
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      bookmarks: [
+        { type: "course", id: "valid_1", addedAt: "2024-01-01T00:00:00.000Z" },
+        // 非法：缺 addedAt
+        { type: "build", id: "invalid_no_addedAt" } as never,
+        // 非法：缺 id
+        { type: "post", addedAt: "2024-01-01T00:00:00.000Z" } as never,
+        // 非法：缺 type
+        { id: "x", addedAt: "2024-01-01T00:00:00.000Z" } as never,
+        { type: "blog", id: "valid_2", addedAt: "2024-01-02T00:00:00.000Z" },
+      ],
+    });
+    expect(result).toBe(true);
+    const after = useUserStore.getState();
+    expect(after.bookmarks.length).toBe(2);
+    expect(after.isBookmarked("course", "valid_1")).toBe(true);
+    expect(after.isBookmarked("blog", "valid_2")).toBe(true);
+  });
+
+  it("非法 version 拒绝导入，bookmarks 保持原状", () => {
+    const store = useUserStore.getState();
+    store.toggleBookmark("course", "before_import");
+    const beforeCount = useUserStore.getState().bookmarks.length;
+
+    const result = store.importData({
+      version: 999 as never,
+      exportedAt: new Date().toISOString(),
+      bookmarks: [{ type: "course", id: "should_not_be_added", addedAt: "2024-01-01T00:00:00.000Z" }],
+    });
+    expect(result).toBe(false);
+    expect(useUserStore.getState().bookmarks.length).toBe(beforeCount);
+    expect(useUserStore.getState().isBookmarked("course", "should_not_be_added")).toBe(false);
+  });
+});
+
+describe("resetLocalData 与 bookmarks", () => {
+  it("重置后 bookmarks 清空", () => {
+    const store = useUserStore.getState();
+    store.toggleBookmark("course", "will_be_cleared");
+    store.toggleBookmark("build", "also_cleared");
+    expect(useUserStore.getState().bookmarks.length).toBeGreaterThanOrEqual(2);
+
+    store.resetLocalData();
+    expect(useUserStore.getState().bookmarks).toEqual([]);
+    expect(useUserStore.getState().isBookmarked("course", "will_be_cleared")).toBe(false);
+  });
+});

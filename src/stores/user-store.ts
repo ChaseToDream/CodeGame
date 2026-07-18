@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { User, Build, CommunityPost, ProgressState } from "@/types";
+import type { User, Build, CommunityPost, ProgressState, BookmarkItem, BookmarkType } from "@/types";
 import { courses } from "@/data/courses";
 import { builds as seedBuilds } from "@/data/builds";
 import { communityPosts as seedPosts } from "@/data/posts";
@@ -15,6 +15,17 @@ interface UserStoreState {
   earnedBadgeIds: string[];
   builds: Build[];
   posts: CommunityPost[];
+  /**
+   * 学习活动日志：key 为本地日期 (YYYY-MM-DD)，value 为当天完成的练习数。
+   * 仅在 completeExercise 首次完成时 +1，避免重复完成刷数据。
+   * 用于 Dashboard 的学习日历热力图，可视化学习历史。
+   */
+  activityLog: Record<string, number>;
+  /**
+   * 用户书签列表：跨课程/作品/帖子/博客的统一收藏。
+   * 使用数组而非 Set 以便 persist 序列化；查询时用 some/finding 即可（数据量小）。
+   */
+  bookmarks: BookmarkItem[];
 
   // progress
   ensureCourseInit: (courseSlug: string) => void;
@@ -43,6 +54,12 @@ interface UserStoreState {
   /** 切换评论点赞状态。仅对存在于本地 store 的评论生效 */
   toggleCommentLike: (postId: string, commentId: string) => void;
 
+  // bookmarks
+  /** 切换某资源的书签状态（已收藏则取消，未收藏则添加）。返回操作后的最终状态（true=已收藏） */
+  toggleBookmark: (type: BookmarkType, id: string) => boolean;
+  /** 查询某资源是否已收藏。提供 selector 友好的纯查询方法 */
+  isBookmarked: (type: BookmarkType, id: string) => boolean;
+
   // profile
   updateUser: (patch: Partial<User>) => void;
 
@@ -51,6 +68,28 @@ interface UserStoreState {
 
   // data
   resetLocalData: () => void;
+  /**
+   * 从外部数据载荷恢复本地状态（导入备份）。
+   * 仅恢复结构化字段，缺失字段回退到默认值，避免单字段缺失导致整个状态损坏。
+   * 返回是否成功；失败时调用方应给出错误反馈。
+   */
+  importData: (payload: ExportedData) => boolean;
+}
+
+/**
+ * 可导出/导入的数据载荷结构。
+ * 与 store 的 partialize 字段保持一致，便于版本演进时向后兼容。
+ */
+export interface ExportedData {
+  version: 1;
+  exportedAt: string;
+  user?: User;
+  progress?: ProgressState;
+  earnedBadgeIds?: string[];
+  builds?: Build[];
+  posts?: CommunityPost[];
+  activityLog?: Record<string, number>;
+  bookmarks?: BookmarkItem[];
 }
 
 const DEFAULT_USER: User = {
@@ -131,6 +170,8 @@ export const useUserStore = create<UserStoreState>()(
       earnedBadgeIds: [],
       builds: seedBuilds,
       posts: seedPosts,
+      activityLog: {},
+      bookmarks: [],
 
       ensureCourseInit: (courseSlug) => {
         const course = courses.find((c) => c.slug === courseSlug);
@@ -227,10 +268,20 @@ export const useUserStore = create<UserStoreState>()(
             ? Array.from(new Set([...state.earnedBadgeIds, ...newlyEarned]))
             : state.earnedBadgeIds;
 
+        // 仅首次完成才计入活动日志，避免重复完成刷数据
+        // 复用 dayKey 保持日期键格式一致，避免时区错位
+        const nextActivityLog = onlyAwardIfFirst
+          ? (() => {
+              const key = dayKey(now);
+              return { ...state.activityLog, [key]: (state.activityLog[key] ?? 0) + 1 };
+            })()
+          : state.activityLog;
+
         set({
           user: nextUser,
           progress: nextProgress,
           earnedBadgeIds: mergedEarned,
+          activityLog: nextActivityLog,
         });
         return newlyEarned;
       },
@@ -423,6 +474,32 @@ export const useUserStore = create<UserStoreState>()(
         });
       },
 
+      toggleBookmark: (type, id) => {
+        const state = get();
+        const existingIdx = state.bookmarks.findIndex(
+          (b) => b.type === type && b.id === id,
+        );
+        if (existingIdx >= 0) {
+          // 已收藏 → 取消
+          set({
+            bookmarks: state.bookmarks.filter((b) => !(b.type === type && b.id === id)),
+          });
+          return false;
+        }
+        // 未收藏 → 添加
+        set({
+          bookmarks: [
+            ...state.bookmarks,
+            { type, id, addedAt: new Date().toISOString() },
+          ],
+        });
+        return true;
+      },
+
+      isBookmarked: (type, id) => {
+        return get().bookmarks.some((b) => b.type === type && b.id === id);
+      },
+
       updateUser: (patch) => {
         const state = get();
         set({ user: { ...state.user, ...patch } });
@@ -441,7 +518,53 @@ export const useUserStore = create<UserStoreState>()(
           earnedBadgeIds: [],
           builds: seedBuilds,
           posts: seedPosts,
+          activityLog: {},
+          bookmarks: [],
         });
+      },
+
+      importData: (payload) => {
+        // 基础校验：必须包含 version 字段且为预期版本
+        // 避免错误格式的 JSON 损坏本地状态
+        if (!payload || typeof payload !== "object" || payload.version !== 1) {
+          return false;
+        }
+        try {
+          // 仅恢复存在的字段，缺失字段保持默认值，保证向后兼容
+          const next: Partial<UserStoreState> = {};
+          if (payload.user && typeof payload.user === "object") {
+            next.user = { ...DEFAULT_USER, ...payload.user };
+          }
+          if (payload.progress && typeof payload.progress === "object") {
+            next.progress = {
+              statuses: payload.progress.statuses ?? {},
+              codeSnapshots: payload.progress.codeSnapshots ?? {},
+            };
+          }
+          if (Array.isArray(payload.earnedBadgeIds)) {
+            next.earnedBadgeIds = payload.earnedBadgeIds;
+          }
+          if (Array.isArray(payload.builds)) {
+            next.builds = payload.builds;
+          }
+          if (Array.isArray(payload.posts)) {
+            next.posts = payload.posts;
+          }
+          if (payload.activityLog && typeof payload.activityLog === "object") {
+            next.activityLog = payload.activityLog;
+          }
+          if (Array.isArray(payload.bookmarks)) {
+            // 过滤掉结构不合法的条目，避免污染 store
+            next.bookmarks = payload.bookmarks.filter(
+              (b) => b && typeof b.id === "string" && typeof b.type === "string" && typeof b.addedAt === "string",
+            );
+          }
+          set(next);
+          return true;
+        } catch {
+          // 任何异常都不破坏现有状态
+          return false;
+        }
       },
     }),
     {
@@ -453,6 +576,8 @@ export const useUserStore = create<UserStoreState>()(
         earnedBadgeIds: s.earnedBadgeIds,
         builds: s.builds,
         posts: s.posts,
+        activityLog: s.activityLog,
+        bookmarks: s.bookmarks,
       }),
     },
   ),

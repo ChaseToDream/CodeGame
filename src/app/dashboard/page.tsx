@@ -9,12 +9,14 @@ import { XPBadge } from "@/components/game/XPBadge";
 import { LevelProgressBar } from "@/components/game/LevelProgressBar";
 import { StreakCounter } from "@/components/game/StreakCounter";
 import { BadgeGrid } from "@/components/game/BadgeGrid";
+import { ActivityHeatmap } from "@/components/game/ActivityHeatmap";
+import { BookmarksSection } from "@/components/game/BookmarksSection";
 import { levelFromXp, formatNumber, POST_CATEGORY_LABEL } from "@/lib/utils";
 import { computeBadgeStates } from "@/lib/badges";
 
 export default function DashboardPage() {
-  const { user, progress, builds, posts, ensureAllCoursesInit } = useUserStore(
-    useShallow((s) => ({ user: s.user, progress: s.progress, builds: s.builds, posts: s.posts, ensureAllCoursesInit: s.ensureAllCoursesInit })),
+  const { user, progress, builds, posts, ensureAllCoursesInit, activityLog } = useUserStore(
+    useShallow((s) => ({ user: s.user, progress: s.progress, builds: s.builds, posts: s.posts, ensureAllCoursesInit: s.ensureAllCoursesInit, activityLog: s.activityLog })),
   );
 
   // 初始化所有课程的进度状态（解锁每门课的第一节），避免"继续学习"列表为空
@@ -125,6 +127,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Continue learning */}
         <div className="lg:col-span-2 space-y-6">
+          <ActivityHeatmap activityLog={activityLog} />
+
           <section className="rounded-xl border border-rule bg-bg2 p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-outfit text-lg font-bold">继续学习</h2>
@@ -270,6 +274,9 @@ export default function DashboardPage() {
             <h2 className="font-outfit text-lg font-bold mb-4">全部徽章</h2>
             <BadgeGrid badges={badgeState} />
           </section>
+
+          {/* 我的收藏：跨课程/作品/帖子/博客的统一收藏夹 */}
+          <BookmarksSection />
         </div>
       </div>
     </div>

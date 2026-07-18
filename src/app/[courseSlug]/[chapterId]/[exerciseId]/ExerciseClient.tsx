@@ -187,6 +187,58 @@ export default function ExerciseClient() {
     scheduleSave(found.exercise.starterCode);
   };
 
+  /**
+   * 立即保存代码快照（绕过防抖）。
+   * 供 Ctrl+S 快捷键使用：用户期望按下后立即得到保存确认反馈。
+   */
+  const saveImmediately = useCallback(() => {
+    if (!found) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    setSaveStatus("saving");
+    saveCodeSnapshot(exerciseId, code);
+    setSaveStatus("saved");
+  }, [found, code, exerciseId, saveCodeSnapshot]);
+
+  /**
+   * 全局键盘快捷键（练习页）：
+   * - Ctrl/Cmd + Enter：运行代码（与点击"运行"按钮等效）
+   * - Ctrl/Cmd + S：保存代码快照（绕过防抖，立即保存；阻止浏览器默认保存行为）
+   *
+   * 仅监听全局 keydown，不与 Monaco 的内部快捷键冲突：
+   * Monaco 默认不绑定 Ctrl+Enter/Ctrl+S，所以全局监听是安全的。
+   */
+  // 用 ref 跟踪最新的 code/running/checking，避免每次变化重新绑定 listener
+  const codeRef = useRef(code);
+  codeRef.current = code;
+  const stateRef = useRef({ running, checking, found: !!found });
+  stateRef.current = { running, checking, found: !!found };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod) return;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (!stateRef.current.found || stateRef.current.running || stateRef.current.checking) return;
+        // 直接调用 handleRun 等效逻辑，避免依赖闭包内的 handleRun
+        void (async () => {
+          setRunning(true);
+          setCheckResult(null);
+          try {
+            const result = await runCode(codeRef.current, found!.exercise.language);
+            setRunResult(result);
+          } finally {
+            setRunning(false);
+          }
+        })();
+      } else if (e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        saveImmediately();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [found, saveImmediately]);
+
   if (!found) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">

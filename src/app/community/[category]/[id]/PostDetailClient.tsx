@@ -9,6 +9,7 @@ import { communityPosts as seedPosts } from "@/data/posts";
 import { builds as seedBuilds } from "@/data/builds";
 import { timeAgo, cn } from "@/lib/utils";
 import { SafeMarkdown } from "@/components/content/SafeMarkdown";
+import { BookmarkButton } from "@/components/game/BookmarkButton";
 
 const CATEGORY_LABEL: Record<string, string> = {
   general: "综合",
@@ -122,6 +123,8 @@ export default function PostDetailClient() {
             ❤️ {post.likeCount}
           </button>
           <span className="text-sm text-muted">💬 {post.commentCount} 条评论</span>
+          {/* 收藏按钮：与点赞并列，帖子详情页 */}
+          <BookmarkButton type="post" id={post.id} withLabel size="sm" stopPropagation={false} />
         </div>
       </article>
 

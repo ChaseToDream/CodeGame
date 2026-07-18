@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { getCourseBySlug } from "@/data/courses";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
-import { cn, DIFFICULTY_LABEL } from "@/lib/utils";
+import { cn, DIFFICULTY_LABEL, formatNumber, getBuildIcon, timeAgo } from "@/lib/utils";
 import { XPBadge } from "@/components/game/XPBadge";
 import { LevelProgressBar } from "@/components/game/LevelProgressBar";
+import { BookmarkButton } from "@/components/game/BookmarkButton";
 import { levelFromXp } from "@/lib/utils";
+import { getCheatSheet } from "@/lib/cheatsheets";
+import { blogPosts } from "@/data/blog";
+import { builds as seedBuilds } from "@/data/builds";
 
 type Tab = "chapters" | "progress" | "resources";
 
@@ -18,8 +22,8 @@ export default function CourseDetailClient() {
   const router = useRouter();
   const courseSlug = params.courseSlug;
   const course = getCourseBySlug(courseSlug);
-  const { user, progress, ensureCourseInit } = useUserStore(
-    useShallow((s) => ({ user: s.user, progress: s.progress, ensureCourseInit: s.ensureCourseInit })),
+  const { user, progress, ensureCourseInit, builds } = useUserStore(
+    useShallow((s) => ({ user: s.user, progress: s.progress, ensureCourseInit: s.ensureCourseInit, builds: s.builds })),
   );
   const [tab, setTab] = useState<Tab>("chapters");
 
@@ -121,21 +125,25 @@ export default function CourseDetailClient() {
               <span className="text-accent">{pct}%</span>
             </div>
           </div>
-          {nextEx ? (
-            <button
-              onClick={() => {
-                ensureCourseInit(course.slug);
-                router.push(`/${course.slug}/${nextEx.chapterId}/${nextEx.id}`);
-              }}
-              className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
-            >
-              {completedCount === 0 ? "开始学习 →" : "继续 →"}
-            </button>
-          ) : (
-            <span className="px-4 py-2 rounded-lg bg-success/20 text-success font-semibold">
-              ✓ 课程已完成！
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {/* 收藏按钮：详情页头部，独立按钮场景，不阻止冒泡 */}
+            <BookmarkButton type="course" id={course.id} withLabel size="md" stopPropagation={false} />
+            {nextEx ? (
+              <button
+                onClick={() => {
+                  ensureCourseInit(course.slug);
+                  router.push(`/${course.slug}/${nextEx.chapterId}/${nextEx.id}`);
+                }}
+                className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white font-semibold hover:shadow-glow transition"
+              >
+                {completedCount === 0 ? "开始学习 →" : "继续 →"}
+              </button>
+            ) : (
+              <span className="px-4 py-2 rounded-lg bg-success/20 text-success font-semibold">
+                ✓ 课程已完成！
+              </span>
+            )}
+          </div>
         </div>
         <div className="h-2.5 rounded-full bg-bg3 overflow-hidden">
           <div
@@ -293,23 +301,205 @@ export default function CourseDetailClient() {
       )}
 
       {tab === "resources" && (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-rule bg-bg2 p-5">
-            <h3 className="font-outfit text-lg font-bold mb-3">📚 资源</h3>
-            <ul className="space-y-2 text-sm text-muted">
-              <li>• {course.title} 速查表（即将推出）</li>
-              <li>• 官方文档与社区链接</li>
-              <li>• 作品编辑器中的项目模板</li>
-            </ul>
-          </div>
-          <div className="rounded-xl border border-rule bg-bg2 p-5">
-            <h3 className="font-outfit text-lg font-bold mb-3">🤖 需要帮助？</h3>
-            <p className="text-sm text-muted">
-              每个练习都内置了名为 Lumi 的 AI 助手。任何时候遇到困难，点击&ldquo;向 Lumi 提问&rdquo;即可。
-            </p>
-          </div>
-        </div>
+        <ResourcesPanel
+          course={course}
+          builds={builds}
+          nextExHref={nextEx ? `/${course.slug}/${nextEx.chapterId}/${nextEx.id}` : null}
+        />
       )}
+    </div>
+  );
+}
+
+/**
+ * 资源面板：聚合课程相关的速查表、社区作品、博客文章与官方文档。
+ *
+ * 设计要点：
+ * - 速查表按课程涉及的语言动态生成（取课程首个练习的语言作为代表）
+ * - 相关作品按课程的 tags 与 learningJourney 关联匹配，从本地 store + 种子作品合并去重
+ * - 相关博客按关键词粗匹配课程标题/描述
+ * - 官方文档链接按语言提供权威入口
+ */
+function ResourcesPanel({
+  course,
+  builds,
+  nextExHref,
+}: {
+  course: NonNullable<ReturnType<typeof getCourseBySlug>>;
+  builds: ReturnType<typeof useUserStore.getState>["builds"];
+  nextExHref: string | null;
+}) {
+  // 课程代表性语言：取第一个练习的语言（不同章节可能多语言，但入门练习通常反映主语言）
+  const primaryLang = course.chapters[0]?.exercises[0]?.language;
+  const cheatSheet = primaryLang ? getCheatSheet(primaryLang) : null;
+
+  // 相关作品：按 tag/learningJourney 匹配，合并本地与种子去重
+  const relatedBuilds = useMemo(() => {
+    const seen = new Set<string>();
+    const merged = [...builds, ...seedBuilds];
+    const tagSet = new Set(course.tags.map((t) => t.toLowerCase()));
+    const journeySet = new Set(course.learningJourney.map((j) => j.toLowerCase()));
+    return merged
+      .filter((b) => {
+        if (seen.has(b.id)) return false;
+        seen.add(b.id);
+        if (!b.isPublished) return false;
+        // 通过标题/描述匹配课程的 tag 或 journey 关键词
+        const text = `${b.title} ${b.description}`.toLowerCase();
+        return (
+          tagSet.has("python") && text.includes("python") ||
+          tagSet.has("web development") && (text.includes("html") || text.includes("css") || text.includes("javascript") || text.includes("web")) ||
+          tagSet.has("data science") && (text.includes("data") || text.includes("sql")) ||
+          journeySet.has("web development") && (text.includes("html") || text.includes("css") || text.includes("web")) ||
+          journeySet.has("data science") && (text.includes("data") || text.includes("sql")) ||
+          // 兜底：标题包含课程标题中的关键词
+          course.title.split(/\s+/).some((w) => w.length > 3 && text.includes(w.toLowerCase()))
+        );
+      })
+      .sort((a, b) => b.likeCount - a.likeCount)
+      .slice(0, 3);
+  }, [builds, course]);
+
+  // 相关博客：按课程标题/描述关键词粗匹配
+  const relatedPosts = useMemo(() => {
+    const text = `${course.title} ${course.description}`.toLowerCase();
+    return blogPosts
+      .filter((p) => {
+        const pt = `${p.title} ${p.excerpt}`.toLowerCase();
+        // 至少包含课程标题中的一个关键词
+        return course.title
+          .toLowerCase()
+          .split(/\s+/)
+          .some((w) => w.length > 3 && pt.includes(w)) || pt.includes(text.split(/\s+/)[0]);
+      })
+      .slice(0, 3);
+  }, [course]);
+
+  return (
+    <div className="space-y-6">
+      {/* 速查表 */}
+      {cheatSheet ? (
+        <section className="rounded-xl border border-rule bg-bg2 p-5">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h3 className="font-outfit text-lg font-bold flex items-center gap-2">
+              <span>{cheatSheet.emoji}</span> {cheatSheet.title}
+            </h3>
+            <a
+              href={cheatSheet.docsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-accent hover:text-accent2 transition"
+            >
+              官方文档 ↗
+            </a>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {cheatSheet.items.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-lg border border-rule bg-bg3 p-3 hover:border-accent/50 transition"
+              >
+                <div className="text-xs font-bold text-accent2 uppercase tracking-wide mb-1.5">
+                  {item.label}
+                </div>
+                <pre className="text-xs font-mono text-ink bg-codebg rounded p-2 overflow-x-auto whitespace-pre">
+                  {item.code}
+                </pre>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className="rounded-xl border border-rule bg-bg2 p-5">
+          <h3 className="font-outfit text-lg font-bold mb-3">📚 资源</h3>
+          <p className="text-sm text-muted">
+            本课程暂无专属速查表。你仍可在作品编辑器中通过模板开始动手实践。
+          </p>
+        </section>
+      )}
+
+      {/* 相关作品 */}
+      <section className="rounded-xl border border-rule bg-bg2 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-outfit text-lg font-bold">🏗️ 相关作品</h3>
+          <Link href="/builds" className="text-xs text-accent hover:text-accent2">
+            浏览全部 →
+          </Link>
+        </div>
+        {relatedBuilds.length === 0 ? (
+          <p className="text-sm text-muted">还没有相关作品。来分享你的第一个作品吧！</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {relatedBuilds.map((b) => (
+              <Link
+                key={b.id}
+                href={`/builds/${b.id}`}
+                className="group rounded-lg border border-rule bg-bg3 p-3 hover:border-accent transition"
+              >
+                <div
+                  className="h-14 rounded mb-2 flex items-center justify-center text-2xl"
+                  style={{ background: b.thumbnailGradient }}
+                >
+                  {getBuildIcon(b.title)}
+                </div>
+                <div className="font-bold text-sm text-ink group-hover:text-accent line-clamp-1">
+                  {b.title}
+                </div>
+                <div className="text-[10px] text-muted mt-1 flex justify-between">
+                  <span>❤️ {b.likeCount}</span>
+                  <span>👁 {formatNumber(b.viewCount)}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 相关博客 */}
+      <section className="rounded-xl border border-rule bg-bg2 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-outfit text-lg font-bold">📝 相关文章</h3>
+          <Link href="/blog" className="text-xs text-accent hover:text-accent2">
+            全部博客 →
+          </Link>
+        </div>
+        {relatedPosts.length === 0 ? (
+          <p className="text-sm text-muted">暂无相关文章。</p>
+        ) : (
+          <div className="space-y-2">
+            {relatedPosts.map((p) => (
+              <Link
+                key={p.id}
+                href={`/blog/${p.slug}`}
+                className="block p-3 rounded-lg bg-bg3 hover:border-accent border border-transparent transition"
+              >
+                <div className="text-sm font-medium text-ink line-clamp-1">{p.title}</div>
+                <div className="text-[11px] text-muted mt-1">
+                  {timeAgo(p.publishedAt)} · {p.readingMinutes} 分钟阅读
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 帮助提示 */}
+      <section className="rounded-xl border border-accent/30 bg-accent/5 p-5">
+        <h3 className="font-outfit text-lg font-bold mb-2 flex items-center gap-2">
+          <span>🤖</span> 需要帮助？
+        </h3>
+        <p className="text-sm text-muted">
+          每个练习都内置了名为 Lumi 的 AI 助手。任何时候遇到困难，点击&ldquo;向 Lumi 提问&rdquo;即可获得渐进式提示。
+        </p>
+        {nextExHref && (
+          <Link
+            href={nextExHref}
+            className="inline-block mt-3 px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:shadow-glow transition"
+          >
+            开始练习 →
+          </Link>
+        )}
+      </section>
     </div>
   );
 }

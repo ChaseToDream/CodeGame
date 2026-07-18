@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { getBlogPostBySlug, blogPosts } from "@/data/blog";
 import { timeAgo } from "@/lib/utils";
 import { SafeMarkdown } from "@/components/content/SafeMarkdown";
+import { BookmarkButton } from "@/components/game/BookmarkButton";
 
 const CATEGORY_LABEL: Record<string, string> = {
   All: "全部",
@@ -50,6 +51,10 @@ export default function BlogPostClient() {
         <div>
           <div className="font-bold text-ink">{post.author}</div>
           <div className="text-xs">{timeAgo(post.publishedAt)} · {post.readingMinutes} 分钟阅读</div>
+        </div>
+        {/* 收藏按钮：右侧浮动，便于稍后回读 */}
+        <div className="ml-auto">
+          <BookmarkButton type="blog" id={post.slug} withLabel size="md" stopPropagation={false} />
         </div>
       </div>
 
