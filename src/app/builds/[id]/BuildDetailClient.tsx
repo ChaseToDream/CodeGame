@@ -34,10 +34,17 @@ export default function BuildDetailClient() {
   }, [builds, params.id]);
 
   // 进入作品详情时浏览量 +1（仅对本地 store 中的作品生效，种子作品为静态数据不变）
-  // 依赖 params.id：同组件不同 id 切换时重新计数；StrictMode 双调用下 store 做幂等无副作用累积，符合"每次访问 +1"语义
+  // 依赖 params.id：同组件不同 id 切换时重新计数。
+  // 注意：React StrictMode 开发模式下 effect 会双调用，导致 viewCount +2；生产模式仅 +1。
+  // 这里不强制去重，以保持"每次访问都计数"的语义；如需严格幂等可在 store 中按 (id,dayKey) 去重。
   useEffect(() => {
     if (params.id) incrementBuildView(params.id);
   }, [params.id, incrementBuildView]);
+
+  // 切换到不同作品时重置文件索引，避免上一作品的 activeFile 越界（如从 3 文件作品切到 2 文件作品时 activeFile=2 越界）
+  useEffect(() => {
+    setActiveFile(0);
+  }, [params.id]);
 
   const previewDoc = useMemo(() => {
     if (!build) return "";

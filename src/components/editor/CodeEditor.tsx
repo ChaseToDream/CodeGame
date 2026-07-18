@@ -189,7 +189,7 @@ export function CodeEditor({
             <pre className="whitespace-pre-wrap text-ink">{runResult.stdout}</pre>
           )}
           {runResult?.stderr && (
-            <pre className="whitespace-pre-wrap text-accent2">{runResult.stderr}</pre>
+            <pre className="whitespace-pre-wrap text-error">{runResult.stderr}</pre>
           )}
           {checkResult && (
             <div className="mt-2 space-y-1">

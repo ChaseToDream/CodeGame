@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/stores/user-store";
 import { useShallow } from "zustand/react/shallow";
@@ -40,7 +40,8 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
   }, [onClose]);
 
   // 仅显示当前用户自己的已发布作品（合并去重，避免种子数据被重复展示）
-  const myBuilds = (() => {
+  // useMemo 避免每次按键都重算去重结果
+  const myBuilds = useMemo(() => {
     const seen = new Set<string>();
     return [...builds, ...seedBuilds]
       .filter((b) => {
@@ -48,7 +49,7 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
         seen.add(b.id);
         return b.isPublished && b.userId === user.id;
       });
-  })();
+  }, [builds, user.id]);
 
   const submit = () => {
     setErr("");
@@ -76,9 +77,14 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-bg2 border border-rule rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-auto">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="new-post-modal-title"
+        className="bg-bg2 border border-rule rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-auto"
+      >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-outfit text-lg font-bold">发新帖</h3>
+          <h3 id="new-post-modal-title" className="font-outfit text-lg font-bold">发新帖</h3>
           <button onClick={onClose} className="text-muted hover:text-ink transition">✕</button>
         </div>
 

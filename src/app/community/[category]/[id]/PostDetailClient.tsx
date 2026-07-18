@@ -120,7 +120,7 @@ export default function PostDetailClient() {
           >
             ❤️ {post.likeCount}
           </button>
-          <span className="text-sm text-muted">💬 {post.comments.length} 条评论</span>
+          <span className="text-sm text-muted">💬 {post.commentCount} 条评论</span>
         </div>
       </article>
 

@@ -73,8 +73,17 @@ export default function BuildsEditorPage() {
   useEffect(() => { filesRef.current = files; }, [files]);
   useEffect(() => { titleRef.current = title; }, [title]);
 
+  // 预览防抖：每次按键都会修改 files，若直接用于 srcDoc 会导致 iframe 频繁重载，
+  // 用户在预览中维护的 JS 状态（如计数器、动画）会被重置。这里延迟 400ms 才更新预览，
+  // 既保证编辑流畅，又避免预览抖动；草稿保存仍走 updateFile 内的 1500ms 防抖。
+  const [debouncedFiles, setDebouncedFiles] = useState<BuildFile[]>(files);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedFiles(files), 400);
+    return () => clearTimeout(t);
+  }, [files]);
+
   // combine files into preview doc（含 CSP 注入，防止用户代码发起外部网络请求）
-  const previewDoc = useMemo(() => buildPreviewDoc(files), [files]);
+  const previewDoc = useMemo(() => buildPreviewDoc(debouncedFiles), [debouncedFiles]);
 
   const updateFile = (idx: number, content: string) => {
     setFiles((prev) => prev.map((f, i) => (i === idx ? { ...f, content } : f)));
@@ -411,8 +420,13 @@ export default function BuildsEditorPage() {
             if (e.target === e.currentTarget) setShowPublish(false);
           }}
         >
-          <div className="bg-bg2 border border-rule rounded-xl p-6 max-w-md w-full">
-            <h3 className="font-outfit text-lg font-bold mb-3">发布作品</h3>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="publish-modal-title"
+            className="bg-bg2 border border-rule rounded-xl p-6 max-w-md w-full"
+          >
+            <h3 id="publish-modal-title" className="font-outfit text-lg font-bold mb-3">发布作品</h3>
             <p className="text-sm text-muted mb-4">
               发布后你的作品将显示在社区展示中。
             </p>

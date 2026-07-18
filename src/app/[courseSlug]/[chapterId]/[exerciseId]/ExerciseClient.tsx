@@ -128,32 +128,40 @@ export default function ExerciseClient() {
     if (!found || running || checking) return;
     setRunning(true);
     setCheckResult(null);
-    const result = await runCode(code, found.exercise.language);
-    setRunResult(result);
-    setRunning(false);
+    // try/finally 保证 runCode 抛异常时也能解除 running 状态，避免按钮永久卡死
+    try {
+      const result = await runCode(code, found.exercise.language);
+      setRunResult(result);
+    } finally {
+      setRunning(false);
+    }
   };
 
   const handleCheck = async () => {
     if (!found || running || checking) return;
     setChecking(true);
-    const result = await runCode(code, found.exercise.language);
-    setRunResult(result);
-    const check = checkTests(code, found.exercise.language, found.exercise.testCases, result.stdout);
-    setCheckResult(check);
-    setChecking(false);
-    if (check.passed) {
-      // 首次完成才奖励 XP，并收集本次新解锁的徽章用于庆祝反馈
-      if (!alreadyCompleted.current) {
-        alreadyCompleted.current = true;
-        const newBadgeIds = completeExercise(exerciseId, found.exercise.xpReward);
-        setShowXp(true);
-        if (newBadgeIds.length > 0) {
-          const newBadges = newBadgeIds
-            .map((id) => allBadges.find((b) => b.id === id))
-            .filter((b): b is Badge => !!b);
-          if (newBadges.length > 0) setPendingBadges(newBadges);
+    // try/finally 保证 runCode/checkTests 抛异常时也能解除 checking 状态
+    try {
+      const result = await runCode(code, found.exercise.language);
+      setRunResult(result);
+      const check = checkTests(code, found.exercise.language, found.exercise.testCases, result.stdout);
+      setCheckResult(check);
+      if (check.passed) {
+        // 首次完成才奖励 XP，并收集本次新解锁的徽章用于庆祝反馈
+        if (!alreadyCompleted.current) {
+          alreadyCompleted.current = true;
+          const newBadgeIds = completeExercise(exerciseId, found.exercise.xpReward);
+          setShowXp(true);
+          if (newBadgeIds.length > 0) {
+            const newBadges = newBadgeIds
+              .map((id) => allBadges.find((b) => b.id === id))
+              .filter((b): b is Badge => !!b);
+            if (newBadges.length > 0) setPendingBadges(newBadges);
+          }
         }
       }
+    } finally {
+      setChecking(false);
     }
   };
 

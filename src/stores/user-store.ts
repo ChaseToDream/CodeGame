@@ -171,6 +171,8 @@ export const useUserStore = create<UserStoreState>()(
 
       setExerciseStatus: (exerciseId, status) => {
         const { progress } = get();
+        // 状态未变化时提前返回，避免每次按键都创建新 progress 对象触发无谓的重渲染与持久化
+        if (progress.statuses[exerciseId] === status) return;
         set({
           progress: { ...progress, statuses: { ...progress.statuses, [exerciseId]: status } },
         });
