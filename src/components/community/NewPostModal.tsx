@@ -60,14 +60,28 @@ export function NewPostModal({ onClose }: NewPostModalProps) {
 
   const submit = () => {
     setErr("");
-    if (!title.trim() || !content.trim()) {
+    const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
+    if (!trimmedTitle || !trimmedContent) {
       setErr("标题和内容为必填项。");
+      return;
+    }
+    if (trimmedTitle.length < 2) {
+      setErr("标题至少需要 2 个字符。");
+      return;
+    }
+    if (trimmedTitle.length > 200) {
+      setErr("标题不能超过 200 个字符。");
+      return;
+    }
+    if (trimmedContent.length > 10000) {
+      setErr("内容不能超过 10000 个字符。");
       return;
     }
     const id = createPost({
       category,
-      title: title.trim(),
-      content: content.trim(),
+      title: trimmedTitle,
+      content: trimmedContent,
       attachedBuildId: attachedBuildId || undefined,
       isStaffPick: false,
     });

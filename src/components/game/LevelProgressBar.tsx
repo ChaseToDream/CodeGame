@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { cn } from "@/lib/utils";
 
 interface LevelProgressBarProps {
@@ -8,7 +9,7 @@ interface LevelProgressBarProps {
   className?: string;
 }
 
-export function LevelProgressBar({
+export const LevelProgressBar = memo(function LevelProgressBar({
   currentXP,
   levelStartXP,
   levelEndXP,
@@ -41,4 +42,4 @@ export function LevelProgressBar({
       </div>
     </div>
   );
-}
+});

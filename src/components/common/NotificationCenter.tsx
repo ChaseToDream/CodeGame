@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useNotificationStore } from "@/stores/notification-store";
+import { useNotificationPreferencesStore } from "@/stores/notification-prefs-store";
 import { cn, timeAgo } from "@/lib/utils";
 
 const TYPE_ICON: Record<string, string> = {
@@ -17,11 +18,22 @@ const TYPE_ICON: Record<string, string> = {
 export function NotificationCenter() {
   const { notifications, markRead, markAllRead, removeNotification, clearAll, unreadCount } =
     useNotificationStore();
+  const isEnabled = useNotificationPreferencesStore((s) => s.isEnabled);
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const count = unreadCount();
+  // 根据偏好过滤通知
+  const filteredNotifications = useMemo(
+    () => notifications.filter((n) => isEnabled(n.type)),
+    [notifications, isEnabled],
+  );
+
+  // 过滤后的未读数
+  const count = useMemo(
+    () => filteredNotifications.filter((n) => !n.read).length,
+    [filteredNotifications],
+  );
 
   // 点击外部关闭
   useEffect(() => {
@@ -117,12 +129,18 @@ export function NotificationCenter() {
                     </button>
                   </>
                 )}
+                {/* 当前过滤类型提示 */}
+                {notifications.length > 0 && filteredNotifications.length < notifications.length && (
+                  <span className="text-[10px] text-muted/60 ml-1">
+                    已过滤 {notifications.length - filteredNotifications.length} 条
+                  </span>
+                )}
               </div>
             </div>
 
             {/* 列表 */}
             <div className="max-h-[60vh] overflow-y-auto">
-              {notifications.length === 0 ? (
+              {filteredNotifications.length === 0 ? (
                 <div className="py-12 text-center">
                   <div className="text-3xl mb-2">🔔</div>
                   <p className="text-sm text-muted">暂无通知</p>
@@ -132,7 +150,7 @@ export function NotificationCenter() {
                 </div>
               ) : (
                 <ul className="divide-y divide-rule">
-                  {notifications.map((n) => (
+                  {filteredNotifications.map((n) => (
                     <li
                       key={n.id}
                       className={cn(

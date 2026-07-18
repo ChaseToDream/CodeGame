@@ -44,11 +44,21 @@ export const metadata: Metadata = {
   description:
     "CodeGame 是一个游戏化的入门友好平台，学习 Python、HTML、CSS、JavaScript 等。提升等级、获得 XP，构建真实项目。",
   keywords: ["学编程", "python", "javascript", "html", "css", "编程入门", "游戏化学习"],
+  metadataBase: new URL("https://codegame.app"),
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/icon-192.png",
+  },
   openGraph: {
     title: "CodeGame — 最有趣的学编程方式",
     description: "通过游戏化课程、浏览器代码编辑器和友好的社区，提升你的编程技能。",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CodeGame — 最有趣的学编程方式",
+    description: "通过游戏化课程、浏览器代码编辑器和友好的社区，提升你的编程技能。",
   },
 };
 
@@ -62,6 +72,15 @@ export default function RootLayout({
       lang="zh-CN"
       className={`${outfit.variable} ${work.variable} ${mono.variable} ${pixel.variable}`}
     >
+      <head>
+        {/* RSS Feed 自动发现：让 RSS 阅读器可以发现博客订阅 */}
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="CodeGame 博客 RSS"
+          href="/feed.xml"
+        />
+      </head>
       <body className="relative">
         {/* 跳过导航链接：键盘用户可跳过导航直接进入主内容 */}
         <a

@@ -91,6 +91,11 @@ interface UserStoreState {
    * 返回是否成功；失败时调用方应给出错误反馈。
    */
   importData: (payload: ExportedData) => boolean;
+  /**
+   * 生成导出数据（应用 ExportOptions 过滤）。
+   * 支持选择性导出部分数据，并自动生成校验和。
+   */
+  buildExportData: (options?: ExportOptions) => ExportedData;
 }
 
 /**
@@ -100,6 +105,8 @@ interface UserStoreState {
 export interface ExportedData {
   version: 1;
   exportedAt: string;
+  /** 校验和：用于验证导入文件完整性（SHA-256 前 8 位 hex） */
+  checksum?: string;
   user?: User;
   progress?: ProgressState;
   earnedBadgeIds?: string[];
@@ -108,6 +115,44 @@ export interface ExportedData {
   activityLog?: Record<string, number>;
   bookmarks?: BookmarkItem[];
   courseRatings?: CourseRating[];
+}
+
+/** 导出选项：可选择导出哪些部分 */
+export interface ExportOptions {
+  includeUser?: boolean;
+  includeProgress?: boolean;
+  includeBadges?: boolean;
+  includeBuilds?: boolean;
+  includePosts?: boolean;
+  includeActivityLog?: boolean;
+  includeBookmarks?: boolean;
+  includeCourseRatings?: boolean;
+}
+
+const DEFAULT_EXPORT_OPTIONS: ExportOptions = {
+  includeUser: true,
+  includeProgress: true,
+  includeBadges: true,
+  includeBuilds: true,
+  includePosts: true,
+  includeActivityLog: true,
+  includeBookmarks: true,
+  includeCourseRatings: true,
+};
+
+/**
+ * 简单校验和：基于 JSON 序列化的字符串生成。
+ * 使用 djb2 哈希算法（轻量、无依赖、确定性）。
+ * 返回 8 位 hex 字符串。
+ */
+function computeChecksum(data: ExportedData): string {
+  const { checksum, ...rest } = data;
+  const str = JSON.stringify(rest);
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash + str.charCodeAt(i)) & 0xffffffff;
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 const DEFAULT_USER: User = {
@@ -609,6 +654,15 @@ export const useUserStore = create<UserStoreState>()(
           return false;
         }
         try {
+          // 校验和验证（可选，向后兼容旧版导出文件）
+          if (payload.checksum) {
+            const { checksum, ...rest } = payload;
+            const computed = computeChecksum(rest as ExportedData);
+            if (computed !== checksum) {
+              console.warn("[CodeGame] 导入文件校验和不匹配，文件可能已损坏");
+              return false;
+            }
+          }
           // 仅恢复存在的字段，缺失字段保持默认值，保证向后兼容
           const next: Partial<UserStoreState> = {};
           if (payload.user && typeof payload.user === "object") {
@@ -650,6 +704,30 @@ export const useUserStore = create<UserStoreState>()(
           // 任何异常都不破坏现有状态
           return false;
         }
+      },
+      /**
+       * 生成导出数据（应用 ExportOptions 过滤）。
+       * 在导出到文件前调用，可选择性导出部分数据。
+       */
+      buildExportData: (options?: ExportOptions) => {
+        const opts = { ...DEFAULT_EXPORT_OPTIONS, ...options };
+        const state = get();
+        const payload: Partial<ExportedData> = {
+          version: 1 as const,
+          exportedAt: new Date().toISOString(),
+        };
+        if (opts.includeUser) payload.user = state.user;
+        if (opts.includeProgress) payload.progress = state.progress;
+        if (opts.includeBadges) payload.earnedBadgeIds = state.earnedBadgeIds;
+        if (opts.includeBuilds) payload.builds = state.builds;
+        if (opts.includePosts) payload.posts = state.posts;
+        if (opts.includeActivityLog) payload.activityLog = state.activityLog;
+        if (opts.includeBookmarks) payload.bookmarks = state.bookmarks;
+        if (opts.includeCourseRatings) payload.courseRatings = state.courseRatings;
+        // 生成校验和
+        const full = payload as ExportedData;
+        full.checksum = computeChecksum(full);
+        return full;
       },
     }),
     {

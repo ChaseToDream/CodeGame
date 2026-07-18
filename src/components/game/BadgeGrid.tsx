@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Badge } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -5,7 +6,7 @@ interface BadgeGridProps {
   badges: (Badge & { earned: boolean; earnedAt?: string })[];
 }
 
-export function BadgeGrid({ badges }: BadgeGridProps) {
+export const BadgeGrid = memo(function BadgeGrid({ badges }: BadgeGridProps) {
   return (
     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
       {badges.map((b) => (
@@ -30,4 +31,4 @@ export function BadgeGrid({ badges }: BadgeGridProps) {
       ))}
     </div>
   );
-}
+});

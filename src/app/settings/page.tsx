@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useUserStore, type ExportedData } from "@/stores/user-store";
+import { useUserStore, type ExportedData, type ExportOptions } from "@/stores/user-store";
+import { useNotificationPreferencesStore, type NotificationPreferences } from "@/stores/notification-prefs-store";
 import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ export default function SettingsPage() {
     updateUser,
     resetLocalData,
     importData,
+    buildExportData,
     progress,
     earnedBadgeIds,
     builds,
@@ -38,6 +40,7 @@ export default function SettingsPage() {
       updateUser: s.updateUser,
       resetLocalData: s.resetLocalData,
       importData: s.importData,
+      buildExportData: s.buildExportData,
       progress: s.progress,
       earnedBadgeIds: s.earnedBadgeIds,
       builds: s.builds,
@@ -82,19 +85,8 @@ export default function SettingsPage() {
    * 文件名固定包含日期，方便用户区分多个备份。
    */
   const onExportData = () => {
-    const payload: ExportedData = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      user,
-      progress,
-      earnedBadgeIds,
-      builds,
-      posts,
-      activityLog,
-      bookmarks,
-      courseRatings,
-    };
     try {
+      const payload = buildExportData();
       const blob = new Blob([JSON.stringify(payload, null, 2)], {
         type: "application/json",
       });
@@ -102,7 +94,8 @@ export default function SettingsPage() {
       const a = document.createElement("a");
       a.href = url;
       const dateStr = new Date().toISOString().slice(0, 10);
-      a.download = `codegame-backup-${dateStr}.json`;
+      const checksum = payload.checksum?.slice(0, 6) || "";
+      a.download = `codegame-backup-${dateStr}-${checksum}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -293,7 +286,7 @@ export default function SettingsPage() {
             )}
             {importToast === "fail" && (
               <p className="mt-3 text-xs text-accent2">
-                ✗ 操作失败，请检查文件是否为有效的 CodeGame 备份
+                ✗ 导入失败，请检查文件是否为有效的 CodeGame 备份文件（版本 v1，JSON 格式）
               </p>
             )}
           </section>
@@ -315,11 +308,14 @@ export default function SettingsPage() {
       {activeTab === "notifications" && (
         <div className="space-y-6">
           <section className="rounded-xl border border-rule bg-bg2 p-5 space-y-4">
-            <h2 className="font-outfit text-lg font-bold">偏好设置</h2>
-            <Toggle label="获得新徽章时通知" defaultOn storageKey="notif-badge" />
-            <Toggle label="有人回复我的帖子时通知" defaultOn storageKey="notif-reply" />
-            <Toggle label="每周连续学习摘要" defaultOn={false} storageKey="notif-streak" />
-            <Toggle label="产品更新与新闻" defaultOn storageKey="notif-news" />
+            <h2 className="font-outfit text-lg font-bold">通知偏好设置</h2>
+            <p className="text-sm text-muted -mt-2">
+              选择你想接收的通知类型。系统通知始终开启。
+            </p>
+            <NotifToggle label="获得新徽章时通知" prefKey="badge" />
+            <NotifToggle label="有人回复我的帖子时通知" prefKey="reply" />
+            <NotifToggle label="每周连续学习摘要" prefKey="streak" />
+            <NotifToggle label="产品更新与新闻" prefKey="news" />
           </section>
         </div>
       )}
@@ -343,27 +339,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Toggle({ label, defaultOn, storageKey }: { label: string; defaultOn: boolean; storageKey?: string }) {
-  // 初始值使用 defaultOn，保证 SSR 与客户端首次渲染一致，避免 hydration mismatch。
-  // 客户端挂载后再从 localStorage 读取真实偏好并同步状态。
-  const [on, setOn] = useState(defaultOn);
-
-  useEffect(() => {
-    if (storageKey) {
-      const saved = localStorage.getItem(storageKey);
-      if (saved !== null) setOn(saved === "true");
-    }
-    // 仅在挂载时同步一次，defaultOn / storageKey 在组件生命周期内不变
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+function NotifToggle({ label, prefKey }: { label: string; prefKey: keyof NotificationPreferences }) {
+  const value = useNotificationPreferencesStore((s) => s.preferences[prefKey]);
+  const setPreference = useNotificationPreferencesStore((s) => s.setPreference);
 
   const toggle = () => {
-    const next = !on;
-    setOn(next);
-    if (storageKey) {
-      localStorage.setItem(storageKey, String(next));
-    }
+    setPreference(prefKey, !value);
   };
+
   return (
     <label className="flex items-center justify-between cursor-pointer">
       <span className="text-sm text-ink">{label}</span>
@@ -372,14 +355,14 @@ function Toggle({ label, defaultOn, storageKey }: { label: string; defaultOn: bo
         onClick={toggle}
         className={cn(
           "relative h-6 w-11 rounded-full transition-colors",
-          on ? "bg-accent" : "bg-bg3 border border-rule",
+          value ? "bg-accent" : "bg-bg3 border border-rule",
         )}
-        aria-pressed={on}
+        aria-pressed={value}
       >
         <span
           className={cn(
             "absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform",
-            on ? "translate-x-5" : "translate-x-0.5",
+            value ? "translate-x-5" : "translate-x-0.5",
           )}
         />
       </button>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { memo } from "react";
 import type { Course } from "@/types";
 import { cn } from "@/lib/utils";
 import { BookmarkButton } from "@/components/game/BookmarkButton";
@@ -11,7 +12,7 @@ interface CourseCardProps {
   progressPct?: number;
 }
 
-export function CourseCard({ course, className, compact, progressPct }: CourseCardProps) {
+export const CourseCard = memo(function CourseCard({ course, className, compact, progressPct }: CourseCardProps) {
   const hasProgress = typeof progressPct === "number";
   const isCompleted = hasProgress && progressPct === 100;
   const isInProgress = hasProgress && progressPct! > 0 && progressPct! < 100;
@@ -88,4 +89,4 @@ export function CourseCard({ course, className, compact, progressPct }: CourseCa
       </div>
     </Link>
   );
-}
+});

@@ -354,7 +354,177 @@ export async function runJavaScript(code: string, timeoutMs = 5000): Promise<Run
   });
 }
 
-/** 静态语言（html/css/sql）：仅做规范化匹配，不实际执行 */
+/**
+ * HTML 执行：在沙箱 iframe 中渲染 HTML 代码并返回预览结果。
+ * 返回 HTML 源码作为 stdout，客户端可通过 `runHtmlPreview` 获取可渲染的 Blob URL。
+ */
+export async function runHTML(code: string): Promise<RunResult & { previewUrl?: string }> {
+  try {
+    // 构建完整的 HTML 文档（如果用户代码不是完整 HTML）
+    let htmlContent = code;
+    if (!/<!DOCTYPE\s/i.test(code) && !/<html/i.test(code)) {
+      htmlContent = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Preview</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 16px; }
+  </style>
+</head>
+<body>
+${code}
+</body>
+</html>`;
+    }
+
+    const blob = new Blob([htmlContent], { type: "text/html; charset=utf-8" });
+    const previewUrl = URL.createObjectURL(blob);
+
+    return {
+      stdout: code,
+      stderr: "",
+      exitCode: 0,
+      executionTimeMs: 0,
+      previewUrl,
+    };
+  } catch (e: any) {
+    return {
+      stdout: code,
+      stderr: String(e?.message || e),
+      exitCode: 1,
+      executionTimeMs: 0,
+    };
+  }
+}
+
+/**
+ * CSS 执行：将 CSS 代码应用到测试 HTML 结构，返回预览结果。
+ * 构建一个包含测试元素的 HTML 页面来展示 CSS 效果。
+ */
+export async function runCSS(code: string): Promise<RunResult & { previewUrl?: string }> {
+  try {
+    const htmlContent = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Preview</title>
+  <style>
+    /* 重置样式 */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; padding: 24px; background: #f8f9fa; }
+    /* 测试元素容器 */
+    .preview-container { max-width: 800px; margin: 0 auto; }
+    .preview-label { font-size: 11px; color: #868e96; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .preview-box { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+    /* 用户 CSS */
+${code.split("\n").map((l) => "    " + l).join("\n")}
+  </style>
+</head>
+<body>
+  <div class="preview-container">
+    <div class="preview-label">CSS 预览</div>
+    <div class="preview-box">
+      <h1>标题 Heading H1</h1>
+      <h2>副标题 Heading H2</h2>
+      <p>这是一段文本段落，用于展示你的 CSS 样式效果。Lorem ipsum dolor sit amet.</p>
+      <button class="btn">按钮</button>
+      <a href="#">链接</a>
+      <ul>
+        <li>列表项 1</li>
+        <li>列表项 2</li>
+        <li>列表项 3</li>
+      </ul>
+      <div class="card">
+        <h3>卡片标题</h3>
+        <p>卡片内容区域，展示卡片样式效果。</p>
+      </div>
+      <table>
+        <thead><tr><th>表头1</th><th>表头2</th></tr></thead>
+        <tbody><tr><td>数据1</td><td>数据2</td></tr></tbody>
+      </table>
+      <input type="text" placeholder="输入框" />
+      <span class="badge">标签</span>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: "text/html; charset=utf-8" });
+    const previewUrl = URL.createObjectURL(blob);
+
+    return {
+      stdout: code,
+      stderr: "",
+      exitCode: 0,
+      executionTimeMs: 0,
+      previewUrl,
+    };
+  } catch (e: any) {
+    return {
+      stdout: code,
+      stderr: String(e?.message || e),
+      exitCode: 1,
+      executionTimeMs: 0,
+    };
+  }
+}
+
+/**
+ * SQL 校验：对 SQL 代码进行基本语法检查。
+ * 不实际执行 SQL（浏览器环境无 SQL 引擎），仅做结构验证。
+ */
+export function validateSQL(code: string): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  const trimmed = code.trim();
+
+  if (!trimmed) {
+    errors.push("SQL 代码为空");
+    return { valid: false, errors };
+  }
+
+  // 基本关键字检查
+  const sqlKeywords = /\b(SELECT|FROM|WHERE|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|JOIN|GROUP\s+BY|ORDER\s+BY|HAVING|LIMIT|UNION|INTO|VALUES|SET|TABLE|INDEX|VIEW|DISTINCT|AS|ON|AND|OR|NOT|IN|BETWEEN|LIKE|IS\s+NULL|COUNT|SUM|AVG|MAX|MIN)\b/i;
+
+  if (!sqlKeywords.test(trimmed)) {
+    errors.push("未检测到有效的 SQL 关键字");
+  }
+
+  // 括号匹配检查
+  let parenCount = 0;
+  for (const char of trimmed) {
+    if (char === "(") parenCount++;
+    if (char === ")") parenCount--;
+    if (parenCount < 0) {
+      errors.push("括号不匹配：多余的右括号");
+      break;
+    }
+  }
+  if (parenCount > 0) {
+    errors.push("括号不匹配：缺少右括号");
+  }
+
+  // 引号匹配检查
+  const singleQuotes = (trimmed.match(/'/g) || []).length;
+  if (singleQuotes % 2 !== 0) {
+    errors.push("单引号不匹配");
+  }
+  const doubleQuotes = (trimmed.match(/"/g) || []).length;
+  if (doubleQuotes % 2 !== 0) {
+    errors.push("双引号不匹配");
+  }
+
+  // 分号结尾检查（非强制性建议）
+  if (!trimmed.endsWith(";")) {
+    errors.push("建议：SQL 语句应以分号结尾");
+  }
+
+  return { valid: errors.filter((e) => !e.startsWith("建议")).length === 0, errors };
+}
+
+/** 静态语言（sql/cpp/java/go/rust/typescript）：仅做规范化匹配，不实际执行 */
 export async function runStatic(code: string): Promise<RunResult> {
   return {
     stdout: code,
@@ -371,8 +541,18 @@ export async function runCode(code: string, language: Language): Promise<RunResu
     case "javascript":
       return runJavaScript(code);
     case "html":
+      return runHTML(code);
     case "css":
+      return runCSS(code);
     case "sql":
+      // SQL 执行校验 + 返回详情
+      const sqlValidation = validateSQL(code);
+      return {
+        stdout: code,
+        stderr: sqlValidation.valid ? "" : sqlValidation.errors.join("\n"),
+        exitCode: sqlValidation.valid ? 0 : 1,
+        executionTimeMs: 0,
+      };
     case "cpp":
     case "java":
     case "go":

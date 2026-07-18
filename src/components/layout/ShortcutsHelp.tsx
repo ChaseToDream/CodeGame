@@ -28,8 +28,10 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
     icon: "🌐",
     items: [
       { keys: ["Ctrl", "K"], description: "唤起全局搜索（课程/作品/帖子/博客）" },
+      { keys: ["Ctrl", "H"], description: "回到首页" },
+      { keys: ["Ctrl", "D"], description: "切换明暗主题" },
       { keys: ["?"], description: "打开本快捷键帮助面板" },
-      { keys: ["Esc"], description: "关闭当前弹层（搜索/帮助）" },
+      { keys: ["Esc"], description: "关闭当前弹层/面板" },
     ],
   },
   {
@@ -48,6 +50,16 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
       { keys: ["Ctrl", "Enter"], description: "运行代码（练习页）" },
       { keys: ["Ctrl", "S"], description: "保存代码快照（练习页，阻止浏览器默认保存）" },
       { keys: ["Tab"], description: "代码缩进" },
+    ],
+  },
+  {
+    title: "页面导航",
+    icon: "🧭",
+    items: [
+      { keys: ["Ctrl", "1"], description: "跳转到课程页" },
+      { keys: ["Ctrl", "2"], description: "跳转到每日挑战" },
+      { keys: ["Ctrl", "3"], description: "跳转到作品集" },
+      { keys: ["Ctrl", "4"], description: "跳转到社区" },
     ],
   },
 ];

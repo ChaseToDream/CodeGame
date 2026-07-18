@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -13,6 +13,7 @@ import { SafeMarkdown } from "@/components/content/SafeMarkdown";
 import { badges as allBadges } from "@/data/badges";
 import type { Badge } from "@/types";
 import { BadgeUnlockToast } from "@/components/game/BadgeUnlockToast";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 // 懒加载 CodeEditor（含 Monaco），避免首屏加载 ~2MB 编辑器资源
 const CodeEditor = dynamic(() => import("@/components/editor/CodeEditor").then((m) => m.CodeEditor), {
@@ -465,20 +466,28 @@ export default function ExerciseClient() {
         <span>第 {currentIdx + 1} 题，共 {flatExercises.length} 题</span>
       </div>
 
-      {/* Lumi */}
-      <LumiPanel
-        open={lumiOpen}
-        onClose={() => setLumiOpen(false)}
-        exercise={exercise}
-        userCode={code}
-      />
+      {/* Lumi - 懒加载包裹 Suspense + ErrorBoundary */}
+      <Suspense fallback={null}>
+        <ErrorBoundary name="LumiPanel">
+          <LumiPanel
+            open={lumiOpen}
+            onClose={() => setLumiOpen(false)}
+            exercise={exercise}
+            userCode={code}
+          />
+        </ErrorBoundary>
+      </Suspense>
 
-      {/* XP celebration */}
-      <XPCelebration
-        xp={exercise.xpReward}
-        trigger={showXp}
-        onComplete={() => setShowXp(false)}
-      />
+      {/* XP celebration - 懒加载包裹 Suspense + ErrorBoundary */}
+      <Suspense fallback={null}>
+        <ErrorBoundary name="XPCelebration">
+          <XPCelebration
+            xp={exercise.xpReward}
+            trigger={showXp}
+            onComplete={() => setShowXp(false)}
+          />
+        </ErrorBoundary>
+      </Suspense>
 
       {/* Badge unlock toast */}
       <BadgeUnlockToast

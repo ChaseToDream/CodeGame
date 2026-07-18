@@ -59,6 +59,7 @@ export default function BuildsEditorPage() {
   const [showTemplates, setShowTemplates] = useState(true);
   const [showPublish, setShowPublish] = useState(false);
   const [publishDesc, setPublishDesc] = useState("");
+  const [publishErr, setPublishErr] = useState("");
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [view, setView] = useState<"editor" | "preview">("editor");
@@ -184,6 +185,27 @@ export default function BuildsEditorPage() {
   };
 
   const handlePublish = () => {
+    setPublishErr("");
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      setPublishErr("请输入作品标题");
+      return;
+    }
+    if (trimmedTitle.length < 2) {
+      setPublishErr("标题至少需要 2 个字符");
+      return;
+    }
+    if (trimmedTitle.length > 100) {
+      setPublishErr("标题不能超过 100 个字符");
+      return;
+    }
+    // 检查是否有实际代码内容（至少一个文件有非空内容）
+    const hasContent = files.some((f) => f.content.trim().length > 0);
+    if (!hasContent) {
+      setPublishErr("请至少在一个文件中添加代码内容");
+      return;
+    }
+
     // 清空待执行的防抖保存，避免发布后又触发一次 updateBuild
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
@@ -199,6 +221,7 @@ export default function BuildsEditorPage() {
     }
     setShowPublish(false);
     setPublishDesc("");
+    setPublishErr("");
     setSaveStatus("saved");
     alert("🎉 作品已发布！现在在社区中可见。");
   };
@@ -440,6 +463,9 @@ export default function BuildsEditorPage() {
               placeholder="你的作品是做什么的？"
               className="w-full px-3 py-2 rounded-lg bg-bg3 border border-rule text-sm text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition mb-4"
             />
+            {publishErr && (
+              <p className="text-xs text-accent2 mb-3 -mt-2">{publishErr}</p>
+            )}
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setShowPublish(false)}

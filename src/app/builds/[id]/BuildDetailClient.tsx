@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -20,12 +20,22 @@ const Monaco = dynamic(() => import("@monaco-editor/react").then((m) => m.defaul
 const MONACO_LANG: Record<string, string> = { html: "html", css: "css", js: "javascript" };
 const LANG_ICON: Record<string, string> = { html: "📄", css: "🎨", js: "⚡" };
 
+type DeviceSize = "desktop" | "tablet" | "mobile";
+
+const DEVICE_CONFIG: Record<DeviceSize, { width: string; label: string; icon: string }> = {
+  desktop: { width: "100%", label: "桌面", icon: "🖥" },
+  tablet: { width: "768px", label: "平板", icon: "📱" },
+  mobile: { width: "375px", label: "手机", icon: "📲" },
+};
+
 export default function BuildDetailClient() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { builds, forkBuild, incrementBuildView, toggleBuildLike } = useUserStore(useShallow((s) => ({ builds: s.builds, forkBuild: s.forkBuild, incrementBuildView: s.incrementBuildView, toggleBuildLike: s.toggleBuildLike })));
   const [activeFile, setActiveFile] = useState(0);
   const [view, setView] = useState<"preview" | "code">("preview");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
 
   // 所有 Hooks 必须在任何 early return 之前调用，避免 Hooks 顺序不一致
   // 合并去重：用户 builds 优先（包含最新草稿），再补 seedBuilds 中未出现的
@@ -46,7 +56,23 @@ export default function BuildDetailClient() {
   // 切换到不同作品时重置文件索引，避免上一作品的 activeFile 越界（如从 3 文件作品切到 2 文件作品时 activeFile=2 越界）
   useEffect(() => {
     setActiveFile(0);
+    setIsFullscreen(false);
+    setDeviceSize("desktop");
   }, [params.id]);
+
+  // 全屏模式 Esc 退出
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullscreen(false);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isFullscreen]);
+
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen((v) => !v);
+  }, []);
 
   const previewDoc = useMemo(() => {
     if (!build) return "";
@@ -158,14 +184,131 @@ export default function BuildDetailClient() {
       </div>
 
       {view === "preview" ? (
-        <div className="rounded-xl overflow-hidden border border-rule bg-white h-[500px]">
-          <iframe
-            srcDoc={previewDoc}
-            title={build.title}
-            sandbox="allow-scripts"
-            className="w-full h-full border-none"
-          />
-        </div>
+        <>
+          {/* 预览工具栏 */}
+          <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+            <div className="flex items-center gap-1 bg-bg2 rounded-lg border border-rule p-0.5">
+              {(Object.entries(DEVICE_CONFIG) as [DeviceSize, typeof DEVICE_CONFIG[DeviceSize]][]).map(
+                ([key, config]) => (
+                  <button
+                    key={key}
+                    onClick={() => setDeviceSize(key)}
+                    title={config.label}
+                    className={cn(
+                      "px-2.5 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1",
+                      deviceSize === key
+                        ? "bg-accent/15 text-accent"
+                        : "text-muted hover:text-ink",
+                    )}
+                  >
+                    <span>{config.icon}</span>
+                    <span className="hidden sm:inline">{config.label}</span>
+                  </button>
+                ),
+              )}
+            </div>
+            <button
+              onClick={toggleFullscreen}
+              className="px-3 py-1.5 rounded-lg border border-rule text-xs text-muted hover:text-ink hover:border-accent/50 transition flex items-center gap-1"
+              title="全屏预览"
+            >
+              <span>⛶</span>
+              <span className="hidden sm:inline">全屏</span>
+            </button>
+          </div>
+
+          {/* 预览区域 */}
+          <div className="rounded-xl overflow-hidden border border-rule bg-white flex justify-center">
+            <div
+              className="transition-all duration-200"
+              style={{ width: DEVICE_CONFIG[deviceSize].width }}
+            >
+              <div
+                className={cn(
+                  "relative border-r border-l border-rule/30",
+                  deviceSize !== "desktop" && "shadow-lg",
+                )}
+              >
+                <iframe
+                  srcDoc={previewDoc}
+                  title={build.title}
+                  sandbox="allow-scripts"
+                  className="w-full border-none"
+                  style={{ height: deviceSize === "mobile" ? "667px" : "500px" }}
+                />
+              </div>
+            </div>
+          </div>
+
+        {/* 全屏预览覆盖层 */}
+        {isFullscreen && (
+          <div className="fixed inset-0 z-[100] bg-bg flex flex-col">
+            {/* 全屏工具栏 */}
+            <div className="flex items-center justify-between px-4 py-2 bg-bg2 border-b border-rule shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="font-outfit text-sm font-bold text-ink">{build.title}</span>
+                <div className="flex items-center gap-1 bg-bg3 rounded-lg border border-rule p-0.5">
+                  {(Object.entries(DEVICE_CONFIG) as [DeviceSize, typeof DEVICE_CONFIG[DeviceSize]][]).map(
+                    ([key, config]) => (
+                      <button
+                        key={key}
+                        onClick={() => setDeviceSize(key)}
+                        title={config.label}
+                        className={cn(
+                          "px-2.5 py-1 rounded-md text-xs font-medium transition flex items-center gap-1",
+                          deviceSize === key
+                            ? "bg-accent/15 text-accent"
+                            : "text-muted hover:text-ink",
+                        )}
+                      >
+                        <span>{config.icon}</span>
+                        <span className="hidden sm:inline">{config.label}</span>
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted/60">按 Esc 退出</span>
+                <button
+                  onClick={toggleFullscreen}
+                  className="px-3 py-1.5 rounded-lg bg-bg3 border border-rule text-xs text-ink hover:border-accent/50 transition"
+                >
+                  ✕ 退出全屏
+                </button>
+              </div>
+            </div>
+            {/* 全屏预览内容 */}
+            <div className="flex-1 flex justify-center items-start overflow-auto bg-white p-4">
+              <div
+                className="transition-all duration-200"
+                style={{ width: DEVICE_CONFIG[deviceSize].width }}
+              >
+                <div
+                  className={cn(
+                    "relative",
+                    deviceSize !== "desktop" && "shadow-lg border border-rule/30 rounded-lg overflow-hidden",
+                  )}
+                >
+                  <iframe
+                    srcDoc={previewDoc}
+                    title={build.title}
+                    sandbox="allow-scripts"
+                    className="w-full border-none"
+                    style={{
+                      height: deviceSize === "mobile"
+                        ? "calc(100vh - 80px)"
+                        : deviceSize === "tablet"
+                          ? "calc(100vh - 80px)"
+                          : "calc(100vh - 80px)",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
       ) : (
         <div className="rounded-xl overflow-hidden border border-rule bg-codebg">
           <div className="flex border-b border-rule bg-bg2">

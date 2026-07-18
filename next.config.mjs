@@ -1,6 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // 生产环境压缩（gzip/brotli），减少传输体积
+  compress: true,
+  // 移除 X-Powered-By 响应头，减少信息泄露
+  poweredByHeader: false,
+  // 优化包导入，减少 bundle 体积
+  experimental: {
+    optimizePackageImports: [
+      "framer-motion",
+      "react-markdown",
+      "zustand",
+    ],
+  },
   webpack: (config) => {
     config.resolve.fallback = { ...config.resolve.fallback, fs: false };
     return config;
