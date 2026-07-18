@@ -60,6 +60,11 @@ export default function ExerciseClient() {
   const [pendingBadges, setPendingBadges] = useState<Badge[]>([]);
   const [mobileTab, setMobileTab] = useState<"lesson" | "code">("lesson");
   const [pyodideStatus, setPyodideStatus] = useState<PyodideStatus>("idle");
+  // 参考答案折叠面板：仅当练习存在 solutionCode 且本次会话内已通过测试时才显示入口
+  // 用 state 而非 ref，确保按钮显示/隐藏能触发重渲染
+  const [showSolution, setShowSolution] = useState(false);
+  // 课程完成庆祝 modal：仅当本次完成导致该课程所有练习均 completed 时触发
+  const [showCourseComplete, setShowCourseComplete] = useState(false);
 
   // Python 练习：轮询 Pyodide 加载状态，用于显示加载/错误提示
   // 一旦进入 ready 或 error 终态即停止轮询，避免无谓的 re-render 与 CPU 消耗
@@ -158,6 +163,15 @@ export default function ExerciseClient() {
               .filter((b): b is Badge => !!b);
             if (newBadges.length > 0) setPendingBadges(newBadges);
           }
+          // 课程完成检测：本次完成后该课程所有练习均 completed 时，触发通关庆祝
+          // 仅在"首次完成"路径中触发，避免重复完成时反复弹窗
+          const allExercises = found.course.chapters.flatMap((c) => c.exercises);
+          const allDone =
+            allExercises.length > 0 &&
+            allExercises.every(
+              (e) => e.id === exerciseId || useUserStore.getState().progress.statuses[e.id] === "completed",
+            );
+          if (allDone) setShowCourseComplete(true);
         }
       }
     } finally {
@@ -311,6 +325,36 @@ export default function ExerciseClient() {
                 在右侧编辑器中完成练习。点击<strong className="text-success">检查</strong>验证你的答案，并赚取 <strong className="text-accent2">+{exercise.xpReward} XP</strong>。
               </p>
             </div>
+
+            {/* 参考答案折叠面板：仅当练习存在 solutionCode 且本次会话内已通过测试时才显示入口
+                这样既不剧透答案，也避免学习者卡死无解 */}
+            {exercise.solutionCode && checkResult?.passed && (
+              <div className="mt-4 rounded-lg border border-accent2/30 bg-accent2/5 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowSolution((v) => !v)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-sm font-bold text-accent2 hover:bg-accent2/10 transition"
+                  aria-expanded={showSolution}
+                  aria-controls="solution-panel"
+                >
+                  <span>💡 查看参考答案</span>
+                  <span
+                    className={cn("text-xs transition-transform", showSolution && "rotate-180")}
+                    aria-hidden="true"
+                  >
+                    ▼
+                  </span>
+                </button>
+                {showSolution && (
+                  <pre
+                    id="solution-panel"
+                    className="px-4 pb-4 pt-1 text-xs font-mono text-ink overflow-x-auto whitespace-pre-wrap leading-relaxed border-t border-accent2/20 bg-bg/40"
+                  >
+                    {exercise.solutionCode}
+                  </pre>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -389,6 +433,61 @@ export default function ExerciseClient() {
         badges={pendingBadges}
         onDismiss={() => setPendingBadges((prev) => prev.slice(1))}
       />
+
+      {/* 课程通关庆祝 modal：仅在本次完成导致该课程所有练习均 completed 时触发
+          点击遮罩关闭、提供"返回课程目录"和"探索更多课程"两个出口 */}
+      {showCourseComplete && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowCourseComplete(false);
+          }}
+          role="presentation"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="course-complete-title"
+            className="bg-bg2 border border-accent rounded-xl p-6 sm:p-8 max-w-md w-full text-center shadow-card"
+          >
+            <div className="text-6xl mb-4" aria-hidden="true">🏆</div>
+            <h2
+              id="course-complete-title"
+              className="font-outfit text-2xl font-bold mb-2 gradient-text"
+            >
+              课程通关！
+            </h2>
+            <p className="text-muted mb-6 text-sm leading-relaxed">
+              恭喜你完成了 <span className="text-ink font-semibold">{course.title}</span> 的全部练习！
+              <br />
+              继续探索其他课程，巩固你的编程能力。
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Link
+                href={`/${course.slug}`}
+                className="px-4 py-2 rounded-lg border border-rule text-sm text-ink hover:border-accent hover:text-accent transition"
+                onClick={() => setShowCourseComplete(false)}
+              >
+                返回课程目录
+              </Link>
+              <Link
+                href="/courses"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent to-accent2 text-white text-sm font-semibold hover:shadow-glow transition"
+                onClick={() => setShowCourseComplete(false)}
+              >
+                探索更多课程 →
+              </Link>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCourseComplete(false)}
+              className="mt-4 text-xs text-muted hover:text-ink transition"
+            >
+              继续留在这里
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

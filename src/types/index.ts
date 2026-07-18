@@ -91,6 +91,8 @@ export interface Build {
   forkedFrom?: string;
   viewCount: number;
   likeCount: number;
+  /** 当前用户是否已点赞（本地状态，与 likeCount 同步维护） */
+  likedByMe?: boolean;
   createdAt: string;
 }
 
@@ -103,6 +105,8 @@ export interface PostComment {
   authorAvatar: string;
   content: string;
   likeCount: number;
+  /** 当前用户是否已点赞（本地状态，与 likeCount 同步维护） */
+  likedByMe?: boolean;
   createdAt: string;
 }
 

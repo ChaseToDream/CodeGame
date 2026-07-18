@@ -9,6 +9,7 @@ import { formatNumber, timeAgo, getBuildIcon } from "@/lib/utils";
 export default function BuildsGalleryPage() {
   const builds = useUserStore((s) => s.builds);
   const user = useUserStore((s) => s.user);
+  const toggleBuildLike = useUserStore((s) => s.toggleBuildLike);
   const [sort, setSort] = useState<"top" | "newest">("top");
   const [showOnlyMine, setShowOnlyMine] = useState(false);
 
@@ -108,9 +109,31 @@ export default function BuildsGalleryPage() {
                   <span className="text-[11px] text-muted truncate">@{b.authorName}</span>
                   <span className="text-[11px] text-muted ml-auto">{timeAgo(b.createdAt)}</span>
                 </div>
-                <div className="mt-2 pt-2 border-t border-rule flex justify-between text-[11px] text-muted">
-                  <span>❤️ {b.likeCount}</span>
-                  <span>👁 {formatNumber(b.viewCount)}</span>
+                <div className="mt-2 pt-2 border-t border-rule flex justify-between items-center text-[11px]">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleBuildLike(b.id);
+                    }}
+                    className={
+                      b.likedByMe
+                        ? "text-accent2 font-semibold flex items-center gap-1 hover:scale-105 transition"
+                        : "text-muted hover:text-accent2 flex items-center gap-1 transition"
+                    }
+                    aria-pressed={b.likedByMe ?? false}
+                    aria-label={b.likedByMe ? "取消点赞" : "点赞作品"}
+                  >
+                    <span>❤️</span>
+                    <span>{b.likeCount}</span>
+                  </button>
+                  <Link
+                    href={`/builds/${b.id}`}
+                    className="text-muted hover:text-ink flex items-center gap-1"
+                  >
+                    👁 {formatNumber(b.viewCount)}
+                  </Link>
                 </div>
               </div>
             </Link>

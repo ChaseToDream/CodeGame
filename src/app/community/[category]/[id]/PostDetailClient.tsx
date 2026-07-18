@@ -19,11 +19,12 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export default function PostDetailClient() {
   const params = useParams<{ category: string; id: string }>();
-  const { posts, togglePostLike, addComment, user, builds } = useUserStore(
+  const { posts, togglePostLike, addComment, toggleCommentLike, user, builds } = useUserStore(
     useShallow((s) => ({
       posts: s.posts,
       togglePostLike: s.togglePostLike,
       addComment: s.addComment,
+      toggleCommentLike: s.toggleCommentLike,
       user: s.user,
       builds: s.builds,
     })),
@@ -166,7 +167,21 @@ export default function PostDetailClient() {
                     </div>
                     <p className="text-sm text-ink">{c.content}</p>
                   </div>
-                  <div className="mt-1 ml-2 text-[11px] text-muted">❤️ {c.likeCount}</div>
+                  <div className="mt-1 ml-2">
+                    <button
+                      onClick={() => toggleCommentLike(post.id, c.id)}
+                      className={cn(
+                        "text-[11px] flex items-center gap-1 transition",
+                        c.likedByMe
+                          ? "text-accent2 font-semibold"
+                          : "text-muted hover:text-accent2",
+                      )}
+                      aria-pressed={c.likedByMe ?? false}
+                      aria-label={c.likedByMe ? "取消点赞" : "点赞评论"}
+                    >
+                      ❤️ {c.likeCount}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))

@@ -21,7 +21,7 @@ const LANG_ICON: Record<string, string> = { html: "📄", css: "🎨", js: "⚡"
 export default function BuildDetailClient() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { builds, forkBuild, incrementBuildView } = useUserStore(useShallow((s) => ({ builds: s.builds, forkBuild: s.forkBuild, incrementBuildView: s.incrementBuildView })));
+  const { builds, forkBuild, incrementBuildView, toggleBuildLike } = useUserStore(useShallow((s) => ({ builds: s.builds, forkBuild: s.forkBuild, incrementBuildView: s.incrementBuildView, toggleBuildLike: s.toggleBuildLike })));
   const [activeFile, setActiveFile] = useState(0);
   const [view, setView] = useState<"preview" | "code">("preview");
 
@@ -97,11 +97,23 @@ export default function BuildDetailClient() {
             <span>{timeAgo(build.createdAt)}</span>
             <span>·</span>
             <span>👁 {formatNumber(build.viewCount)} 次浏览</span>
-            <span>·</span>
-            <span>❤️ {build.likeCount} 个赞</span>
           </div>
         </div>
         <div className="flex gap-2 shrink-0">
+          <button
+            onClick={() => toggleBuildLike(build.id)}
+            className={cn(
+              "px-4 py-2 rounded-lg border text-sm font-medium transition flex items-center gap-1.5",
+              build.likedByMe
+                ? "border-accent2 bg-accent2/10 text-accent2"
+                : "border-rule text-muted hover:text-accent2 hover:border-accent2/50",
+            )}
+            aria-pressed={build.likedByMe ?? false}
+            aria-label={build.likedByMe ? "取消点赞" : "点赞作品"}
+          >
+            <span>❤️</span>
+            <span>{build.likeCount}</span>
+          </button>
           <button
             onClick={handleFork}
             className="px-4 py-2 rounded-lg border border-rule text-sm text-ink hover:border-accent transition flex items-center gap-1.5"

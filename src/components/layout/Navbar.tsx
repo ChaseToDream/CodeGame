@@ -16,7 +16,12 @@ const NAV_LINKS = [
   { href: "/blog", label: "博客" },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  /** 顶部搜索按钮点击回调，由 Shell 提供以打开 GlobalSearch */
+  onOpenSearch?: () => void;
+}
+
+export function Navbar({ onOpenSearch }: NavbarProps) {
   const pathname = usePathname();
   // 字段级订阅：当 user 的其他字段（如 bio）变化时不触发 Navbar 重渲染
   const { xpTotal, level, streakDays, lastActiveDate, avatarGradient, username } = useUserStore(
@@ -104,6 +109,21 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
+          {/* 全局搜索触发按钮：与 ⌘K 快捷键等价 */}
+          <button
+            type="button"
+            onClick={() => onOpenSearch?.()}
+            className="ml-2 flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-muted hover:text-ink hover:bg-bg2 border border-rule transition"
+            aria-label="全局搜索"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path d="M7 2a5 5 0 104 8.06l3.27 3.27a.6.6 0 00.85-.85L11.85 9.5A5 5 0 007 2zm0 1.2a3.8 3.8 0 110 7.6 3.8 3.8 0 010-7.6z" />
+            </svg>
+            <span className="hidden lg:inline">搜索</span>
+            <kbd className="hidden lg:inline px-1 py-0.5 rounded border border-rule bg-bg3 text-[10px] text-muted/80">
+              ⌘K
+            </kbd>
+          </button>
         </div>
 
         {/* Right side */}
@@ -203,6 +223,17 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
+            {/* 移动端搜索按钮：移动端无 ⌘K，提供显式入口 */}
+            <button
+              type="button"
+              onClick={() => onOpenSearch?.()}
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-base font-medium text-ink hover:bg-bg3 transition"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M7 2a5 5 0 104 8.06l3.27 3.27a.6.6 0 00.85-.85L11.85 9.5A5 5 0 007 2zm0 1.2a3.8 3.8 0 110 7.6 3.8 3.8 0 010-7.6z" />
+              </svg>
+              搜索课程、作品、帖子…
+            </button>
             <div className="pt-2 border-t border-rule mt-2">
               <Link href="/dashboard" className="block px-3 py-2.5 text-ink">
                 仪表盘

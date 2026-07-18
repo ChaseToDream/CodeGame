@@ -193,6 +193,144 @@ describe("incrementBuildView", () => {
   });
 });
 
+describe("toggleBuildLike", () => {
+  it("首次点赞：likedByMe 置 true，likeCount +1", () => {
+    const store = useUserStore.getState();
+    const id = store.createBuild("likable", []);
+    const before = useUserStore.getState().builds.find((b) => b.id === id)!;
+    expect(before.likedByMe ?? false).toBe(false);
+    expect(before.likeCount).toBe(0);
+
+    store.toggleBuildLike(id);
+    const after = useUserStore.getState().builds.find((b) => b.id === id)!;
+    expect(after.likedByMe).toBe(true);
+    expect(after.likeCount).toBe(1);
+  });
+
+  it("再次点击取消点赞：likedByMe 置 false，likeCount -1", () => {
+    const store = useUserStore.getState();
+    const id = store.createBuild("likable2", []);
+    store.toggleBuildLike(id);
+    store.toggleBuildLike(id);
+    const after = useUserStore.getState().builds.find((b) => b.id === id)!;
+    expect(after.likedByMe).toBe(false);
+    expect(after.likeCount).toBe(0);
+  });
+
+  it("likeCount 不会减到负数（边界保护）", () => {
+    const store = useUserStore.getState();
+    const id = store.createBuild("likable3", []);
+    // 直接 updateBuild 设为 0 后再取消（虽然 likedByMe 为 false，但保证 Math.max 保护）
+    store.updateBuild(id, { likeCount: 0 });
+    store.toggleBuildLike(id); // 点赞 +1
+    store.toggleBuildLike(id); // 取消 -1，回到 0
+    store.toggleBuildLike(id); // 再次点赞 +1
+    const after = useUserStore.getState().builds.find((b) => b.id === id)!;
+    expect(after.likeCount).toBe(1);
+    expect(after.likedByMe).toBe(true);
+  });
+
+  it("对 store 中不存在的 id（种子作品）为空操作，不抛错", () => {
+    const before = useUserStore.getState().builds;
+    useUserStore.getState().toggleBuildLike("nonexistent-build-id");
+    expect(useUserStore.getState().builds).toBe(before);
+  });
+
+  it("不影响其他作品（按 id 精确定位）", () => {
+    const store = useUserStore.getState();
+    const idA = store.createBuild("A", []);
+    const idB = store.createBuild("B", []);
+    store.toggleBuildLike(idA);
+    const after = useUserStore.getState();
+    expect(after.builds.find((b) => b.id === idA)!.likedByMe).toBe(true);
+    expect(after.builds.find((b) => b.id === idB)!.likedByMe ?? false).toBe(false);
+  });
+});
+
+describe("toggleCommentLike", () => {
+  it("首次点赞：likedByMe 置 true，likeCount +1", () => {
+    const store = useUserStore.getState();
+    const postId = store.createPost({
+      category: "general",
+      title: "hi",
+      content: "hello",
+      isStaffPick: false,
+    });
+    store.addComment(postId, "nice");
+    const post = useUserStore.getState().posts.find((p) => p.id === postId)!;
+    const commentId = post.comments[0].id;
+    expect(post.comments[0].likedByMe ?? false).toBe(false);
+    expect(post.comments[0].likeCount).toBe(0);
+
+    store.toggleCommentLike(postId, commentId);
+    const afterPost = useUserStore.getState().posts.find((p) => p.id === postId)!;
+    const afterComment = afterPost.comments.find((c) => c.id === commentId)!;
+    expect(afterComment.likedByMe).toBe(true);
+    expect(afterComment.likeCount).toBe(1);
+  });
+
+  it("再次点击取消点赞", () => {
+    const store = useUserStore.getState();
+    const postId = store.createPost({
+      category: "general",
+      title: "hi",
+      content: "hello",
+      isStaffPick: false,
+    });
+    store.addComment(postId, "nice");
+    const post = useUserStore.getState().posts.find((p) => p.id === postId)!;
+    const commentId = post.comments[0].id;
+
+    store.toggleCommentLike(postId, commentId);
+    store.toggleCommentLike(postId, commentId);
+    const afterComment = useUserStore
+      .getState()
+      .posts.find((p) => p.id === postId)!
+      .comments.find((c) => c.id === commentId)!;
+    expect(afterComment.likedByMe).toBe(false);
+    expect(afterComment.likeCount).toBe(0);
+  });
+
+  it("对不存在的 postId / commentId 为空操作，不抛错", () => {
+    const before = useUserStore.getState().posts;
+    useUserStore.getState().toggleCommentLike("nonexistent-post", "nonexistent-comment");
+    expect(useUserStore.getState().posts).toBe(before);
+
+    // 存在的 postId + 不存在的 commentId 也不抛错
+    const store = useUserStore.getState();
+    const postId = store.createPost({
+      category: "general",
+      title: "hi",
+      content: "hello",
+      isStaffPick: false,
+    });
+    const before2 = useUserStore.getState().posts;
+    useUserStore.getState().toggleCommentLike(postId, "nonexistent-comment");
+    // posts 引用不变说明 set 未触发
+    expect(useUserStore.getState().posts).toBe(before2);
+  });
+
+  it("不影响同帖其他评论", () => {
+    const store = useUserStore.getState();
+    const postId = store.createPost({
+      category: "general",
+      title: "hi",
+      content: "hello",
+      isStaffPick: false,
+    });
+    store.addComment(postId, "first");
+    store.addComment(postId, "second");
+    const post = useUserStore.getState().posts.find((p) => p.id === postId)!;
+    const c1 = post.comments[0].id;
+    const c2 = post.comments[1].id;
+
+    store.toggleCommentLike(postId, c1);
+    const afterPost = useUserStore.getState().posts.find((p) => p.id === postId)!;
+    expect(afterPost.comments.find((c) => c.id === c1)!.likedByMe).toBe(true);
+    expect(afterPost.comments.find((c) => c.id === c2)!.likedByMe ?? false).toBe(false);
+  });
+});
+
 describe("createPost / togglePostLike / addComment", () => {
   it("createPost 发放 10 XP", () => {
     const store = useUserStore.getState();

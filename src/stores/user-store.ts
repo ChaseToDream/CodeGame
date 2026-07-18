@@ -32,11 +32,16 @@ interface UserStoreState {
   forkBuild: (id: string) => string | null;
   /** 浏览量 +1。仅对存在于本地 store 的作品生效（种子作品为静态数据，不持久化） */
   incrementBuildView: (id: string) => void;
+  /** 切换作品点赞状态。仅对存在于本地 store 的作品生效；
+   *  种子作品为静态数据，点赞不持久化，但 UI 仍可即时反馈 */
+  toggleBuildLike: (id: string) => void;
 
   // community
   createPost: (post: Omit<CommunityPost, "id" | "createdAt" | "likeCount" | "commentCount" | "comments" | "userId" | "authorName" | "authorAvatar" | "authorLevel">) => string;
   togglePostLike: (postId: string) => void;
   addComment: (postId: string, content: string) => void;
+  /** 切换评论点赞状态。仅对存在于本地 store 的评论生效 */
+  toggleCommentLike: (postId: string, commentId: string) => void;
 
   // profile
   updateUser: (patch: Partial<User>) => void;
@@ -311,6 +316,26 @@ export const useUserStore = create<UserStoreState>()(
         });
       },
 
+      toggleBuildLike: (id) => {
+        const state = get();
+        // 与 incrementBuildView 不同：点赞对所有本地 store 中的作品都生效
+        // （包括用户从 fork 来源派生的作品，以及用户自己创建的）。
+        // 种子作品的点赞不会持久化（不在 store 中），UI 层负责即时反馈。
+        const target = state.builds.find((b) => b.id === id);
+        if (!target) return;
+        set({
+          builds: state.builds.map((b) => {
+            if (b.id !== id) return b;
+            const liked = !b.likedByMe;
+            return {
+              ...b,
+              likedByMe: liked,
+              likeCount: Math.max(0, b.likeCount + (liked ? 1 : -1)),
+            };
+          }),
+        });
+      },
+
       createPost: (post) => {
         const state = get();
         const id = genId("p");
@@ -368,6 +393,33 @@ export const useUserStore = create<UserStoreState>()(
             };
           }),
           user: awardXp(state.user, 5),
+        });
+      },
+
+      toggleCommentLike: (postId, commentId) => {
+        const state = get();
+        // 仅对存在于本地 store 的帖子中的评论生效；种子帖子的评论点赞不持久化
+        const post = state.posts.find((p) => p.id === postId);
+        if (!post) return;
+        const comment = post.comments.find((c) => c.id === commentId);
+        // 评论不存在时提前返回，避免无意义的 set（导致 posts 引用变更、触发订阅与持久化）
+        if (!comment) return;
+        set({
+          posts: state.posts.map((p) => {
+            if (p.id !== postId) return p;
+            return {
+              ...p,
+              comments: p.comments.map((c) => {
+                if (c.id !== commentId) return c;
+                const liked = !c.likedByMe;
+                return {
+                  ...c,
+                  likedByMe: liked,
+                  likeCount: Math.max(0, c.likeCount + (liked ? 1 : -1)),
+                };
+              }),
+            };
+          }),
         });
       },
 
